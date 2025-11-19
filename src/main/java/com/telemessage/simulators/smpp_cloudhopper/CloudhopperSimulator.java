@@ -120,6 +120,16 @@ public class CloudhopperSimulator implements Simulator {
     }
 
     /**
+     * Backward compatibility method for legacy controllers.
+     * Returns the SMPP connections configuration.
+     *
+     * @return SMPPConnections configuration object
+     */
+    public SMPPConnections getConns() {
+        return smppConnections;
+    }
+
+    /**
      * Post-construct initialization.
      * Loads configuration from smpps.xml and prepares connection managers.
      */
