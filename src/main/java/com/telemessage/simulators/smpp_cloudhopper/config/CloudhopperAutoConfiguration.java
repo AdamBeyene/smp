@@ -61,12 +61,12 @@ public class CloudhopperAutoConfiguration {
     }
 
     /**
-     * Creates the main Cloudhopper SMPP simulator bean.
+     * Creates the CloudhopperSimulator bean (main SMPP simulator).
      *
-     * <p>This is the primary service that orchestrates all SMPP connections,
-     * manages sessions, and handles message routing.</p>
+     * <p>This is the modern Cloudhopper implementation that replaces the legacy
+     * SMPPSimulator when cloudhopper.enabled=true.</p>
      *
-     * @param properties CloudhopperProperties configuration
+     * @param properties Cloudhopper configuration properties
      * @param envConfig Environment configuration
      * @param messagesCache Shared message cache service
      * @return Configured CloudhopperSimulator instance
@@ -76,13 +76,14 @@ public class CloudhopperAutoConfiguration {
             CloudhopperProperties properties,
             EnvConfiguration envConfig,
             MessagesCache messagesCache) {
+
         log.info("Creating CloudhopperSimulator bean with configuration:");
-        log.info("  - Connection Timeout: {}ms", properties.getConnectionTimeoutMs());
-        log.info("  - Bind Timeout: {}ms", properties.getBindTimeoutMs());
-        log.info("  - Window Size: {}", properties.getWindowSize());
-        log.info("  - Max Connections: {}", properties.getMaxConnectionSize());
-        log.info("  - Non-Blocking Sockets: {}", properties.getNonBlockingSocketsEnabled());
-        log.info("  - JMX Enabled: {}", properties.getJmxEnabled());
+        log.info("  - Connection Timeout: {}ms", properties.getConfig().getConnectionTimeoutMs());
+        log.info("  - Bind Timeout: {}ms", properties.getConfig().getBindTimeoutMs());
+        log.info("  - Window Size: {}", properties.getConfig().getWindowSize());
+        log.info("  - Max Connections: {}", properties.getConfig().getMaxConnections());
+        log.info("  - Non-Blocking Sockets: {}", properties.getConfig().getNonBlockingSockets());
+        log.info("  - JMX Enabled: {}", properties.getConfig().getJmxEnabled());
 
         return new CloudhopperSimulator(properties, envConfig, messagesCache);
     }
@@ -168,35 +169,5 @@ public class CloudhopperAutoConfiguration {
     @Bean(name = "asyncExecutor")
     public Executor asyncExecutor(ThreadPoolTaskExecutor cloudhopperExecutor) {
         return cloudhopperExecutor;
-    }
-
-    /**
-     * Creates the CloudhopperSimulator bean (main SMPP simulator).
-     *
-     * <p>This is the modern Cloudhopper implementation that replaces the legacy
-     * SMPPSimulator when cloudhopper.enabled=true.</p>
-     *
-     * @param properties Cloudhopper configuration properties
-     * @param envConfig Environment configuration
-     * @param messagesCache Shared message cache service
-     * @return Configured CloudhopperSimulator instance
-     */
-    @Bean(name = "smppSimulator")
-    public CloudhopperSimulator cloudhopperSimulator(
-            CloudhopperProperties properties,
-            EnvConfiguration envConfig,
-            MessagesCache messagesCache) {
-
-        log.info("Creating CloudhopperSimulator bean with configuration:");
-        log.info("  - Connection Timeout: {}ms", properties.getConfig().getConnectionTimeoutMs());
-        log.info("  - Bind Timeout: {}ms", properties.getConfig().getBindTimeoutMs());
-        log.info("  - Window Size: {}", properties.getConfig().getWindowSize());
-        log.info("  - Max Connections: {}", properties.getConfig().getMaxConnections());
-        log.info("  - Non-Blocking Sockets: {}", properties.getConfig().getNonBlockingSockets());
-        log.info("  - JMX Enabled: {}", properties.getConfig().getJmxEnabled());
-
-        CloudhopperSimulator simulator = new CloudhopperSimulator(properties, envConfig, messagesCache);
-
-        return simulator;
     }
 }
