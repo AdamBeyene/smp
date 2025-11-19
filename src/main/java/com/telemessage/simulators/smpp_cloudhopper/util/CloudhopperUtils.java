@@ -8,7 +8,6 @@ import com.cloudhopper.smpp.tlv.TlvConvertException;
 import com.cloudhopper.smpp.type.Address;
 import com.cloudhopper.smpp.type.SmppInvalidArgumentException;
 import com.telemessage.simulators.smpp.SimUtils;
-import com.telemessage.simulators.smpp.concatenation.ConcatenationType;
 import com.telemessage.simulators.smpp.concatenation.ConcatenationData;
 import com.telemessage.simulators.smpp_cloudhopper.concatenation.CloudhopperConcatenationType;
 import lombok.extern.slf4j.Slf4j;
@@ -174,7 +173,8 @@ public final class CloudhopperUtils {
      * @param concatenationType Concatenation type (UDHI, SAR, etc.)
      * @return List of message parts
      */
-    public static List<String> splitMessage(String text, String encoding, ConcatenationType concatenationType) {
+    public static List<String> splitMessage(String text, String encoding,
+            CloudhopperConcatenationType concatenationType) {
         List<String> parts = new ArrayList<>();
 
         if (text == null || text.isEmpty()) {
@@ -185,7 +185,7 @@ public final class CloudhopperUtils {
         int maxPartLength = isUnicode ? MAX_CONCAT_UNICODE : MAX_CONCAT_ASCII;
 
         // For PAYLOAD type, send as single part with message_payload TLV
-        if (concatenationType == com.telemessage.simulators.smpp.concatenation.ConcatenationType.PAYLOAD) {
+        if (concatenationType == CloudhopperConcatenationType.PAYLOAD) {
             parts.add(text);
             return parts;
         }
@@ -223,13 +223,13 @@ public final class CloudhopperUtils {
      * Internal wrapper for concatenation data with message content.
      */
     public static class ConcatPart {
-        public final ConcatenationType type;
+        public final CloudhopperConcatenationType type;
         public final int reference;
         public final int totalParts;
         public final int partNumber;
         public final byte[] content;
 
-        public ConcatPart(ConcatenationType type, int reference, int totalParts, int partNumber, byte[] content) {
+        public ConcatPart(CloudhopperConcatenationType type, int reference, int totalParts, int partNumber, byte[] content) {
             this.type = type;
             this.reference = reference;
             this.totalParts = totalParts;
@@ -267,7 +267,7 @@ public final class CloudhopperUtils {
             Tlv payloadTlv = deliverSm.getOptionalParameter(TLV_MESSAGE_PAYLOAD);
             if (payloadTlv != null) {
                 return new ConcatPart(
-                    ConcatenationType.PAYLOAD,
+                    CloudhopperConcatenationType.PAYLOAD,
                     0, // No reference for payload
                     1, // Single part
                     1, // Part 1
@@ -325,7 +325,7 @@ public final class CloudhopperUtils {
                     actualText.length() > 50 ? actualText.substring(0, 50) + "..." : actualText);
 
                 return new ConcatPart(
-                    ConcatenationType.TEXT_BASE,
+                    CloudhopperConcatenationType.TEXT_BASE,
                     referenceNumber,
                     totalParts,
                     partNumber,
@@ -401,7 +401,7 @@ public final class CloudhopperUtils {
             System.arraycopy(messageBytes, udhLength + 1, content, 0, content.length);
 
             return new ConcatPart(
-                ConcatenationType.UDHI,
+                CloudhopperConcatenationType.UDHI,
                 reference,
                 totalParts,
                 partNumber,
@@ -434,7 +434,7 @@ public final class CloudhopperUtils {
             int partNumber = seqTlv.getValueAsUnsignedByte();
 
             return new ConcatPart(
-                ConcatenationType.SAR,
+                CloudhopperConcatenationType.SAR,
                 reference,
                 totalParts,
                 partNumber,

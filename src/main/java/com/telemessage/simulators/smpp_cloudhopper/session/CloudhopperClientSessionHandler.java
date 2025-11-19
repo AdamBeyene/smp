@@ -316,7 +316,7 @@ public class CloudhopperClientSessionHandler extends DefaultSmppSessionHandler {
         concatenationLocks.remove(reference);
 
         log.info("Complete concatenated message assembled: msgId={}, parts={}, text={}",
-            messageId, partsMap.size(), completeText.substring(0, Math.min(20, completeText.length())));
+            messageId, partsMap.size(), fullText.substring(0, Math.min(20, fullText.length())));
 
         // Create response
         DeliverSmResp response = deliverSm.createResponse();
