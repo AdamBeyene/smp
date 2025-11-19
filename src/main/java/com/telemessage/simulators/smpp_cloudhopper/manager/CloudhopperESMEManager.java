@@ -209,9 +209,9 @@ public class CloudhopperESMEManager implements CloudhopperConnectionManager {
         // System type
         sessionConfig.setSystemType(properties.getSession().getDefaultSystemType());
 
-        // Logging
-        sessionConfig.setLogPduEnabled(properties.getSession().getLogPduEnabled());
-        sessionConfig.setLogBytesEnabled(properties.getSession().getLogBytesEnabled());
+        // Logging (use LoggingOptions)
+        sessionConfig.getLoggingOptions().setLogPdu(properties.getSession().getLogPduEnabled());
+        sessionConfig.getLoggingOptions().setLogBytes(properties.getSession().getLogBytesEnabled());
 
         log.debug("Session configuration: bindType={}, host={}:{}, systemId={}, windowSize={}",
             bindType, host, port, systemId, properties.getWindowSize());
@@ -226,8 +226,8 @@ public class CloudhopperESMEManager implements CloudhopperConnectionManager {
         if (config.getTransceiver() != null) {
             return SmppBindType.TRANSCEIVER;
         } else if (config.getTransmitter() != null) {
-            String bindOption = config.getTransmitter().getBindOption();
-            if ("receiver".equalsIgnoreCase(bindOption)) {
+            com.telemessage.simulators.smpp.SMPPConnection.BindOption bindOption = config.getTransmitter().getBindOption();
+            if (bindOption == com.telemessage.simulators.smpp.SMPPConnection.BindOption.receiver) {
                 return SmppBindType.RECEIVER;
             } else {
                 return SmppBindType.TRANSMITTER;
@@ -247,24 +247,28 @@ public class CloudhopperESMEManager implements CloudhopperConnectionManager {
             // Create submit_sm PDU
             SubmitSm submitSm = new SubmitSm();
 
+            // Determine source TON/NPI (alphanumeric vs numeric)
+            byte srcTon = SmppConstants.TON_ALPHANUMERIC;
+            byte srcNpi = SmppConstants.NPI_UNKNOWN;
+            String src = request.getSrc();
+            if (src != null && src.matches("^[0-9+]+$")) {
+                // Numeric address
+                srcTon = SmppConstants.TON_INTERNATIONAL;
+                srcNpi = SmppConstants.NPI_E164;
+            }
+
+            // Determine destination TON/NPI
+            byte dstTon = SmppConstants.TON_INTERNATIONAL;
+            byte dstNpi = SmppConstants.NPI_E164;
+
             // Set source address
-            submitSm.setSourceAddress(CloudhopperUtils.createAddress(
-                (byte) request.getSrcTon(),
-                (byte) request.getSrcNpi(),
-                request.getSrc()
-            ));
+            submitSm.setSourceAddress(CloudhopperUtils.createAddress(srcTon, srcNpi, src));
 
             // Set destination address
-            submitSm.setDestAddress(CloudhopperUtils.createAddress(
-                (byte) request.getDstTon(),
-                (byte) request.getDstNpi(),
-                request.getDst()
-            ));
+            submitSm.setDestAddress(CloudhopperUtils.createAddress(dstTon, dstNpi, request.getDst()));
 
-            // Set message text and encoding
-            String encoding = request.getEncoding() != null
-                ? request.getEncoding()
-                : "GSM7";
+            // Set message text and encoding (default to GSM7)
+            String encoding = "GSM7";
             byte[] messageBytes = CloudhopperUtils.encodeMessage(request.getText(), encoding);
             submitSm.setShortMessage(messageBytes);
             submitSm.setDataCoding(CloudhopperUtils.getDataCoding(encoding));
