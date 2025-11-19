@@ -1,0 +1,589 @@
+/* Theme color variables for gradients */
+:root {
+    /* Light theme RGB values for gradient backgrounds */
+    --color-surface-rgb: 255, 255, 255;
+    --color-background-rgb: 245, 245, 245;
+}
+
+/* Dark theme */
+.dark-theme {
+    --color-surface-rgb: 36, 36, 36;
+    --color-background-rgb: 18, 18, 18;
+}
+
+.header {
+    /* Match sftp page header style */
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+    font-size: 1.5rem;
+    font-weight: 700;
+    padding: 18px 32px;
+    margin-bottom: 0;
+    border-radius: 0;
+    letter-spacing: 1px;
+    text-align: left;
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+.main-content {
+    /* Match sftp page: remove padding, use flex column, background, etc. */
+    padding: 0;
+    background: var(--color-background);
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 0;
+    overflow: auto; /* Changed from hidden back to auto to allow scrolling */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    height: 100%; /* Ensure it takes full height */
+}
+.sticky-controls {
+    position: sticky;
+    top: 0;
+    z-index: 20; /* Increase z-index to be higher than table headers */
+    background: var(--color-surface);
+    box-shadow: 0 2px 8px var(--color-shadow);
+    border-bottom: 1px solid var(--color-border);
+}
+.unified-controls-container {
+    /* Match sftp page controls bar */
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 0;
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: flex-start;
+    gap: 24px;
+    display: flex;
+    padding: 16px 24px 8px 24px;
+    margin-top: 0;
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+/* Message Actions Section Styles */
+.message-actions-section {
+    width: 100%;
+    padding: 16px;
+    margin-top: 12px;
+    border-top: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-height: 50vh;
+    overflow: auto;
+    position: relative;
+    z-index: 25;
+    /* Remove the linear-gradient that doesn't adapt well to dark mode */
+    background-color: var(--color-surface);
+    /* Add a subtle overlay that works in both light and dark modes */
+    box-shadow: inset 0 0 0 1000px rgba(255, 255, 255, 0.05);
+    /* Keep the blur effect */
+    backdrop-filter: blur(4px);
+}
+
+/* Style the scrollbar for better appearance */
+.message-actions-section::-webkit-scrollbar {
+    width: 8px;
+}
+
+.message-actions-section::-webkit-scrollbar-track {
+    background: var(--color-background);
+}
+
+.message-actions-section::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 4px;
+}
+
+.message-actions-section::-webkit-scrollbar-thumb:hover {
+    background: var(--color-text-secondary);
+}
+
+.actions-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    margin-bottom: 16px;
+    position: sticky;
+    top: 0;
+    /* Match the background to the section background */
+    background-color: var(--color-surface);
+    box-shadow: inset 0 0 0 1000px rgba(255, 255, 255, 0.05);
+    padding: 8px 0;
+    z-index: 5;
+    border-bottom: 1px solid var(--color-border);
+    backdrop-filter: blur(8px);
+}
+
+/* Side Menu Action Buttons */
+.side-menu-actions {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.side-menu-actions .action-btn {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    border-radius: 4px;
+    color: var(--color-text-primary);
+    background: transparent;
+    cursor: pointer;
+    transition: background 0.2s;
+    border: none;
+    text-align: left;
+    font-size: 14px;
+}
+
+.side-menu-actions .action-btn:hover {
+    background: var(--color-hover);
+}
+
+.side-menu-actions .action-btn.active {
+    background: var(--color-hover);
+    color: var(--color-accent);
+}
+
+/* Actions Form Area */
+.actions-panel {
+    display: none;
+    padding: 16px 24px;
+    background: var(--color-background);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.actions-panel.active {
+    display: block;
+}
+
+.action-form {
+    display: none;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+}
+
+.action-form.active {
+    display: block;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+    color: var(--color-text-primary);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    padding: 8px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+    font-size: 14px;
+}
+
+.form-group .unified-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    background-color: var(--color-surface);
+    color: var(--color-text-primary);
+    font-size: 14px;
+}
+
+.form-group textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.form-group textarea.unified-input {
+    min-height: 80px;
+    resize: vertical;
+}
+
+.form-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.form-buttons button {
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s, opacity 0.2s;
+}
+
+.unified-button {
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.form-buttons .send-btn {
+    background: var(--color-primary);
+    color: white;
+    border: none;
+}
+
+.unified-button-primary {
+    background-color: var(--color-primary);
+    color: white;
+    border: none;
+}
+
+.form-buttons .send-btn:hover {
+    opacity: 0.9;
+}
+
+.unified-button-primary:hover {
+    opacity: 0.9;
+}
+
+.form-buttons .cancel-btn {
+    background: transparent;
+    color: var(--color-text-secondary);
+    border: 1px solid var(--color-border);
+}
+
+.unified-button-secondary {
+    background-color: transparent;
+    color: var(--color-text-secondary);
+    border: 1px solid var(--color-border);
+}
+
+.form-buttons .cancel-btn:hover {
+    background: var(--color-hover);
+}
+
+.unified-button-secondary:hover {
+    background-color: var(--color-hover);
+}
+
+.unified-button-danger {
+    background-color: var(--color-danger, #d9534f);
+    color: white;
+    border: none;
+}
+
+.unified-button-danger:hover {
+    opacity: 0.9;
+}
+
+/* Update cancel button to have red text */
+#close-action-btn {
+    color: var(--color-danger, #d9534f);
+    border-color: var(--color-danger, #d9534f);
+}
+
+#close-action-btn:hover {
+    background-color: rgba(217, 83, 79, 0.1);
+}
+
+/* Warning text */
+.warning-text {
+    color: var(--color-danger, #d9534f);
+    font-weight: 500;
+}
+
+/* Response Area */
+.response-container {
+    margin-top: 16px;
+    padding: 16px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    display: none;
+}
+
+.response-container.active {
+    display: block;
+}
+
+.response-header {
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.response-body {
+    white-space: pre-wrap;
+    font-family: monospace;
+    font-size: 14px;
+    overflow-x: auto;
+}
+
+.action-response-area {
+    display: none;
+    margin-top: 20px;
+    padding: 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    background-color: var(--color-surface);
+    max-height: 200px;
+    overflow: auto;
+}
+
+.action-response-area .response-header {
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.action-response-area pre {
+    white-space: pre-wrap;
+    font-family: monospace;
+    font-size: 14px;
+    overflow-x: hidden;
+}
+
+.action-response-area.success {
+    border-left: 4px solid var(--color-success, #5cb85c);
+}
+
+.action-response-area.error {
+    border-left: 4px solid var(--color-danger, #d9534f);
+}
+
+.action-response-area.loading {
+    border-left: 4px solid var(--color-primary);
+}
+
+/* Side menu actions */
+.sidebar-section {
+    margin-bottom: 24px;
+}
+
+.sidebar-heading {
+    font-weight: 600;
+    font-size: 14px;
+    padding: 12px 16px 8px;
+    color: var(--color-text-secondary);
+}
+
+.sidebar-heading.collapsible {
+    cursor: pointer;
+    position: relative;
+}
+
+.sidebar-heading.collapsible .arrow {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: transform 0.3s;
+}
+
+.sidebar-heading.collapsible .arrow:before {
+    content: '▸';
+    display: inline-block;
+}
+
+.sidebar-heading.collapsible .arrow.down:before {
+    content: '▾';
+}
+
+.sidebar-group {
+    transition: height 0.3s, opacity 0.3s;
+    overflow: hidden;
+}
+
+.sidebar-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    color: var(--color-text-primary);
+    text-decoration: none;
+    transition: background-color 0.2s;
+    border-radius: 4px;
+    margin: 0 8px;
+}
+
+.sidebar-item:hover {
+    background-color: var(--color-hover);
+}
+
+.sidebar-item i {
+    margin-right: 8px;
+    width: 16px;
+    text-align: center;
+}
+
+/* Force 'Dir' column narrow (3rd column) */
+#data-table th:nth-child(3),
+#data-table td:nth-child(3) {
+    width: 60px !important;
+    min-width: 60px !important;
+    max-width: 60px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+/* Enable wrapping for Message Time (7th) and DR Time (12th) columns */
+#data-table th:nth-child(7),
+#data-table td:nth-child(7),
+#data-table th:nth-child(12),
+#data-table td:nth-child(12) {
+    white-space: break-spaces !important;
+    word-wrap: break-word !important;
+    word-break: break-all !important;
+}
+
+/* Add these styles at the end of the file */
+
+/* Message encoding display */
+.encoding-badge {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 3px;
+    background: var(--color-secondary);
+    color: var(--color-text-secondary);
+    font-size: 0.8em;
+    margin-left: 4px;
+    vertical-align: middle;
+}
+
+/* Binary data indicators */
+td[data-has-binary="true"] .truncated-cell::after {
+    content: " [BIN]";
+    font-size: 0.8em;
+    color: var(--color-primary);
+    vertical-align: super;
+}
+
+/* Tooltip enhancements for message content */
+.custom-tooltip {
+    font-family: monospace;
+    white-space: pre-wrap;
+    word-break: break-all;
+    max-height: 80vh;
+    overflow-y: auto;
+    padding: 12px !important;
+}
+
+/* Data encoding info in tooltip */
+.encoding-info {
+    background-color: var(--color-secondary);
+    color: var(--color-text-secondary);
+    padding: 2px 6px;
+    border-radius: 3px;
+    margin-bottom: 8px;
+    font-size: 0.85em;
+    display: block;
+}
+
+/* Enhance binary data display */
+.binary-data {
+    font-family: monospace;
+    overflow-x: auto;
+    white-space: pre;
+    background-color: rgba(0, 0, 0, 0.05);
+    padding: 8px;
+    border-radius: 4px;
+    margin-top: 8px;
+}
+
+body.dark-mode .binary-data {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Message encoding and binary data indicators */
+.encoding-badge {
+    display: inline-block;
+    padding: 1px 5px;
+    margin-left: 5px;
+    border-radius: 3px;
+    font-size: 0.7em;
+    background: var(--color-secondary);
+    color: var(--color-text-secondary);
+    vertical-align: middle;
+}
+
+/* Binary data indicator - fix the selector to match how it's used in Messages.html */
+td[data-has-binary="true"] .truncated-cell::after {
+    content: " [BIN]";
+    color: var(--color-primary);
+    font-size: 0.8em;
+    vertical-align: super;
+}
+
+/* Enhanced tooltip for message content */
+.custom-tooltip {
+    max-width: 80%;
+    max-height: 70vh;
+    overflow: auto;
+    padding: 15px;
+    font-family: monospace;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* Encoding info in tooltip */
+.encoding-info {
+    display: block;
+    margin-bottom: 10px;
+    padding: 4px 8px;
+    background-color: var(--color-secondary);
+    border-radius: 4px;
+    font-size: 0.85em;
+    color: var(--color-text-secondary);
+}
+
+/* Add styling for encoding badges */
+.encoding-badge {
+    display: inline-block;
+    padding: 1px 5px;
+    margin-left: 5px;
+    border-radius: 3px;
+    font-size: 0.7em;
+    background: var(--color-secondary);
+    color: var(--color-text-secondary);
+}
+
+.binary-indicator {
+    color: var(--color-primary);
+    font-weight: bold;
+    font-size: 0.8em;
+}
+
+.message-details {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.encoding-info-panel {
+    background-color: rgba(0, 0, 0, 0.05);
+    padding: 8px;
+    border-radius: 4px;
+    font-family: monospace;
+    margin-top: 5px;
+}

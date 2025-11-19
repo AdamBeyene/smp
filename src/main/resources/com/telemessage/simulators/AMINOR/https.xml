@@ -1,0 +1,45 @@
+<connections>
+    <connection id="1" impl="com.telemessage.simulators.http.cellcom.HttpConnectionHandler" method="get">
+        <name>Cellcom</name>
+        <!-- Delivered,Undeliverable,Expired,Deleted -->
+        <automatic_dr>Delivered</automatic_dr>
+        <direct_status>0</direct_status>
+        <dr_url><![CDATA[http://qaarthur-fe1.dev.telemessage.co.il:8080/servlet/DeliveryReport]]></dr_url>
+        <!-- in such case we add ip into header: X-Forwarded-For, so DeliveryReport will check DR there -->
+        <dr_from_ip>cellcomfrom.local</dr_from_ip>
+        <in_url><![CDATA[http://qaarthur-fe1.dev.telemessage.co.il:8080/servlet/CellcomIncomingMessage]]></in_url>
+        <threads>20</threads>
+    </connection>
+    <connection id="100" impl="com.telemessage.simulators.http.cellcom.HttpConnectionHandler" method="get">
+        <name>Cellcom</name>
+        <!-- Delivered,Undeliverable,Expired,Deleted -->
+        <automatic_dr>Delivered</automatic_dr>
+        <direct_status>0</direct_status>
+        <dr_url><![CDATA[http://qaarthur-fe2.dev.telemessage.co.il:8080/servlet/DeliveryReport]]></dr_url>
+        <!-- in such case we add ip into header: X-Forwarded-For, so DeliveryReport will check DR there -->
+        <dr_from_ip>cellcomfrom.local</dr_from_ip>
+        <in_url><![CDATA[http://qaarthur-fe2.dev.telemessage.co.il:8080/servlet/CellcomIncomingMessage]]></in_url>
+        <threads>20</threads>
+    </connection>
+    <connection id="1500" impl="com.telemessage.simulators.http.gcm.HttpConnectionHandler" method="post">
+        <name>Gcm</name>
+        <!--
+         QuotaExceeded
+         DeviceQuotaExceeded
+         MissingRegistration
+         InvalidRegistration
+         MismatchSenderId
+         NotRegistered
+         MessageTooBig
+         MissingCollapseKey
+         UnavailableWCTP
+		 Unavailable
+         InternalServerError
+         InvalidTtl
+         Error
+         success
+         -->
+        <direct_status>success</direct_status>
+        <threads>20</threads>
+    </connection>
+</connections>

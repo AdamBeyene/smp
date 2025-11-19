@@ -1,0 +1,24 @@
+<connections>
+    <connection id="1" impl="com.telemessage.simulators.http.cellcom.HttpConnectionHandler" method="get">
+        <name>Cellcom</name>
+        <!-- Delivered,Undeliverable,Expired,Deleted , Delivered,Sent-->
+        <automatic_dr>Sent</automatic_dr>
+        <direct_status>0</direct_status>
+        <dr_url><![CDATA[http://idmz1:8080/servlet/DeliveryReport]]></dr_url>
+        <!-- in such case we add ip into header: X-Forwarded-For, so DeliveryReport will check DR there -->
+        <dr_from_ip>cellcomfrom.local</dr_from_ip>
+        <in_url><![CDATA[http://idmz1:8080/servlet/CellcomIncomingMessage]]></in_url>
+        <threads>30</threads>
+    </connection>
+    <connection id="5" impl="com.telemessage.simulators.http.cellcom.HttpConnectionHandler" method="post">
+        <name>Cellcom for SMPP</name>
+        <!-- Delivered,Undeliverable,Expired,Deleted , Delivered,Sent-->
+        <automatic_dr>Sent</automatic_dr>
+        <direct_status>0</direct_status>
+        <dr_url><![CDATA[http://idmz1:8080/servlet/DeliveryReport]]></dr_url>
+        <!-- in such case we add ip into header: X-Forwarded-For, so DeliveryReport will check DR there -->
+        <dr_from_ip>cellcom5from.local</dr_from_ip>
+        <in_url><![CDATA[http://idmz1:8080/servlet/CellcomIncomingMessage]]></in_url>
+        <threads>30</threads>
+    </connection>
+</connections>

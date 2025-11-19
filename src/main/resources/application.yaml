@@ -1,0 +1,201 @@
+server:
+ port: ${PORT:8020}
+ compression:
+  enabled: true
+  min-response-size: 1024
+  mime-types: "text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json"
+ tomcat:
+  max-swallow-size: -1
+  max-http-form-post-size: -1
+  connection-timeout: 100000
+ jetty:
+  max-http-form-post-size: -1
+ servlet:
+  encoding:
+   charset: UTF-8
+   enabled: true
+#  max-threads: 1000
+
+
+spring:
+ jmx:
+  enabled: true
+ application:
+  name: SMPP_SIM
+ main:
+  allow-bean-definition-overriding: true
+ profiles:
+  group:
+   "be": "local,crndbe,qabe"
+   "keeper": "local,crnd,azure,qacharlie"
+
+ #   force-response: true
+ servlet:
+  multipart:
+   max-file-size: -1
+   max-request-size: -1
+ web:
+  resources:
+   add-mappings: true
+ thymeleaf:
+  prefix: classpath:/templates/
+  suffix: .html
+  mode: HTML
+  encoding: UTF-8
+  cache: false
+ boot:
+  admin:
+   context-path: /
+   client:
+    url: http://localhost:8020
+    enabled: true
+    auto-registration: true
+    instance:
+     management-base-url: http://localhost:9001/monitor  # Application's actuator URL
+     service-url: http://localhost:8020  # Application's service URL
+   server:
+    enabled: true
+  
+  # Spring AI MCP Configuration
+  ai:
+    mcp:
+      server:
+        name: ${spring.application.name}
+        version: 21.0
+        description: "SMPP Simulator MCP Server"
+        type: SYNC
+        capabilities:
+          tool: true
+          resource: true
+          prompt: true
+          completion: true
+
+sim:
+ env:
+  configurations:
+   local-shared-location: false
+   env-current: ${currentEnv:}
+   env-name: ${envName:}
+   env-url: ${envUrl:}
+   env-host: ${envHost:}
+   redis-enabled: ${redisEnabled:false}
+   redis-host: ${redisHost:redislab.telemessage.co.il}
+   redis-auth: ${redisAuth:3mr5tB5NEBYtrc8HZXrLrJbHNhtIazCjSvunGt3ZzwkypioD33gKMRHAl5tofMvhHfNFMaAerHO200YWh2aOaA0mFkA43vbPpW1ro70F3xKgjjTrWI6NwJ87s8OLiqR4}
+   smpp-web-port: ${smppWebPort:8020}
+
+#   http-web-port: ${httpWebPort:8032}
+
+# MCP Framework Configuration
+mcp:
+  server:
+    enabled: true
+    base-path: /mcp
+    enable-web-ui: true
+    enable-built-in-tools: true
+    enable-swagger: true
+    
+    # Security Configuration - DISABLED
+    security:
+      enabled: false
+      mode: STANDALONE
+    
+    # Error Tracking (LERR System)
+    error-tracking:
+      enabled: true
+      max-errors: 1000
+      capture-stack-traces: true
+      max-stack-trace-depth: 20
+    
+    # Metrics Collection
+    metrics:
+      enabled: true
+      collection-interval: 5000
+      max-data-points: 100
+    
+    # Live Logs
+    live-logs:
+      enabled: true
+      buffer-size: 1000
+    
+    # WebSocket Configuration
+    web-socket:
+      enabled: true
+      endpoint: /mcp-ws
+      max-message-size: 65536
+
+logging:
+ level:
+  ch.qos.logback: WARN
+  org.springframework.boot.logging: WARN
+  org.springframework.kafka: ERROR
+  org:
+   apache:
+    kafka: ERROR
+    tomcat: INFO
+    catalina: INFO
+  root: INFO
+  com.telemessage.qatools: DEBUG
+  com.telemessage.simulators: DEBUG
+ file:
+  name: logs/application.log
+ config: classpath:logback.xml
+
+
+
+management:
+ server:
+  port: 9001
+  base-path: /monitor
+ endpoints:
+  enabled-by-default: false
+  web:
+   exposure:
+    include: info, health, logfile, loggers, metrics
+    # "*" info, health, logfile. loggers, metrics
+   base-path: /  # Default for Spring Actuator
+ endpoint:
+  loggers:
+   enabled: true
+  health:
+   show-details: always
+   enabled: true
+  info:
+   enabled: true
+  env:
+   enabled: false
+  beans:
+   enabled: false
+  metrics:
+   enabled: true
+ metrics:
+  enable:
+   # Enable JVM and system-level metrics
+   jvm.memory.used: true
+   jvm.gc.pause: true
+   jvm.buffer.count: true
+   jvm.threads.live: true
+   jvm.classes.loaded: true
+   jvm.classes.unloaded: true
+   jvm.fd.count: true
+   jvm.buffer.memory.used: true
+   # Enable system metrics (CPU, Disk, Network, etc.)
+   system.cpu.usage: true
+   system.cpu.count: true
+   system.load.average: true
+   system.disk.space: true
+   system.network.bytes: true
+   system.filesystem: true
+   # Enable application metrics (custom)
+   http.server.requests: true
+   cache.gets: true
+   cache.puts: true
+   cache.evictions: true
+
+
+springdoc:
+ api-docs:
+  path: /v3/api-docs
+ swagger-ui:
+  path: /ui
+  doc-expansion: none
+

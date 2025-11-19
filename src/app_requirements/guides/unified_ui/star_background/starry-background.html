@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <!-- Starry Background Fragment - Include this in any page that needs the animated starry background -->
+    <th:block th:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/starry-background.css}">
+    </th:block>
+</head>
+<body>
+    <!-- JavaScript Fragment - Include at the end of body -->
+    <th:block th:fragment="js">
+        <script th:src="@{/js/starry-background.js}"></script>
+    </th:block>
+</body>
+</html>

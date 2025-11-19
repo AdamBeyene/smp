@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      lang="en"
+      layout:decorate="~{base}">
+<head>
+    <title>SMPP SIM Connections</title>
+    <th:block layout:fragment="extraHead">
+        <link rel="stylesheet" th:href="@{/css/styles.css}" href="/css/styles.css"/>
+        <link rel="stylesheet" th:href="@{/css/styles-table.css}" href="/css/styles-table.css"/>
+        <link rel="stylesheet" th:href="@{/css/connections.css}" href="/css/connections.css"/>
+        <link rel="stylesheet" th:href="@{/css/messages.css}" href="/css/messages.css"/>
+        <link rel="stylesheet" th:href="@{/css/table-grouping.css}" href="/css/table-grouping.css"/>
+    </th:block>
+</head>
+<body>
+<!-- Do NOT add or override the top-menu fragment here; base.html will provide it -->
+<th:block layout:fragment="header">
+    <div class="header logo" id="logo">SMPP SIM Connections</div>
+</th:block>
+
+<!-- Add the sidebar override -->
+<div layout:fragment="sidebar" class="sidebar">
+    <p>Connection Options</p>
+</div>
+
+<th:block layout:fragment="content">
+    <div class="main-content">
+        <div style="position: relative; display: flex; flex-direction: column; height: 100%;">
+            <div class="unified-controls-container sticky-controls" id="connections-controls" style="display: flex; align-items: center;">
+                <!-- Add search box -->
+                <div class="search-box">
+                    <label for="search-input">Search:</label>
+                    <input type="text" id="search-input" placeholder="Type to filter...">
+                </div>
+                <!-- Grouped View Controls -->
+                <div class="grouped-view-controls">
+                    <button id="toggle-grouped-view" class="grouped-view-toggle" title="Toggle grouped view for connection families">
+                        <i class="fas fa-layer-group"></i> Group Families
+                    </button>
+                    <div class="expand-collapse-buttons" id="expand-collapse-btns" style="display: none;">
+                        <button id="expand-all-btn" class="expand-collapse-btn" title="Expand all connection families">
+                            <i class="fas fa-chevron-down"></i> Expand All
+                        </button>
+                        <button id="collapse-all-btn" class="expand-collapse-btn" title="Collapse all connection families">
+                            <i class="fas fa-chevron-up"></i> Collapse All
+                        </button>
+                    </div>
+                </div>
+                <!-- Other controls specific to connections page -->
+
+                <!-- New actions section that will expand when a menu action is clicked -->
+                <div id="connection-actions-section" class="message-actions-section" style="display: none;">
+                    <div class="actions-header">
+                        <h3 id="current-action-title">Action Title</h3>
+                        <button id="close-action-btn" class="unified-button unified-button-secondary">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                    </div>
+
+                    <!-- Connection Info Form -->
+                    <div id="connection-info-form" class="action-form">
+                        <div class="form-group">
+                            <label for="conn-info-id">Connection ID (optional):</label>
+                            <input type="number" id="conn-info-id" class="unified-input" placeholder="Leave empty for all connections" min="1">
+                        </div>
+                        <div class="form-actions">
+                            <button id="connection-info-submit" class="unified-button unified-button-primary">Get Connection Info</button>
+                        </div>
+                    </div>
+
+                    <!-- Start Connection Form -->
+                    <div id="start-connection-form" class="action-form">
+                        <div class="form-group">
+                            <label for="start-connection-id">Connection ID:</label>
+                            <input type="number" id="start-connection-id" class="unified-input" placeholder="Enter connection ID" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="start-connection-type">Connection Type:</label>
+                            <select id="start-connection-type" class="unified-input">
+                                <option value="transmitter">Transmitter</option>
+                                <option value="receiver">Receiver</option>
+                            </select>
+                        </div>
+                        <div class="form-actions">
+                            <button id="start-connection-submit" class="unified-button unified-button-primary">Start Connection</button>
+                        </div>
+                    </div>
+
+                    <!-- Stop Connection Form -->
+                    <div id="stop-connection-form" class="action-form">
+                        <div class="form-group">
+                            <label for="stop-connection-id">Connection ID:</label>
+                            <input type="number" id="stop-connection-id" class="unified-input" placeholder="Enter connection ID" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="stop-connection-type">Connection Type:</label>
+                            <select id="stop-connection-type" class="unified-input">
+                                <option value="transmitter">Transmitter</option>
+                                <option value="receiver">Receiver</option>
+                            </select>
+                        </div>
+                        <div class="form-actions">
+                            <button id="stop-connection-submit" class="unified-button unified-button-primary">Stop Connection</button>
+                        </div>
+                    </div>
+
+                    <!-- Reset Connection Form -->
+                    <div id="reset-connection-form" class="action-form">
+                        <div class="form-group">
+                            <label for="reset-connection-id">Connection ID:</label>
+                            <input type="number" id="reset-connection-id" class="unified-input" placeholder="Enter connection ID" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="reset-connection-type">Connection Type:</label>
+                            <select id="reset-connection-type" class="unified-input">
+                                <option value="transmitter">Transmitter</option>
+                                <option value="receiver">Receiver</option>
+                            </select>
+                        </div>
+                        <div class="form-actions">
+                            <button id="reset-connection-submit" class="unified-button unified-button-primary">Reset Connection</button>
+                        </div>
+                    </div>
+
+                    <!-- Reset All Form -->
+                    <div id="reset-all-form" class="action-form">
+                        <div class="form-group">
+                            <p>This will reset all SMPP connections. It might take some time to complete the action.</p>
+                        </div>
+                        <div class="form-actions">
+                            <button id="reset-all-submit" class="unified-button unified-button-primary">Reset All Connections</button>
+                        </div>
+                    </div>
+
+                    <!-- Response area for all actions -->
+                    <div id="action-response-area" class="action-response-area">
+                        <div class="response-header">Response:</div>
+                        <pre id="response-content"></pre>
+                    </div>
+                </div>
+                <div style="flex:1"></div>
+                <div id="refresh-controls-placeholder" style="display:flex; align-items:center;"></div>
+            </div>
+            <div class="unified-table-outer">
+                <table id="data-table" class="unified-table" style="width:100%;">
+                    <thead>
+                    <tr>
+                        <th style="min-width:40px;white-space:pre-line;word-break:break-word;">ID</th>
+                        <th style="min-width:80px;white-space:pre-line;word-break:break-word;">Name</th>
+                        <th style="min-width:90px;white-space:pre-line;word-break:break-word;">Transmitter&#10;State</th>
+                        <th style="min-width:90px;white-space:pre-line;word-break:break-word;">Receiver&#10;State</th>
+                        <th style="min-width:110px;white-space:pre-line;word-break:break-word;">Transmitter&#10;Type</th>
+                        <th style="min-width:90px;white-space:pre-line;word-break:break-word;">Transmitter&#10;Port</th>
+                        <th style="min-width:110px;white-space:pre-line;word-break:break-word;">Transmitter&#10;Host</th>
+                        <th style="min-width:110px;white-space:pre-line;word-break:break-word;">Receiver&#10;Type</th>
+                        <th style="min-width:90px;white-space:pre-line;word-break:break-word;">Receiver&#10;Port</th>
+                        <th style="min-width:110px;white-space:pre-line;word-break:break-word;">Receiver&#10;Host</th>
+                        <th style="min-width:120px;white-space:pre-line;word-break:break-word;">Extra&#10;Info</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <!-- Rows will be dynamically populated here -->
+                    </tbody>
+                </table>
+                <!-- If you want popup for long cells, render them with .truncated-cell and set __fullText or data-fulltext. -->
+            </div>
+        </div>
+    </div>
+</th:block>
+
+<th:block layout:fragment="extraScripts">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <!-- Load external scripts FIRST, before inline code uses them -->
+    <script th:src="@{/js/table-grouping.js}" src="/js/table-grouping.js"></script>
+    <script th:src="@{/js/Atable.js}" src="/js/Atable.js"></script>
+    <script th:src="@{/js/connections-actions.js}" src="/js/connections-actions.js"></script>
+
+    <script type="text/javascript" th:inline="javascript">
+        const connections = /*[[${data}]]*/'[]';
+        console.log('Connections:', connections);
+
+        // Parse JSON
+        const parsedConnections = JSON.parse(connections);
+
+        // Keep a reference to all rows for filtering
+        let allTableRows = [];
+
+        // Function to truncate text for display
+        function truncateText(text, maxLen = 60) {
+            if (!text) return '';
+            return text.length > maxLen ? text.substring(0, maxLen) + '…' : text;
+        }
+
+        // Function to create a cell with truncated text and full text data attribute
+        function createTruncatedCell(text) {
+            const span = document.createElement('span');
+            span.className = 'truncated-cell';
+            span.title = "Click to expand";
+            span.textContent = truncateText(text);
+            span.setAttribute('data-fulltext', text);
+            return span;
+        }
+
+        function appendCell(val) {
+            const td = document.createElement("td");
+            if (val && val !== "N/A") {
+                td.appendChild(createTruncatedCell(val));
+                td.__fullText = val;
+            } else {
+                td.textContent = "N/A";
+            }
+            return td;
+        }
+
+        function populateTable(data) {
+            const tableBody = document.getElementById("data-table").getElementsByTagName("tbody")[0];
+            tableBody.innerHTML = '';
+            allTableRows = [];
+
+            data.forEach(item => {
+                const row = document.createElement("tr");
+
+                // ID
+                row.appendChild(appendCell(String(item.id)));
+
+                // Name
+                row.appendChild(appendCell(item.name));
+
+                // Transmitter State
+                const transmitterStateCell = appendCell(item.transmitterState);
+                if (item.transmitterState === "Bound") {
+                    transmitterStateCell.style.color = "green";
+                } else if (item.transmitterState === "Unbound") {
+                    transmitterStateCell.style.color = "red";
+                }
+                row.appendChild(transmitterStateCell);
+
+                // Receiver State
+                const receiverStateCell = appendCell(item.receiverState);
+                if (item.receiverState === "Bound") {
+                    receiverStateCell.style.color = "green";
+                } else if (item.receiverState === "Unbound") {
+                    receiverStateCell.style.color = "red";
+                }
+                row.appendChild(receiverStateCell);
+
+                // Transmitter Type
+                const transmitterTypeCell = appendCell(item.transmitterType);
+                if (item.transmitterType && item.transmitterType.startsWith("SMSC")) {
+                    transmitterTypeCell.style.color = "Blue";
+                } else {
+                    transmitterTypeCell.style.color = "Teal";
+                }
+                row.appendChild(transmitterTypeCell);
+
+                // Transmitter Port
+                row.appendChild(appendCell(String(item.transmitterPort)));
+
+                // Transmitter Host
+                row.appendChild(appendCell(item.transmitterHost));
+
+                // Receiver Type
+                const receiverTypeCell = appendCell(item.receiverType);
+                if (item.receiverType && item.receiverType.startsWith("SMSC")) {
+                    receiverTypeCell.style.color = "Blue";
+                } else {
+                    receiverTypeCell.style.color = "Teal";
+                }
+                row.appendChild(receiverTypeCell);
+
+                // Receiver Port
+                row.appendChild(appendCell(String(item.receiverPort)));
+
+                // Receiver Host
+                row.appendChild(appendCell(item.receiverHost));
+
+                // Extra Info: show only the first key:value (truncated), but popup shows all
+                const extraTd = document.createElement("td");
+                let allPairs = [];
+                let firstPair = null;
+                if (Array.isArray(item.extraInfo) && item.extraInfo.length > 0) {
+                    item.extraInfo.forEach(map => {
+                        Object.entries(map).forEach(([k, v]) => {
+                            const pair = `${k}: ${v || "N/A"}`;
+                            allPairs.push(pair);
+                        });
+                    });
+                    if (allPairs.length > 0) {
+                        firstPair = allPairs[0];
+                    }
+                }
+                if (!firstPair) {
+                    extraTd.textContent = "N/A";
+                } else {
+                    // Show only the first pair, truncated, but popup on cell shows all
+                    extraTd.className = "truncated-cell";
+                    extraTd.title = "Click to expand";
+                    extraTd.textContent = truncateText(firstPair, 60);
+                    extraTd.setAttribute('data-fulltext', allPairs.join('\n'));
+                    extraTd.__fullText = allPairs.join('\n');
+                }
+                row.appendChild(extraTd);
+
+                // Store the original item data with the row for filtering
+                row.dataset.searchText = [
+                    item.id,
+                    item.name,
+                    item.transmitterState,
+                    item.receiverState,
+                    item.transmitterType,
+                    item.transmitterPort,
+                    item.transmitterHost,
+                    item.receiverType,
+                    item.receiverPort,
+                    item.receiverHost,
+                    allPairs.join('|')
+                ].join('|').toLowerCase();
+
+                tableBody.appendChild(row);
+                allTableRows.push(row);
+            });
+        }
+
+        // Custom search function for the table
+        function filterConnectionRows(query) {
+            query = query.toLowerCase().trim();
+
+            allTableRows.forEach(row => {
+                const shouldShow = query === '' || row.dataset.searchText.includes(query);
+                row.style.display = shouldShow ? '' : 'none';
+            });
+        }
+
+        // Assuming this script runs after the DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get the anchor element by its class
+            var link = document.querySelector('.top-menu-btn-extended');
+
+            if (link) {
+                // Add click event listener
+                link.addEventListener('click', function(event) {
+                    // Prevent the default action of the link
+                    event.preventDefault();
+
+                    // Get current host and port (you might need to adapt this part based on how you access these)
+                    var currentHost = window.location.hostname;
+                    var newPort = '8032'; // Change this to whatever port you want
+
+                    // Construct the new URL
+                    var newUrl = `${currentHost}:${newPort}/connections`;
+
+                    // Optionally, you might want to open this in the same window or a new one
+                    // window.location.href = newUrl; // Opens in the same window
+                    // or
+                    window.open(newUrl, '_blank'); // Opens in a new window/tab
+                });
+            }
+
+            // Populate the table with parsed connections data
+            populateTable(parsedConnections);
+
+            // Set up search input
+            const searchInput = document.getElementById('search-input');
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    filterConnectionRows(this.value);
+                });
+            }
+
+            // Setup grouped view toggle
+            setupGroupedView();
+        });
+
+        // --- Grouped View for Connection Families ---
+        let isGroupedView = false;
+        let groupedConnectionsData = [];
+        let renderGroupedConnRetryCount = 0;
+        const MAX_RETRY_COUNT = 50;
+
+        async function fetchGroupedConnections() {
+            try {
+                const response = await fetch('/connections/grouped');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                groupedConnectionsData = await response.json();
+                return groupedConnectionsData;
+            } catch (error) {
+                console.error('Error fetching grouped connections:', error);
+                return [];
+            }
+        }
+
+        function setupGroupedView() {
+            const toggleBtn = document.getElementById('toggle-grouped-view');
+            const expandAllBtn = document.getElementById('expand-all-btn');
+            const collapseAllBtn = document.getElementById('collapse-all-btn');
+
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', toggleGroupedView);
+            }
+            if (expandAllBtn) {
+                expandAllBtn.addEventListener('click', expandAllGroups);
+            }
+            if (collapseAllBtn) {
+                collapseAllBtn.addEventListener('click', collapseAllGroups);
+            }
+        }
+
+        function toggleGroupedView() {
+            isGroupedView = !isGroupedView;
+            const toggleBtn = document.getElementById('toggle-grouped-view');
+            const expandCollapseBtns = document.getElementById('expand-collapse-btns');
+
+            if (isGroupedView) {
+                toggleBtn.classList.add('active');
+                expandCollapseBtns.style.display = 'flex';
+                // Fetch and render grouped data
+                fetchGroupedConnections().then(() => {
+                    renderGroupedConnections();
+                });
+            } else {
+                toggleBtn.classList.remove('active');
+                expandCollapseBtns.style.display = 'none';
+                // Render normal flat table
+                populateTable(parsedConnections);
+            }
+        }
+
+        function renderGroupedConnections() {
+            console.log('renderGroupedConnections called. window.TableGrouping exists?', typeof window.TableGrouping !== 'undefined');
+
+            // Wait for TableGrouping to be available
+            if (typeof window.TableGrouping === 'undefined') {
+                renderGroupedConnRetryCount++;
+
+                if (renderGroupedConnRetryCount > MAX_RETRY_COUNT) {
+                    console.error('TableGrouping module failed to load after', MAX_RETRY_COUNT, 'retries');
+                    alert('ERROR: TableGrouping module failed to load. Please refresh the page and try again.');
+                    // Reset to flat view
+                    isGroupedView = false;
+                    const toggleBtn = document.getElementById('toggle-grouped-view');
+                    if (toggleBtn) toggleBtn.classList.remove('active');
+                    const expandCollapseBtns = document.getElementById('expand-collapse-btns');
+                    if (expandCollapseBtns) expandCollapseBtns.style.display = 'none';
+                    populateTable(parsedConnections);
+                    return;
+                }
+
+                console.warn('TableGrouping module not loaded - waiting... (retry', renderGroupedConnRetryCount, 'of', MAX_RETRY_COUNT, ')');
+                setTimeout(renderGroupedConnections, 100);
+                return;
+            }
+
+            console.log('TableGrouping loaded successfully! Rendering grouped connections...');
+            renderGroupedConnRetryCount = 0; // Reset counter on success
+
+            const tableBody = document.getElementById('data-table').getElementsByTagName('tbody')[0];
+            tableBody.innerHTML = '';
+
+            groupedConnectionsData.forEach((group, index) => {
+                if (group.type === 'family') {
+                    renderConnectionFamily(group, tableBody, index);
+                } else {
+                    renderSingleConnection(group.connection, tableBody);
+                }
+            });
+        }
+
+        function renderConnectionFamily(group, tbody, groupIndex) {
+            const groupId = `conn-family-${groupIndex}`;
+            const isExpanded = window.TableGrouping.expandedGroups.has(groupId);
+
+            // Create group header row
+            const headerRow = document.createElement('tr');
+            headerRow.className = 'group-header-row';
+            headerRow.dataset.groupId = groupId;
+
+            const headerCell = document.createElement('td');
+            headerCell.colSpan = 11; // Span all columns
+
+            const expandIcon = document.createElement('span');
+            expandIcon.className = 'expand-icon';
+            expandIcon.innerHTML = isExpanded ? '&#9660;' : '&#9654;';
+            expandIcon.style.marginRight = '10px';
+
+            const nameSpan = document.createElement('span');
+            nameSpan.textContent = group.metadata.groupName;
+            nameSpan.style.fontWeight = 'bold';
+
+            const badge = document.createElement('span');
+            badge.className = 'group-badge';
+            badge.textContent = `${group.metadata.memberCount} instance${group.metadata.memberCount > 1 ? 's' : ''}`;
+
+            const statusBadge = document.createElement('span');
+            statusBadge.className = 'concat-badge';
+            if (group.metadata.statusSummary === 'All Bound') {
+                statusBadge.classList.add('complete');
+                statusBadge.textContent = '✓ All Bound';
+            } else if (group.metadata.statusSummary === 'All Unbound') {
+                statusBadge.classList.add('incomplete');
+                statusBadge.textContent = '✗ All Unbound';
+            } else {
+                statusBadge.classList.add('incomplete');
+                statusBadge.textContent = '⚠ Mixed';
+            }
+
+            headerCell.appendChild(expandIcon);
+            headerCell.appendChild(nameSpan);
+            headerCell.appendChild(badge);
+            headerCell.appendChild(statusBadge);
+            headerRow.appendChild(headerCell);
+
+            // Add click handler
+            headerRow.style.cursor = 'pointer';
+            headerRow.addEventListener('click', () => {
+                toggleConnectionFamily(groupId, tbody, group);
+            });
+
+            tbody.appendChild(headerRow);
+
+            // Add member rows if expanded
+            if (isExpanded && group.members) {
+                group.members.forEach((member, idx) => {
+                    const memberRow = createConnectionMemberRow(member, groupId, idx);
+                    tbody.appendChild(memberRow);
+                });
+            }
+        }
+
+        function createConnectionMemberRow(conn, groupId, index) {
+            const tr = document.createElement('tr');
+            tr.className = 'group-member-row';
+            tr.dataset.parentGroup = groupId;
+
+            // ID with indentation
+            const idCell = appendCell(String(conn.id));
+            idCell.style.paddingLeft = '30px';
+            const badge = document.createElement('span');
+            badge.className = 'part-label';
+            badge.textContent = `[${index + 1}] `;
+            badge.style.color = 'var(--color-secondary, #6B7280)';
+            idCell.insertBefore(badge, idCell.firstChild);
+            tr.appendChild(idCell);
+
+            // Other cells
+            tr.appendChild(appendCell(conn.name));
+
+            const txStateCell = appendCell(conn.transmitterState);
+            if (conn.transmitterState === "Bound") txStateCell.style.color = "green";
+            else if (conn.transmitterState === "Unbound") txStateCell.style.color = "red";
+            tr.appendChild(txStateCell);
+
+            const rxStateCell = appendCell(conn.receiverState);
+            if (conn.receiverState === "Bound") rxStateCell.style.color = "green";
+            else if (conn.receiverState === "Unbound") rxStateCell.style.color = "red";
+            tr.appendChild(rxStateCell);
+
+            const txTypeCell = appendCell(conn.transmitterType);
+            if (conn.transmitterType && conn.transmitterType.startsWith("SMSC")) txTypeCell.style.color = "Blue";
+            else txTypeCell.style.color = "Teal";
+            tr.appendChild(txTypeCell);
+
+            tr.appendChild(appendCell(String(conn.transmitterPort)));
+            tr.appendChild(appendCell(conn.transmitterHost));
+
+            const rxTypeCell = appendCell(conn.receiverType);
+            if (conn.receiverType && conn.receiverType.startsWith("SMSC")) rxTypeCell.style.color = "Blue";
+            else rxTypeCell.style.color = "Teal";
+            tr.appendChild(rxTypeCell);
+
+            tr.appendChild(appendCell(String(conn.receiverPort)));
+            tr.appendChild(appendCell(conn.receiverHost));
+
+            // Extra Info
+            const extraTd = document.createElement("td");
+            let allPairs = [];
+            if (Array.isArray(conn.extraInfo) && conn.extraInfo.length > 0) {
+                conn.extraInfo.forEach(map => {
+                    Object.entries(map).forEach(([k, v]) => {
+                        allPairs.push(`${k}: ${v || "N/A"}`);
+                    });
+                });
+            }
+            if (allPairs.length > 0) {
+                extraTd.className = "truncated-cell";
+                extraTd.title = "Click to expand";
+                extraTd.textContent = truncateText(allPairs[0], 60);
+                extraTd.setAttribute('data-fulltext', allPairs.join('\n'));
+                extraTd.__fullText = allPairs.join('\n');
+            } else {
+                extraTd.textContent = "N/A";
+            }
+            tr.appendChild(extraTd);
+
+            return tr;
+        }
+
+        function renderSingleConnection(conn, tbody) {
+            const row = document.createElement("tr");
+
+            row.appendChild(appendCell(String(conn.id)));
+            row.appendChild(appendCell(conn.name));
+
+            const txStateCell = appendCell(conn.transmitterState);
+            if (conn.transmitterState === "Bound") txStateCell.style.color = "green";
+            else if (conn.transmitterState === "Unbound") txStateCell.style.color = "red";
+            row.appendChild(txStateCell);
+
+            const rxStateCell = appendCell(conn.receiverState);
+            if (conn.receiverState === "Bound") rxStateCell.style.color = "green";
+            else if (conn.receiverState === "Unbound") rxStateCell.style.color = "red";
+            row.appendChild(rxStateCell);
+
+            const txTypeCell = appendCell(conn.transmitterType);
+            if (conn.transmitterType && conn.transmitterType.startsWith("SMSC")) txTypeCell.style.color = "Blue";
+            else txTypeCell.style.color = "Teal";
+            row.appendChild(txTypeCell);
+
+            row.appendChild(appendCell(String(conn.transmitterPort)));
+            row.appendChild(appendCell(conn.transmitterHost));
+
+            const rxTypeCell = appendCell(conn.receiverType);
+            if (conn.receiverType && conn.receiverType.startsWith("SMSC")) rxTypeCell.style.color = "Blue";
+            else rxTypeCell.style.color = "Teal";
+            row.appendChild(rxTypeCell);
+
+            row.appendChild(appendCell(String(conn.receiverPort)));
+            row.appendChild(appendCell(conn.receiverHost));
+
+            // Extra Info
+            const extraTd = document.createElement("td");
+            let allPairs = [];
+            if (Array.isArray(conn.extraInfo) && conn.extraInfo.length > 0) {
+                conn.extraInfo.forEach(map => {
+                    Object.entries(map).forEach(([k, v]) => {
+                        allPairs.push(`${k}: ${v || "N/A"}`);
+                    });
+                });
+            }
+            if (allPairs.length > 0) {
+                extraTd.className = "truncated-cell";
+                extraTd.title = "Click to expand";
+                extraTd.textContent = truncateText(allPairs[0], 60);
+                extraTd.setAttribute('data-fulltext', allPairs.join('\n'));
+                extraTd.__fullText = allPairs.join('\n');
+            } else {
+                extraTd.textContent = "N/A";
+            }
+            row.appendChild(extraTd);
+
+            tbody.appendChild(row);
+        }
+
+        function toggleConnectionFamily(groupId, tbody, group) {
+            const isExpanded = window.TableGrouping.expandedGroups.has(groupId);
+
+            if (isExpanded) {
+                // Collapse
+                window.TableGrouping.expandedGroups.delete(groupId);
+                const memberRows = tbody.querySelectorAll(`tr[data-parent-group="${groupId}"]`);
+                memberRows.forEach(row => row.remove());
+
+                const headerRow = tbody.querySelector(`tr[data-group-id="${groupId}"]`);
+                if (headerRow) {
+                    const icon = headerRow.querySelector('.expand-icon');
+                    if (icon) icon.innerHTML = '&#9654;';
+                }
+            } else {
+                // Expand
+                window.TableGrouping.expandedGroups.add(groupId);
+                const headerRow = tbody.querySelector(`tr[data-group-id="${groupId}"]`);
+                if (headerRow && group.members) {
+                    group.members.forEach((member, idx) => {
+                        const memberRow = createConnectionMemberRow(member, groupId, idx);
+                        headerRow.insertAdjacentElement('afterend', memberRow);
+                    });
+
+                    const icon = headerRow.querySelector('.expand-icon');
+                    if (icon) icon.innerHTML = '&#9660;';
+                }
+            }
+        }
+
+        function expandAllGroups() {
+            if (isGroupedView) {
+                groupedConnectionsData.forEach((group, index) => {
+                    if (group.type === 'family') {
+                        const groupId = `conn-family-${index}`;
+                        window.TableGrouping.expandedGroups.add(groupId);
+                    }
+                });
+                renderGroupedConnections();
+            }
+        }
+
+        function collapseAllGroups() {
+            if (isGroupedView) {
+                window.TableGrouping.expandedGroups.clear();
+                renderGroupedConnections();
+            }
+        }
+    </script>
+
+    <script th:src="@{/js/connections-actions.js}" src="/js/connections-actions.js"></script>
+
+    <script>
+        // Prevent connections-actions.js from setting up its own search handler
+        document.addEventListener('DOMContentLoaded', function() {
+            // Define a flag that connections-actions.js can check
+            window.customSearchHandlerActive = true;
+        });
+    </script>
+</th:block>
+</body>
+</html>

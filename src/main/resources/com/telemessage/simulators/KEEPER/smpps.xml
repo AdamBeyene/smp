@@ -1,0 +1,67 @@
+<connections>
+    <!-- ARCHIVE -->
+    <connection id="400">
+        <name>Telus - Archive</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>34002</port>
+            <systemId>TlmsgArch1</systemId>
+            <password>password</password>
+            <bindOption>transmitter</bindOption>
+            <threads>500</threads>
+            <concatenation>UDHI</concatenation>
+        </transmitter>
+    </connection>
+
+    <connection id="410">
+        <name>Rogers - Archive</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>34003</port>
+            <systemId>ArchTel</systemId>
+            <password>MaRchT3l</password>
+            <bindOption>transmitter</bindOption>
+            <threads>500</threads>
+            <concatenation>UDHI</concatenation>
+            <encoding>Cp1252</encoding>
+        </transmitter>
+    </connection>
+    <connection id="420">
+        <name>HKCSL - Archive</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>34004</port>
+            <systemId>TeleMsg</systemId>
+            <password>tELEmSG</password>
+            <bindOption>transmitter</bindOption>
+            <threads>500</threads>
+            <concatenation>UDHI</concatenation>
+<!--            <encoding>UTF-8</encoding>-->
+            <encoding>GSM7</encoding>
+        </transmitter>
+    </connection>
+    <connection id="430">
+        <name>3HK - Archive</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>34005</port>
+            <systemId>TM-SMSA</systemId>
+            <password>testQC9s</password>
+            <bindOption>transmitter</bindOption>
+            <threads>500</threads>
+            <concatenation>UDHI</concatenation>
+        </transmitter>
+    </connection>
+    <connection id="440">
+        <name>CELLCOM - Archive</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>34006</port>
+            <systemId>smarsh_rx</systemId>
+            <password>klektine</password>
+            <bindOption>transmitter</bindOption>
+            <threads>500</threads>
+            <concatenation>UDHI</concatenation>
+        </transmitter>
+    </connection>
+</connections>

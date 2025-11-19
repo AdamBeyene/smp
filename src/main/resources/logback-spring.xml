@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration debug="true" scan="false" scanPeriod="20 seconds">
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!--    <appender name="FILE" class="ch.qos.logback.core.FileAppender">-->
+        <file>${user.dir}/shared/sim/logs/smpp/simApp.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- daily rollover -->
+            <fileNamePattern>${user.dir}/shared/sim/logs/simApp.%d{yyyy-MM-dd_HH}.log</fileNamePattern>
+
+            <!-- Define the maximum file size before rollover -->
+            <maxFileSize>10MB</maxFileSize>
+            <!-- Keep up to 5 rolled-over files -->
+            <maxHistory>24</maxHistory>
+            <!-- Total maximum size of all log files (optional) -->
+            <totalSizeCap>500MB</totalSizeCap>
+            <!-- Clean history on start -->
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Logging configuration for dev, test, integration, cloud -->
+    <springProfile name="dev,test,integration,cloud">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
+
+    <!-- Logging configuration for other profiles -->
+    <springProfile name="default,local,devbe,qabe,integrationbe,qaarthurbe">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="FILE"/>
+        </root>
+    </springProfile>
+</configuration>

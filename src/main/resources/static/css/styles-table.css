@@ -1,0 +1,218 @@
+/* --- Unified Table Styles --- */
+.unified-table-outer {
+    width: 100%;
+    flex: 1;  /* Take up all remaining space */
+    min-height: 200px; /* Minimum height for small screens */
+    display: flex;
+    flex-direction: column;
+    background: var(--color-surface);
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 2px 8px var(--color-shadow);
+    margin-top: 0;
+    position: relative;
+    overflow: auto; /* Enable scrolling within the table container */
+}
+
+.unified-table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    background: var(--color-surface);
+    font-size: 0.85em;
+}
+
+.unified-table th,
+.unified-table td {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 4px 2px;
+    font-size: 0.85em;
+    border: 1px solid var(--color-border);
+    color: var(--color-text-primary);
+    background: var(--color-surface);
+}
+
+.unified-table th {
+    background: var(--color-secondary);
+    font-weight: 600;
+    border-bottom: 2px solid var(--color-border);
+    text-align: left;
+}
+
+.unified-table th.sortable {
+    cursor: pointer;
+    position: relative;
+    user-select: none;
+    background: color-mix(in srgb, var(--color-secondary) 90%, #fff);
+}
+.unified-table th.sortable:hover {
+    background: color-mix(in srgb, var(--color-secondary) 70%, #fff);
+}
+.unified-table th.sorted-asc,
+.unified-table th.sorted-desc {
+    background: color-mix(in srgb, var(--color-primary) 10%, var(--color-secondary));
+    color: var(--color-primary);
+}
+.unified-table th .sort-arrow {
+    font-size: 0.9em;
+    margin-left: 2px;
+    color: var(--color-primary);
+    pointer-events: none;
+}
+
+.unified-table tbody tr {
+    height: 32px;
+    transition: background 0.2s;
+}
+
+.unified-table tbody tr:hover {
+    background: color-mix(in srgb, var(--color-secondary) 50%, transparent);
+}
+
+.unified-table .truncated-cell {
+    display: inline-block;
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: middle;
+    cursor: pointer;
+    user-select: text;
+    position: relative;
+}
+
+.unified-table .expanded-cell {
+    /* Remove default styles, override with JS for info box look */
+    background: none !important;
+    color: inherit !important;
+    border: none !important;
+    font-family: inherit !important;
+    font-size: inherit !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    z-index: 9999 !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: auto !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    max-height: none !important;
+    white-space: pre-wrap !important;
+    word-break: break-all !important;
+    overflow: visible !important;
+    display: block !important;
+    pointer-events: auto !important;
+    user-select: text !important;
+    transition: none !important;
+}
+
+/* Ensure table headers stay below the actions section */
+.unified-table thead,
+.unified-table thead tr,
+.unified-table thead th {
+    z-index: 5; /* Lower z-index than the actions section */
+    position: relative;
+}
+
+/* For sticky headers */
+.unified-table thead th.sticky,
+.unified-table th[sticky="true"] {
+    z-index: 5; /* Ensure sticky headers also have the lower z-index */
+}
+
+/* Table tools (search, pagination, etc.) */
+.unified-controls-container {
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 0;
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: flex-start;
+    gap: 24px;
+    display: flex;
+    padding: 12px 16px 8px 16px;
+    margin-top: 0;
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    position: relative;
+    z-index: 10;
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 0;
+}
+.search-box input {
+    padding: 4px 8px;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+    font-size: 0.95em;
+    min-width: 120px;
+}
+.table-info {
+    margin: 0 0 0 12px;
+    color: var(--color-text-secondary);
+    font-size: 0.92em;
+}
+.pagination {
+    display: flex;
+    gap: 4px;
+    margin: 0 0 0 12px;
+    flex-wrap: wrap;
+}
+.pagination button {
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    padding: 2px 8px;
+    cursor: pointer;
+    min-width: 28px;
+    font-size: 0.92em;
+    transition: background 0.2s, color 0.2s;
+}
+.pagination button.active,
+.pagination button:focus {
+    background: var(--color-primary);
+    color: var(--color-text-on-dark);
+    outline: none;
+}
+.pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+.table-page-size {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: 12px;
+}
+
+/* Responsive: shrink font and padding for smaller screens */
+@media (max-width: 1200px) {
+    .unified-table th,
+    .unified-table td {
+        font-size: 0.80em;
+        padding: 3px 1px;
+    }
+    .unified-table .truncated-cell {
+        max-width: 120px;
+    }
+}
+@media (max-width: 900px) {
+    .unified-table th,
+    .unified-table td {
+        font-size: 0.75em;
+        padding: 2px 1px;
+    }
+    .unified-table .truncated-cell {
+        max-width: 80px;
+    }
+}

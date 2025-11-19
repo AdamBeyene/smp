@@ -1,0 +1,171 @@
+/**
+ * Export Dialog Styles
+ */
+
+.export-dialog {
+    background: var(--color-surface, #FFFFFF);
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    max-width: 500px;
+    width: 90%;
+    overflow: hidden;
+}
+
+.dark-mode .export-dialog {
+    background: var(--color-surface, #1F2937);
+}
+
+.export-dialog-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--color-border, #D1D5DB);
+    background: var(--color-surface-variant, #F9FAFB);
+}
+
+.dark-mode .export-dialog-header {
+    background: var(--color-surface-variant, #111827);
+    border-color: var(--color-border, #374151);
+}
+
+.export-dialog-header h3 {
+    margin: 0;
+    font-size: 1.1em;
+    font-weight: 600;
+    color: var(--color-text, #111827);
+}
+
+.dark-mode .export-dialog-header h3 {
+    color: var(--color-text, #F9FAFB);
+}
+
+.dialog-close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5em;
+    cursor: pointer;
+    color: var(--color-text-secondary, #6B7280);
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: background 0.2s ease;
+}
+
+.dialog-close-btn:hover {
+    background: var(--color-hover, #E5E7EB);
+}
+
+.dark-mode .dialog-close-btn:hover {
+    background: var(--color-hover, #374151);
+}
+
+.export-dialog-body {
+    padding: 20px;
+    color: var(--color-text, #111827);
+}
+
+.dark-mode .export-dialog-body {
+    color: var(--color-text, #F9FAFB);
+}
+
+.export-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.export-options label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border: 1px solid var(--color-border, #D1D5DB);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.export-options label:hover {
+    background: var(--color-surface-variant, #F9FAFB);
+    border-color: var(--color-primary, #3B82F6);
+}
+
+.dark-mode .export-options label {
+    border-color: var(--color-border, #374151);
+}
+
+.dark-mode .export-options label:hover {
+    background: var(--color-surface-variant, #1F2937);
+    border-color: var(--color-primary, #3B82F6);
+}
+
+.export-options input[type="radio"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.export-json-options label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    cursor: pointer;
+}
+
+.export-json-options input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.export-dialog-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 16px 20px;
+    border-top: 1px solid var(--color-border, #D1D5DB);
+    background: var(--color-surface-variant, #F9FAFB);
+}
+
+.dark-mode .export-dialog-footer {
+    background: var(--color-surface-variant, #111827);
+    border-color: var(--color-border, #374151);
+}
+
+/* Export button in toolbar */
+.export-btn {
+    padding: 6px 14px;
+    border: 1px solid var(--color-border, #D1D5DB);
+    border-radius: 6px;
+    background-color: var(--color-surface, #FFFFFF);
+    color: var(--color-text, #111827);
+    cursor: pointer;
+    font-size: 0.9em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+.dark-mode .export-btn {
+    background-color: var(--color-surface, #1F2937);
+    color: var(--color-text, #F9FAFB);
+    border-color: var(--color-border, #374151);
+}
+
+.export-btn:hover {
+    background-color: var(--color-primary, #3B82F6);
+    color: white;
+    border-color: var(--color-primary, #3B82F6);
+}
+
+.export-btn i {
+    font-size: 1em;
+}

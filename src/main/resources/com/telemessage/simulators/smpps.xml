@@ -1,0 +1,50 @@
+<connections>
+    <connection id="8">
+        <name>Arthur Sprint</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <!--<direct_status>ESME_RMSGQFUL</direct_status>-->
+        <transmitter bindType="SMSC">
+            <port>22207</port>
+            <systemId>tmtest</systemId>
+            <password>12345678</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+            <concatenation>PAYLOAD</concatenation>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>22208</port>
+            <systemId>tmtest</systemId>
+            <password>12345678</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+            <concatenation>PAYLOAD</concatenation>
+        </receiver>
+    </connection>
+    <connection id="370">
+        <name>amdtelecom</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="ESME">
+            <port>11372</port>
+            <host>localhost</host>
+            <systemId>qa_amdtelecom</systemId>
+            <password>12345678</password>
+            <bindOption>transmitter</bindOption>
+            <concatenation>UDHI</concatenation>
+            <threads>20</threads>
+            <encoding>GSM7</encoding>
+        </transmitter>
+    </connection>
+    <connection id="420">
+        <name>HKCSL - Archive</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>34004</port>
+            <systemId>TELEMSMS</systemId>
+            <password>telemcsl</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+            <encoding>UTF-8</encoding>
+        </transmitter>
+    </connection>
+</connections>

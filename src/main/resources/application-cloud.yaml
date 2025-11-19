@@ -1,0 +1,7 @@
+sim:
+ env:
+  configurations:
+   env-current: ${currentEnv:KEEPER}
+   env-name: ${envName:dev}
+   shared-folder-name: ${sharedFolderName:cloud}
+   env-url: ${envUrl:https://rnd.telemessage.co.il}

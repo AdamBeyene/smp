@@ -1,0 +1,14 @@
+<connections>
+    <connection id="77">
+        <name>Sprint</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>2277</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </transmitter>
+    </connection>
+</connections>

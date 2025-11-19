@@ -1,0 +1,32 @@
+services:
+  smpp-service:
+    image: alpine/java:22-jdk
+    volumes:
+      - C:\Workspace\tools\smppsim\target\TM_SMPP_SIM.jar:/app.jar
+    ports:
+      - "127.0.0.2:8888:8020"
+      - "127.0.0.2:20131:20131"
+      - "127.0.0.2:23121:23121"
+      - "127.0.0.2:11372:11372"
+      - "127.0.0.2:30131:30131"
+    command: ["java", "-jar", "/app.jar"]
+    environment:
+      - SPRING_PROFILES_ACTIVE=local
+    networks:
+      - custom-network
+
+networks:
+  custom-network:
+    driver: bridge
+
+# Firewall configuration (this part is not Docker Compose, but an example of how you might configure iptables in the container or host)
+# These commands would be run inside the container or on the host machine:
+
+# iptables -A INPUT -p tcp --dport 20131 -j ACCEPT
+# iptables -A INPUT -p tcp --dport 23121 -j ACCEPT
+# iptables -A INPUT -p tcp --dport 11372 -j ACCEPT
+# iptables -A INPUT -p tcp --dport 30131 -j ACCEPT
+
+# iptables -A OUTPUT -p tcp --dport 10131 -j ACCEPT
+# iptables -A OUTPUT -p tcp --dport 13121 -j ACCEPT
+# iptables -A OUTPUT -p tcp --dport 40131 -j ACCEPT

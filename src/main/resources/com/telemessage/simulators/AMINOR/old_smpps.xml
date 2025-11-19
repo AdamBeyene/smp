@@ -1,0 +1,384 @@
+<connections>
+    <connection id="2">
+        <name>Arthur Rave EMG 1</name>
+        <automatic_dr></automatic_dr>
+        <transmitter bindType="ESME">
+            <port>20021</port>
+            <systemId>rave_emg</systemId>
+            <password>8035005</password>
+           <host>qaarthur-fe1.dev.telemessage.co.il</host>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+        </transmitter>
+        <receiver bindType="ESME">
+            <port>10021</port>
+            <systemId>rave_emg</systemId>
+            <password>8035005</password>
+           <host>qaarthur-fe1.dev.telemessage.co.il</host>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+        </receiver>
+    </connection>
+ <!--   <connection id="8">
+        <name>Arthur Sprint</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>20081</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>10081</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </receiver>
+    </connection>
+    <connection id="9" transmitter="8">
+        <name>Arthur Sprint Broker</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <receiver bindType="SMSC">
+            <port>10091</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+            <concatenation>PAYLOAD</concatenation>
+        </receiver>
+    </connection>-->
+    <connection id="8">
+        <name>Arthur Sprint</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transceiver bindType="SMSC">
+            <port>11888</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transceiver</bindOption>
+            <threads>40</threads>
+            <concatenation>SAR</concatenation>
+        </transceiver>
+    </connection>
+    <connection id="9" transmitter="8">
+        <name>Arthur Sprint Broker</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <receiver bindType="SMSC">
+            <port>17791</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+            <concatenation>PAYLOAD</concatenation>
+        </receiver>
+    </connection>
+    <connection id="12">
+        <name>Arthur Rave EMG 2</name>
+        <automatic_dr></automatic_dr>
+        <transmitter bindType="ESME">
+            <port>20121</port>
+            <systemId>rave_emg</systemId>
+            <password>8035005</password>
+           <host>qaarthur-fe1.dev.telemessage.co.il</host>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+        </transmitter>
+        <receiver bindType="ESME">
+            <port>10121</port>
+            <systemId>rave_emg</systemId>
+            <password>8035005</password>
+           <host>qaarthur-fe1.dev.telemessage.co.il</host>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+        </receiver>
+    </connection>
+    <connection id="25">
+        <name>Arthur smsRout</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>20251</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>10251</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </receiver>
+    </connection>
+    <connection id="27">
+        <name>Arthur smsRout worldwide</name>
+        <receiver bindType="SMSC">
+            <port>10271</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </receiver>
+    </connection>
+    <connection id="560">
+        <name>Arthur Content Intercarrier (Mblox)</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>20561</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>10561</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+        </receiver>
+    </connection>
+    <connection id="89">
+        <name>RogersPlugin - (support sprint EMG user types)</name>
+        <receiver bindType="SMSC">
+            <port>10891</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+        </receiver>
+    </connection>
+    <connection id="377">
+        <name>CLX USA Arthur</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <receiver bindType="SMSC">
+            <port>13771</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </receiver>
+    </connection>
+    <connection id="1377">
+        <name>CLX USA Arthur</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <receiver bindType="SMSC">
+            <port>13772</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </receiver>
+    </connection>
+    <connection id="378">
+        <name>CLX Worldwide Arthur</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <receiver bindType="SMSC">
+            <port>13781</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+        </receiver>
+    </connection>
+    <connection id="20">
+        <name>Arthur Rave EMG 1</name>
+        <automatic_dr></automatic_dr>
+        <transmitter bindType="ESME">
+            <port>30021</port>
+            <systemId>rave_emg</systemId>
+            <password>8035005</password>
+            <host>qaarthur-fe2.dev.telemessage.co.il</host>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+        </transmitter>
+        <receiver bindType="ESME">
+            <port>40021</port>
+            <systemId>rave_emg</systemId>
+            <password>8035005</password>
+            <host>qaarthur-fe2.dev.telemessage.co.il</host>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+        </receiver>
+    </connection>
+    <connection id="80">
+        <name>Arthur Sprint</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transceiver bindType="SMSC">
+            <port>21888</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transceiver</bindOption>
+            <threads>40</threads>
+            <concatenation>SAR</concatenation>
+        </transceiver>
+    </connection>
+    <connection id="90" transmitter="80">
+        <name>Arthur Sprint Broker</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <receiver bindType="SMSC">
+            <port>27791</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+            <concatenation>PAYLOAD</concatenation>
+        </receiver>
+    </connection>
+    <connection id="120">
+        <name>Arthur Rave EMG 2</name>
+        <automatic_dr></automatic_dr>
+        <transmitter bindType="ESME">
+            <port>30121</port>
+            <systemId>rave_emg</systemId>
+            <password>8035005</password>
+            <host>qaarthur-fe2.dev.telemessage.co.il</host>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+        </transmitter>
+        <receiver bindType="ESME">
+            <port>40121</port>
+            <systemId>rave_emg</systemId>
+            <password>8035005</password>
+            <host>qaarthur-fe2.dev.telemessage.co.il</host>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+        </receiver>
+    </connection>
+    <connection id="250">
+        <name>Arthur smsRout</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>30251</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>40251</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </receiver>
+    </connection>
+    <connection id="270">
+        <name>Arthur smsRout worldwide</name>
+        <receiver bindType="SMSC">
+            <port>40271</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </receiver>
+    </connection>
+    <connection id="56">
+        <name>Arthur Content Intercarrier (Mblox)</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>30561</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>40561</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+        </receiver>
+    </connection>
+    <connection id="890">
+        <name>RogersPlugin - (support sprint EMG user types)</name>
+        <receiver bindType="SMSC">
+            <port>40891</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+        </receiver>
+    </connection>
+    <connection id="3770">
+        <name>CLX USA Arthur</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <receiver bindType="SMSC">
+            <port>43771</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </receiver>
+    </connection>
+    <connection id="3780">
+        <name>CLX Worldwide Arthur</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <receiver bindType="SMSC">
+            <port>43781</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+        </receiver>
+    </connection>
+	<connection id="2000">
+        <name>BENNY SYNC</name>
+        <automatic_dr></automatic_dr>
+        <transmitter bindType="ESME">
+            <port>60021</port>
+            <systemId>sprint_sms_2_ll_sync</systemId>
+            <password>12345678</password>
+           <host>qaarthur-fe1.dev.telemessage.co.il</host>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+        </transmitter>
+        <receiver bindType="ESME">
+            <port>70021</port>
+            <systemId>sprint_sms_2_ll_sync</systemId>
+            <password>12345678</password>
+           <host>qaarthur-fe1.dev.telemessage.co.il</host>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+        </receiver>
+    </connection>
+  <!--  <connection id="1888">
+        <name>Arthur Sprint</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        &lt;!&ndash;<direct_status>ESME_RMSGQFUL</direct_status>&ndash;&gt;
+        <transceiver bindType="SMSC">
+            <port>1888</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transceiver</bindOption>
+            <threads>40</threads>
+            <concatenation>SAR</concatenation>
+        </transceiver>
+    </connection>
+    <connection id="21888">
+        <name>Arthur Sprint</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        &lt;!&ndash;<direct_status>ESME_RMSGQFUL</direct_status>&ndash;&gt;
+        <transceiver bindType="SMSC">
+            <port>21888</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transceiver</bindOption>
+            <threads>40</threads>
+            <concatenation>SAR</concatenation>
+        </transceiver>
+    </connection>-->
+</connections>

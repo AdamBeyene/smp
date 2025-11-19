@@ -1,0 +1,6 @@
+sim:
+ env:
+  configurations:
+   env-current: ${currentEnv:KEEPER}
+   env-name: ${envName:uat}
+   env-url: ${envUrl:https://integration.telemessage.co.il}

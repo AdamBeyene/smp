@@ -1,0 +1,50 @@
+sim:
+ env:
+  configurations:
+   env-current: ${currentEnv:LOCAL_Docker}
+   env-name: ${envName:test}
+   env-url: ${envUrl:http://localhost:8080}
+   smpp-web-port: ${smppWebPort:8070}
+
+
+
+spring:
+ boot:
+  admin:
+   context-path: /
+   client:
+    url: http://localhost:8070
+    enabled: true
+    auto-registration: true
+    instance:
+     management-base-url: http://localhost:9001/monitor  # Application's actuator URL
+     service-url: http://localhost:8070  # Application's service URL
+   server:
+    enabled: true
+#server:
+# tomcat:
+#  accesslog:
+#   directory: ${user.dir}/shared/sim/logs
+#   suffix: ".log"
+#   prefix: access_log
+#   enabled: true
+#   pattern: "%t %a %r %s (%D ms)"
+
+management:
+ endpoint:
+  logfile:
+   enabled: true
+   external-file: ${user.dir}/shared/sim/logs/smpp/simApp.log
+
+logging:
+ file:
+  path: ${user.dir}/shared/sim/logs/smpp
+  name: simApp.log
+ level:
+  org.springframework.kafka: error
+  org:
+   apache:
+    kafka: ERROR
+    tomcat: INFO
+    catalina: INFO
+  root: debug

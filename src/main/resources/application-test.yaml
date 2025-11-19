@@ -1,0 +1,7 @@
+sim:
+ env:
+  configurations:
+   env-current: ${currentEnv:KEEPER}
+   env-name: ${envName:test}
+   shared-folder-name: ${sharedFolderName:cloud}
+   env-url: ${envUrl:https://qa.telemessage.com}

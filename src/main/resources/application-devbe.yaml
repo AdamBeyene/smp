@@ -1,0 +1,17 @@
+sim:
+ env:
+  configurations:
+   env-current: ${currentEnv:CRND}
+   env-name: ${envName:dev}
+   env-url: ${envUrl:https://rnd.telemessage.co.il}
+
+management:
+ endpoint:
+  logfile:
+   enabled: true
+   external-file: ${user.dir}/shared/sim/logs/smpp/simApp.log
+
+logging:
+ file:
+  path: ${user.dir}/shared/sim/logs/smpp
+  name: simApp.log

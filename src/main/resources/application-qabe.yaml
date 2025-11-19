@@ -1,0 +1,18 @@
+sim:
+ env:
+  configurations:
+   env-current: ${currentEnv:CMINOR}
+   env-name: ${envName:test}
+   env-url: ${envUrl:https://qa.telemessage.com}
+
+management:
+ endpoint:
+  logfile:
+   enabled: true
+   external-file: ${user.dir}/shared/sim/logs/smpp/simApp.log
+
+
+logging:
+ file:
+  path: ${user.dir}/shared/sim/logs/smpp
+  name: simApp.log

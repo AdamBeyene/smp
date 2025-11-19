@@ -1,0 +1,4 @@
+com.telemessage.simulators.common.conf.CharsetsConfiguration$CombinedCharsetProvider
+org.smpp.charset.Gsm7BitCharsetProvider
+net.freeutils.charset.CharsetProvider
+com.ibm.icu.text.CharsetProviderICU

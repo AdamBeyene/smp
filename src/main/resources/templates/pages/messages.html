@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      th:inline="javascript"
+      layout:decorate="~{base}">
+<head>
+    <title>SMPP SIM Message Viewer</title>
+    <th:block layout:fragment="extraHead">
+        <link rel="stylesheet" th:href="@{/css/styles.css}" href="/css/styles.css"/>
+        <link rel="stylesheet" th:href="@{/css/styles-table.css}" href="/css/styles-table.css"/>
+        <link rel="stylesheet" th:href="@{/css/messages.css}" href="/css/messages.css"/>
+        <link rel="stylesheet" th:href="@{/css/table-grouping.css}" href="/css/table-grouping.css"/>
+        <link rel="stylesheet" th:href="@{/css/export-dialog.css}" href="/css/export-dialog.css"/>
+    </th:block>
+</head>
+<body>
+
+<th:block layout:fragment="header">
+    <div class="header logo" id="logo">SMPP SIM Message Viewer</div>
+</th:block>
+
+<!-- Option 1: Keep the sidebar override with just a heading (recommended) -->
+<div layout:fragment="sidebar" class="sidebar">
+    <p>Message Options</p>
+    <!-- The JavaScript will add all menu items to this sidebar -->
+</div>
+
+<th:block layout:fragment="content">
+    <div class="main-content">
+        <div style="position: relative; display: flex; flex-direction: column; height: 100%;">
+            <div class="unified-controls-container sticky-controls" id="messages-controls" style="display: flex; align-items: center;">
+                <div class="search-box">
+                    <label for="search-input">Search:</label>
+                    <input type="text" id="search-input" placeholder="Type to filter...">
+                </div>
+                <div class="table-info" id="table-info"></div>
+                <div class="pagination" id="pagination"></div>
+                <div class="table-page-size">
+                    <label for="page-size-select">Rows:</label>
+                    <select id="page-size-select">
+                        <option value="25">25</option>
+                        <option value="50" selected>50</option>
+                        <option value="100">100</option>
+                        <option value="250">250</option>
+                        <option value="500">500</option>
+                        <option value="1000">1000</option>
+                        <option value="-1">All</option>
+                    </select>
+                </div>
+                <!-- Grouped View Controls -->
+                <div class="grouped-view-controls">
+                    <button id="toggle-grouped-view" class="grouped-view-toggle" title="Toggle grouped view for concat messages">
+                        <i class="fas fa-layer-group"></i> Group Concat
+                    </button>
+                    <div class="expand-collapse-buttons" id="expand-collapse-btns" style="display: none;">
+                        <button id="expand-all-btn" class="expand-collapse-btn" title="Expand all concat messages">
+                            <i class="fas fa-chevron-down"></i> Expand All
+                        </button>
+                        <button id="collapse-all-btn" class="expand-collapse-btn" title="Collapse all concat messages">
+                            <i class="fas fa-chevron-up"></i> Collapse All
+                        </button>
+                    </div>
+                </div>
+                <!-- Export Button -->
+                <button id="export-messages-btn" class="export-btn" title="Export messages to CSV or JSON">
+                    <i class="fas fa-download"></i> Export
+                </button>
+                <div style="flex:1"></div>
+                <div id="refresh-controls-placeholder" class="refresh-controls-class" style="display:flex; align-items:center; min-width:120px;"></div>
+                <!-- New actions section that will expand when a menu action is clicked -->
+                <div id="message-actions-section" class="message-actions-section" style="display: none;">
+                    <div class="actions-header">
+                        <h3 id="current-action-title">Action Title</h3>
+                        <button id="close-action-btn" class="unified-button unified-button-secondary">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                    </div>
+
+                    <!-- Delete All Messages Form -->
+                    <div id="delete-all-form" class="action-form">
+                        <div class="form-group">
+                            <p class="warning-text">⚠️ This will delete all messages in the cache. This action cannot be undone.</p>
+                        </div>
+                        <div class="form-actions">
+                            <button id="delete-all-submit" class="unified-button unified-button-danger">Delete All Messages</button>
+                        </div>
+                    </div>
+
+                    <!-- Search by Text Form -->
+                    <div id="search-by-text-form" class="action-form">
+                        <div class="form-group">
+                            <label for="search-text-input">Text to search for:</label>
+                            <textarea id="search-text-input" class="unified-input" rows="3" placeholder="Enter text to search for in messages"></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button id="search-text-submit" class="unified-button unified-button-primary">Search Messages</button>
+                        </div>
+                    </div>
+
+                    <!-- Search by MID Form -->
+                    <div id="search-by-mid-form" class="action-form">
+                        <div class="form-group">
+                            <label for="search-mid-input">Message ID:</label>
+                            <input type="text" id="search-mid-input" class="unified-input" placeholder="Enter message ID">
+                        </div>
+                        <div class="form-actions">
+                            <button id="search-mid-submit" class="unified-button unified-button-primary">Search by ID</button>
+                        </div>
+                    </div>
+
+                    <!-- Advanced Search Form -->
+                    <div id="advanced-search-form" class="action-form">
+                        <div class="form-group">
+                            <label for="adv-message-text">Message Text:</label>
+                            <input type="text" id="adv-message-text" class="unified-input" placeholder="Text in message content">
+                        </div>
+                        <div class="form-group">
+                            <label for="adv-http-text">HTTP Message Text:</label>
+                            <input type="text" id="adv-http-text" class="unified-input" placeholder="Text in HTTP messages">
+                        </div>
+                        <div class="form-group">
+                            <label for="adv-smpp-text">SMPP Message Text:</label>
+                            <input type="text" id="adv-smpp-text" class="unified-input" placeholder="Text in SMPP messages">
+                        </div>
+                        <div class="form-group form-row">
+                            <div style="flex: 1;">
+                                <label for="adv-source">Source Address:</label>
+                                <input type="text" id="adv-source" class="unified-input" placeholder="Source/From address">
+                            </div>
+                            <div style="flex: 1; margin-left: 10px;">
+                                <label for="adv-destination">Destination Address:</label>
+                                <input type="text" id="adv-destination" class="unified-input" placeholder="Destination/To address">
+                            </div>
+                        </div>
+                        <div class="form-group form-row">
+                            <div style="flex: 1;">
+                                <label for="adv-provider-id">Provider ID:</label>
+                                <input type="text" id="adv-provider-id" class="unified-input" placeholder="Provider ID">
+                            </div>
+                            <div style="flex: 1; margin-left: 10px;">
+                                <label for="adv-message-id">Message ID:</label>
+                                <input type="text" id="adv-message-id" class="unified-input" placeholder="Message ID">
+                            </div>
+                        </div>
+                        <div class="form-group form-row">
+                            <div style="flex: 1;">
+                                <label for="adv-direction">Direction:</label>
+                                <select id="adv-direction" class="unified-input">
+                                    <option value="">Any</option>
+                                    <option value="In">In</option>
+                                    <option value="Out">Out</option>
+                                </select>
+                            </div>
+                            <div style="flex: 1; margin-left: 10px; display: flex; align-items: flex-end;">
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="adv-include-dr" checked>
+                                    <span class="checkbox-label">Include Delivery Receipts</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button id="advanced-search-submit" class="unified-button unified-button-primary">Search Messages</button>
+                            <button id="advanced-search-clear" class="unified-button unified-button-secondary">Clear Form</button>
+                        </div>
+                    </div>
+
+                    <!-- SMPP Controller action forms -->
+                    <!-- Send Message Form -->
+                    <div id="send-message-form" class="action-form">
+                        <div class="form-group">
+                            <label for="send-connection-id">Connection ID:</label>
+                            <input type="number" id="send-connection-id" class="unified-input" placeholder="Enter connection ID" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="send-source-addr">Source Address:</label>
+                            <input type="text" id="send-source-addr" class="unified-input" placeholder="Source address">
+                        </div>
+                        <div class="form-group">
+                            <label for="send-dest-addr">Destination Address:</label>
+                            <input type="text" id="send-dest-addr" class="unified-input" placeholder="Destination address">
+                        </div>
+                        <div class="form-group">
+                            <label for="send-service-type">Service Type:</label>
+                            <input type="text" id="send-service-type" class="unified-input" placeholder="Service type (optional)">
+                        </div>
+                        <div class="form-group">
+                            <label for="send-message-text">Message Text:</label>
+                            <textarea id="send-message-text" class="unified-input" rows="3" placeholder="Enter message text"></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button id="send-message-submit" class="unified-button unified-button-primary">Send Message</button>
+                        </div>
+                    </div>
+
+                    <!-- Send Delivery Receipt Form -->
+                    <div id="send-dr-form" class="action-form">
+                        <div class="form-group">
+                            <label for="dr-connection-id">Connection ID:</label>
+                            <input type="number" id="dr-connection-id" class="unified-input" placeholder="Enter connection ID" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="dr-source-addr">Source Address:</label>
+                            <input type="text" id="dr-source-addr" class="unified-input" placeholder="Source address">
+                        </div>
+                        <div class="form-group">
+                            <label for="dr-dest-addr">Destination Address:</label>
+                            <input type="text" id="dr-dest-addr" class="unified-input" placeholder="Destination address">
+                        </div>
+                        <div class="form-group">
+                            <label for="dr-service-type">Service Type:</label>
+                            <input type="text" id="dr-service-type" class="unified-input" placeholder="Service type (optional)">
+                        </div>
+                        <div class="form-group">
+                            <label for="dr-status">Status:</label>
+                            <select id="dr-status" class="unified-input">
+                                <option value="DELIVRD">DELIVRD</option>
+                                <option value="EXPIRED">EXPIRED</option>
+                                <option value="DELETED">DELETED</option>
+                                <option value="UNDELIV">UNDELIV</option>
+                                <option value="ACCEPTD">ACCEPTD</option>
+                                <option value="UNKNOWN">UNKNOWN</option>
+                                <option value="REJECTD">REJECTD</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="dr-provider-result">Provider Result:</label>
+                            <input type="text" id="dr-provider-result" class="unified-input" placeholder="Provider result">
+                        </div>
+                        <div class="form-actions">
+                            <button id="send-dr-submit" class="unified-button unified-button-primary">Send Delivery Receipt</button>
+                        </div>
+                    </div>
+
+                    <!-- Connection Info Form -->
+                    <div id="connection-info-form" class="action-form">
+                        <div class="form-group">
+                            <label for="conn-info-id">Connection ID (optional):</label>
+                            <input type="number" id="conn-info-id" class="unified-input" placeholder="Leave empty for all connections" min="1">
+                        </div>
+                        <div class="form-actions">
+                            <button id="connection-info-submit" class="unified-button unified-button-primary">Get Connection Info</button>
+                        </div>
+                    </div>
+
+                    <!-- Start Connection Form -->
+                    <div id="start-connection-form" class="action-form">
+                        <div class="form-group">
+                            <label for="start-connection-id">Connection ID:</label>
+                            <input type="number" id="start-connection-id" class="unified-input" placeholder="Enter connection ID" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="start-connection-type">Connection Type:</label>
+                            <select id="start-connection-type" class="unified-input">
+                                <option value="transmitter">Transmitter</option>
+                                <option value="receiver">Receiver</option>
+                            </select>
+                        </div>
+                        <div class="form-actions">
+                            <button id="start-connection-submit" class="unified-button unified-button-primary">Start Connection</button>
+                        </div>
+                    </div>
+
+                    <!-- Stop Connection Form -->
+                    <div id="stop-connection-form" class="action-form">
+                        <div class="form-group">
+                            <label for="stop-connection-id">Connection ID:</label>
+                            <input type="number" id="stop-connection-id" class="unified-input" placeholder="Enter connection ID" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="stop-connection-type">Connection Type:</label>
+                            <select id="stop-connection-type" class="unified-input">
+                                <option value="transmitter">Transmitter</option>
+                                <option value="receiver">Receiver</option>
+                            </select>
+                        </div>
+                        <div class="form-actions">
+                            <button id="stop-connection-submit" class="unified-button unified-button-primary">Stop Connection</button>
+                        </div>
+                    </div>
+
+                    <!-- Reset Connection Form -->
+                    <div id="reset-connection-form" class="action-form">
+                        <div class="form-group">
+                            <label for="reset-connection-id">Connection ID:</label>
+                            <input type="number" id="reset-connection-id" class="unified-input" placeholder="Enter connection ID" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="reset-connection-type">Connection Type:</label>
+                            <select id="reset-connection-type" class="unified-input">
+                                <option value="transmitter">Transmitter</option>
+                                <option value="receiver">Receiver</option>
+                            </select>
+                        </div>
+                        <div class="form-actions">
+                            <button id="reset-connection-submit" class="unified-button unified-button-primary">Reset Connection</button>
+                        </div>
+                    </div>
+
+                    <!-- Reset All Form -->
+                    <div id="reset-all-form" class="action-form">
+                        <div class="form-group">
+                            <p>This will reset all SMPP connections. It might take some time to complete the action.</p>
+                        </div>
+                        <div class="form-actions">
+                            <button id="reset-all-submit" class="unified-button unified-button-primary">Reset All Connections</button>
+                        </div>
+                    </div>
+
+                    <!-- Response area for all actions -->
+                    <div id="action-response-area" class="action-response-area">
+                        <div class="response-header">Response:</div>
+                        <pre id="response-content"></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="unified-table-outer">
+                <table id="data-table" class="unified-table fixed-table">
+                    <thead>
+                    <tr>
+                        <th style="min-width:70px;">MID</th>
+                        <th style="min-width:80px;">PID</th>
+                        <th style="min-width:50px;">Dir</th>
+                        <th style="min-width:90px;">From</th>
+                        <th style="min-width:90px;">To</th>
+                        <th style="min-width:120px;">Text</th>
+                        <th style="min-width:110px;">Message Time</th>
+                        <th style="min-width:120px;">SMPP Message</th>
+                        <th style="min-width:120px;">HTTP Message</th>
+                        <th style="min-width:100px;">SMPP DR</th>
+                        <th style="min-width:100px;">HTTP DR</th>
+                        <th style="min-width:100px;">DR Time</th>
+                        <th style="min-width:120px;">Direct Response</th>
+                    </tr>
+                    </thead>
+                    <tbody id="messages-tbody">
+                    <!-- Rows rendered by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+<!-- Enhanced Message Viewer Modal -->
+<div id="message-viewer-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Message Details</h2>
+            <span class="close-modal">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div class="message-info">
+                <div class="info-row">
+                    <span class="info-label">Message ID:</span>
+                    <span id="modal-message-id" class="info-value"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Encoding:</span>
+                    <span id="modal-encoding" class="info-value"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">From:</span>
+                    <span id="modal-from" class="info-value"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">To:</span>
+                    <span id="modal-to" class="info-value"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Time:</span>
+                    <span id="modal-time" class="info-value"></span>
+                </div>
+            </div>
+
+            <div class="view-tabs">
+                <button class="tab-button active" data-tab="text-view">Text View</button>
+                <button class="tab-button" data-tab="hex-view">Hex View</button>
+                <button class="tab-button" data-tab="encoding-analysis">Encoding Analysis</button>
+            </div>
+
+            <div id="text-view" class="tab-content active">
+                <pre id="modal-text-content" class="message-content"></pre>
+            </div>
+
+            <div id="hex-view" class="tab-content">
+                <pre id="modal-hex-content" class="message-content"></pre>
+            </div>
+
+            <div id="encoding-analysis" class="tab-content">
+                <div id="encoding-issues"></div>
+            </div>
+
+            <div class="modal-actions">
+                <button id="download-raw-btn" class="unified-button">Download Raw Data</button>
+                <button id="copy-text-btn" class="unified-button">Copy Text</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block layout:fragment="extraScripts">
+    <!-- Load external scripts FIRST, before inline code uses them -->
+    <script th:src="@{/js/table-grouping.js}" src="/js/table-grouping.js"></script>
+    <script th:src="@{/js/table-export.js}" src="/js/table-export.js"></script>
+    <script th:src="@{/js/Atable.js}" src="/js/Atable.js"></script>
+    <script th:src="@{/js/messages-actions.js}" src="/js/messages-actions.js"></script>
+    <script th:src="@{/js/messages-encoding-tools.js}" src="/js/messages-encoding-tools.js"></script>
+
+    <script th:inline="javascript">
+        // Parse Thymeleaf data into JS
+        const messagesData = /*[[${data}]]*/ [];
+        console.info('messagesData size:', messagesData.length);
+        // Column keys in order
+        const columns = [
+            "id", "providerId", "dir", "from", "to", "text", "messageTime",
+            "sendMessageSM", "httpMessage", "deliveryReceiptShortMessage",
+            "deliveryReceiptHttpMessage", "deliveryReceiptTime", "directResponse"
+        ];
+        // Columns to truncate/expand
+        const expandableCols = [2, 5, 7, 8, 9, 10, 12]; // indexes of long text columns
+
+        // Truncation parameter for text column
+        const maxTruncateVal = 19;
+
+        // Pagination state
+        let currentPage = 1;
+        let pageSize = 50;
+        let filteredData = messagesData.slice();
+        let sortCol = null;
+        let sortAsc = true;
+
+        function renderTable() {
+            const tbody = document.getElementById('messages-tbody');
+            tbody.innerHTML = '';
+            // Pagination
+            let start = (currentPage - 1) * pageSize;
+            let end = pageSize === -1 ? filteredData.length : Math.min(start + pageSize, filteredData.length);
+            if (filteredData.length === 0) {
+                const tr = document.createElement('tr');
+                const td = document.createElement('td');
+                td.colSpan = columns.length;
+                td.style.textAlign = 'center';
+                td.textContent = 'No messages to display.';
+                tr.appendChild(td);
+                tbody.appendChild(tr);
+                renderInfo();
+                return;
+            }
+            for (let i = start; i < end; i++) {
+                const msg = filteredData[i];
+                const tr = document.createElement('tr');
+                columns.forEach((col, idx) => {
+                    const td = document.createElement('td');
+                    let val = msg[col] == null ? '' : String(msg[col]);
+                    // Enhanced handling for text column
+                    if (col === 'text') {
+                        // Create a container for text and encoding badge
+                        const textContainer = document.createElement('div');
+                        textContainer.className = 'message-details';
+
+                        // Add the text content
+                        const textSpan = document.createElement('span');
+                        textSpan.className = 'message-text';
+                        // Always use truncated-cell for text column if truncated
+                        if (val.length > maxTruncateVal) {
+                            textSpan.classList.add('truncated-cell');
+                            textSpan.title = "Click to expand";
+                            textSpan.setAttribute('data-fulltext', val); // Store full text for popup
+                        }
+                        textSpan.textContent = val.substring(0, maxTruncateVal) + (val.length > maxTruncateVal ? '…' : '');
+                        textContainer.appendChild(textSpan);
+
+                        // Indicate binary content if present
+                        if (msg.rawMessageBytesBase64) {
+                            const binaryIndicator = document.createElement('span');
+                            binaryIndicator.className = 'binary-indicator';
+                            binaryIndicator.textContent = '[BIN]';
+                            textContainer.appendChild(binaryIndicator);
+                        }
+
+                        td.appendChild(textContainer);
+
+                        // Store the full text for tooltips
+                        td.__fullText = val;
+                        td.title = msg.messageEncoding ? `Encoding: ${msg.messageEncoding}` : '';
+
+                        // Mark as having binary data if applicable
+                        if (msg.rawMessageBytesBase64) {
+                            td.dataset.hasBinary = 'true';
+                        }
+                    }
+                    // Handle other expandable columns
+                    else if (expandableCols.includes(idx) && val.length > 60) {
+                        // Always use truncated-cell for popup and store full text
+                        td.innerHTML = `<span class="truncated-cell" title="Click to expand" data-fulltext="${escapeHtml(val)}">${escapeHtml(val.substring(0, 60))}…</span>`;
+                        td.__fullText = val;
+                    } else if (expandableCols.includes(idx)) {
+                        td.innerHTML = `<span class="truncated-cell">${escapeHtml(val)}</span>`;
+                        td.__fullText = val;
+                    } else {
+                        td.textContent = val;
+                    }
+                    tr.appendChild(td);
+                });
+                tbody.appendChild(tr);
+            }
+            renderInfo();
+        }
+
+        // Helper function to safely escape HTML content
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        // Rest of existing functions
+        function renderInfo() {
+            const info = document.getElementById('table-info');
+            const total = filteredData.length;
+            const start = total === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+            const end = pageSize === -1 ? total : Math.min(currentPage * pageSize, total);
+            info.textContent = `Showing ${start} to ${end} of ${total} entries`;
+        }
+
+        function renderPagination() {
+            const pag = document.getElementById('pagination');
+            pag.innerHTML = '';
+            const totalPages = pageSize === -1 ? 1 : Math.ceil(filteredData.length / pageSize);
+            if (totalPages <= 1) return;
+            const btn = (label, page, disabled, active) => {
+                const b = document.createElement('button');
+                b.textContent = label;
+                if (disabled) b.disabled = true;
+                if (active) b.classList.add('active');
+                b.onclick = () => { currentPage = page; renderTable(); renderPagination(); };
+                return b;
+            };
+            pag.appendChild(btn('«', 1, currentPage === 1));
+            pag.appendChild(btn('‹', Math.max(1, currentPage - 1), currentPage === 1));
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || Math.abs(i - currentPage) <= 2) {
+                    pag.appendChild(btn(i, i, false, i === currentPage));
+                } else if (i === currentPage - 3 || i === currentPage + 3) {
+                    const dots = document.createElement('span');
+                    dots.textContent = '...';
+                    dots.style.padding = '0 6px';
+                    pag.appendChild(dots);
+                }
+            }
+            pag.appendChild(btn('›', Math.min(totalPages, currentPage + 1), currentPage === totalPages));
+            pag.appendChild(btn('»', totalPages, currentPage === totalPages));
+        }
+
+        function sortBy(colIdx) {
+            if (sortCol === colIdx) sortAsc = !sortAsc;
+            else { sortCol = colIdx; sortAsc = true; }
+            filteredData.sort((a, b) => {
+                let va = a[columns[colIdx]] || '';
+                let vb = b[columns[colIdx]] || '';
+                if (!isNaN(va) && !isNaN(vb)) {
+                    va = Number(va); vb = Number(vb);
+                }
+                if (va < vb) return sortAsc ? -1 : 1;
+                if (va > vb) return sortAsc ? 1 : -1;
+                return 0;
+            });
+            currentPage = 1;
+            renderTable();
+            renderPagination();
+        }
+
+        function filterTable() {
+            const q = document.getElementById('search-input').value.trim().toLowerCase();
+            if (!q) {
+                filteredData = messagesData.slice();
+            } else {
+                filteredData = messagesData.filter(msg =>
+                    columns.some(col => (msg[col] || '').toString().toLowerCase().includes(q))
+                );
+            }
+            currentPage = 1;
+            renderTable();
+            renderPagination();
+        }
+
+        // Copy on click for truncated cell or tooltip
+        function setupCopy() {
+            document.getElementById('messages-tbody').addEventListener('dblclick', function (e) {
+                if (e.target.classList.contains('truncated-cell')) {
+                    navigator.clipboard.writeText(e.target.textContent.replace('…',''));
+                }
+                if (e.target.classList.contains('custom-tooltip')) {
+                    navigator.clipboard.writeText(e.target.textContent);
+                }
+            });
+        }
+
+        // Sort on header click
+        function setupSort() {
+            document.querySelectorAll('#data-table thead th').forEach((th, idx) => {
+                th.style.cursor = 'pointer';
+                th.onclick = () => sortBy(idx);
+            });
+        }
+
+        // --- Grouped View State and Functions ---
+        let isGroupedView = false;
+        let groupedMessagesData = [];
+        let renderGroupedRetryCount = 0;
+        const MAX_RETRY_COUNT = 50;
+
+        async function fetchGroupedMessages() {
+            try {
+                const response = await fetch('/sim/messages/grouped-by-concat');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                groupedMessagesData = await response.json();
+                return groupedMessagesData;
+            } catch (error) {
+                console.error('Error fetching grouped messages:', error);
+                return [];
+            }
+        }
+
+        function toggleGroupedView() {
+            isGroupedView = !isGroupedView;
+            const toggleBtn = document.getElementById('toggle-grouped-view');
+            const expandCollapseBtns = document.getElementById('expand-collapse-btns');
+
+            if (isGroupedView) {
+                toggleBtn.classList.add('active');
+                expandCollapseBtns.style.display = 'flex';
+                // Reset retry counter
+                renderGroupedRetryCount = 0;
+                // Fetch and render grouped data
+                fetchGroupedMessages().then(() => {
+                    renderGroupedTable();
+                });
+            } else {
+                toggleBtn.classList.remove('active');
+                expandCollapseBtns.style.display = 'none';
+                // Show pagination again
+                document.getElementById('pagination').style.display = '';
+                // Render normal flat table
+                renderTable();
+                renderPagination();
+            }
+        }
+
+        function renderGroupedTable() {
+            // Check if scripts have loaded
+            console.log('renderGroupedTable called. window.TableGrouping exists?', typeof window.TableGrouping !== 'undefined');
+
+            // Wait for TableGrouping to be available
+            if (typeof window.TableGrouping === 'undefined') {
+                renderGroupedRetryCount++;
+
+                if (renderGroupedRetryCount > MAX_RETRY_COUNT) {
+                    console.error('TableGrouping module failed to load after', MAX_RETRY_COUNT, 'retries');
+                    alert('ERROR: TableGrouping module failed to load. Please refresh the page and try again.');
+                    // Reset grouped view
+                    isGroupedView = false;
+                    document.getElementById('toggle-grouped-view').classList.remove('active');
+                    document.getElementById('expand-collapse-btns').style.display = 'none';
+                    return;
+                }
+
+                console.warn('TableGrouping module not loaded - waiting... (retry', renderGroupedRetryCount, 'of', MAX_RETRY_COUNT, ')');
+                // Retry after scripts load
+                setTimeout(renderGroupedTable, 100);
+                return;
+            }
+
+            console.log('TableGrouping loaded successfully! Rendering grouped view...');
+            console.log('groupedMessagesData:', groupedMessagesData);
+            console.log('groupedMessagesData.length:', groupedMessagesData ? groupedMessagesData.length : 'undefined');
+            renderGroupedRetryCount = 0; // Reset counter
+
+            const tbody = document.getElementById('messages-tbody');
+            if (!tbody) {
+                console.error('Table body element not found!');
+                return;
+            }
+
+            console.log('Calling TableGrouping.renderGroupedMessages with', groupedMessagesData.length, 'groups');
+            window.TableGrouping.renderGroupedMessages(
+                groupedMessagesData,
+                tbody,
+                columns,
+                { maxTruncate: maxTruncateVal }
+            );
+            console.log('renderGroupedMessages completed. tbody.children.length:', tbody.children.length);
+
+            // Update table info
+            const info = document.getElementById('table-info');
+            const totalMessages = groupedMessagesData.reduce((sum, group) => {
+                return sum + (group.type === 'concat' ? group.parts.length : 1);
+            }, 0);
+            const concatGroups = groupedMessagesData.filter(g => g.type === 'concat').length;
+            const singleMessages = groupedMessagesData.filter(g => g.type === 'single').length;
+            info.textContent = `Showing ${totalMessages} messages (${concatGroups} concat groups, ${singleMessages} single)`;
+
+            // Hide pagination in grouped view
+            document.getElementById('pagination').style.display = 'none';
+        }
+
+        function expandAllGroups() {
+            if (window.TableGrouping && isGroupedView) {
+                const tbody = document.getElementById('messages-tbody');
+                window.TableGrouping.expandAll(groupedMessagesData, tbody, columns, { maxTruncate: maxTruncateVal });
+            }
+        }
+
+        function collapseAllGroups() {
+            if (window.TableGrouping && isGroupedView) {
+                const tbody = document.getElementById('messages-tbody');
+                window.TableGrouping.collapseAll(groupedMessagesData, tbody, columns, { maxTruncate: maxTruncateVal });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('page-size-select').addEventListener('change', function () {
+                pageSize = parseInt(this.value, 10);
+                currentPage = 1;
+                renderTable();
+                renderPagination();
+            });
+
+            // Setup grouped view toggle
+            document.getElementById('toggle-grouped-view').addEventListener('click', toggleGroupedView);
+            document.getElementById('expand-all-btn').addEventListener('click', expandAllGroups);
+            document.getElementById('collapse-all-btn').addEventListener('click', collapseAllGroups);
+
+            // Setup export button
+            const exportBtn = document.getElementById('export-messages-btn');
+            if (exportBtn) {
+                exportBtn.addEventListener('click', function() {
+                    // Check if TableExport is loaded
+                    if (typeof window.TableExport === 'undefined') {
+                        console.error('TableExport module not loaded yet');
+                        alert('Export module is loading, please try again in a moment');
+                        return;
+                    }
+
+                    // Determine what to export based on current view
+                    let messagesToExport;
+                    let context;
+
+                    if (isGroupedView && groupedMessagesData && groupedMessagesData.length > 0) {
+                        // Export grouped data
+                        window.TableExport.exportGroupedMessagesToJSON(groupedMessagesData, 'grouped-messages');
+                        return;
+                    }
+
+                    // Check if there's a search filter active
+                    const searchInput = document.getElementById('search-input');
+                    if (searchInput && searchInput.value.trim() !== '') {
+                        messagesToExport = filteredData || [];
+                        context = 'filtered';
+                    } else {
+                        messagesToExport = messagesData || [];
+                        context = 'all';
+                    }
+
+                    // Show export dialog
+                    window.TableExport.showExportDialog(messagesToExport, context);
+                });
+            }
+
+            // FIX: Always initialize filteredData from messagesData before filtering/rendering
+            filteredData = Array.isArray(messagesData) ? messagesData.slice() : [];
+            renderTable();
+            renderPagination();
+            setupCopy();
+            setupSort();
+            document.getElementById('search-input').addEventListener('input', filterTable);
+
+            // Make text column clickable to open modal
+            document.getElementById('messages-tbody').addEventListener('click', function(e) {
+                const td = e.target.closest('td');
+                if (td && td.cellIndex === 5) { // Text column
+                    const tr = td.parentNode;
+                    const rowIndex = tr.rowIndex - 1;
+                    const dataIndex = (currentPage - 1) * pageSize + rowIndex;
+                    if (dataIndex >= 0 && dataIndex < filteredData.length) {
+                        showMessageViewerModal(filteredData[dataIndex]);
+                    }
+                }
+            });
+
+            // Modal logic
+            function showMessageViewerModal(msg) {
+                const modal = document.getElementById('message-viewer-modal');
+                if (!modal) return;
+                const idElem = document.getElementById('modal-message-id');
+                const encodingElem = document.getElementById('modal-encoding');
+                const fromElem = document.getElementById('modal-from');
+                const toElem = document.getElementById('modal-to');
+                const timeElem = document.getElementById('modal-time');
+                const textContentElem = document.getElementById('modal-text-content');
+                const hexContentElem = document.getElementById('modal-hex-content');
+                const issuesDiv = document.getElementById('encoding-issues');
+                const downloadBtn = document.getElementById('download-raw-btn');
+                const copyBtn = document.getElementById('copy-text-btn');
+
+                if (idElem) idElem.textContent = msg.id || 'N/A';
+                if (encodingElem) encodingElem.textContent = msg.messageEncoding || 'Unknown';
+                if (fromElem) fromElem.textContent = msg.from || 'N/A';
+                if (toElem) toElem.textContent = msg.to || 'N/A';
+                if (timeElem) timeElem.textContent = msg.messageTime || 'N/A';
+
+                // Show full text in popup, and encoding data if available
+                let textContent = msg.text || '';
+                if (msg.messageEncoding) {
+                    textContent += `\n\n[Encoding: ${msg.messageEncoding}]`;
+                }
+                if (textContentElem) textContentElem.textContent = textContent;
+
+                // Optionally, show hex and encoding analysis if EncodingTools is available
+                if (window.EncodingTools && msg.text) {
+                    if (hexContentElem) hexContentElem.innerHTML = EncodingTools.generateHexView(msg.text);
+                    if (issuesDiv) {
+                        const analysis = EncodingTools.analyzeEncoding(msg.text, msg.messageEncoding);
+                        if (analysis.issues && analysis.issues.length > 0) {
+                            let html = '<div class="encoding-warning">⚠️ Potential encoding issues detected:</div><ul>';
+                            analysis.issues.forEach(issue => { html += `<li>${issue}</li>`; });
+                            html += '</ul>';
+                            if (analysis.recommendations) {
+                                html += `<div class="encoding-recommendation"><strong>Recommendation:</strong> ${analysis.recommendations}</div>`;
+                            }
+                            issuesDiv.innerHTML = html;
+                        } else {
+                            issuesDiv.innerHTML = '<div class="encoding-success">✓ No encoding issues detected</div>';
+                        }
+                    }
+                    if (msg.rawMessageBytesBase64 && downloadBtn) {
+                        downloadBtn.style.display = 'inline-block';
+                        downloadBtn.onclick = function() {
+                            EncodingTools.downloadBinaryData(msg.rawMessageBytesBase64, `message_${msg.id}_raw.bin`);
+                        };
+                    } else if (downloadBtn) {
+                        downloadBtn.style.display = 'none';
+                        downloadBtn.onclick = null;
+                    }
+                } else {
+                    if (hexContentElem) hexContentElem.textContent = "EncodingTools not available";
+                    if (issuesDiv) issuesDiv.innerHTML = '<div class="encoding-warning">Encoding analysis not available</div>';
+                    if (downloadBtn) {
+                        downloadBtn.style.display = 'none';
+                        downloadBtn.onclick = null;
+                    }
+                }
+                if (copyBtn) {
+                    copyBtn.onclick = function() {
+                        navigator.clipboard.writeText(msg.text || '');
+                        alert('Message text copied to clipboard');
+                    };
+                }
+                document.querySelectorAll('.tab-button').forEach(button => {
+                    button.onclick = function() {
+                        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                        document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                        this.classList.add('active');
+                        document.getElementById(this.getAttribute('data-tab')).classList.add('active');
+                    };
+                });
+                const defaultTab = document.querySelector('.tab-button[data-tab="text-view"]');
+                if (defaultTab) defaultTab.click();
+                modal.style.display = 'block';
+            }
+            const closeModalBtn = document.querySelector('.close-modal');
+            if (closeModalBtn) {
+                closeModalBtn.onclick = function() {
+                    const modal = document.getElementById('message-viewer-modal');
+                    if (modal) modal.style.display = 'none';
+                };
+            }
+            window.addEventListener('click', function(event) {
+                const modal = document.getElementById('message-viewer-modal');
+                if (modal && event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        });
+    </script>
+
+    <!-- Add custom script to enhance message display -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add message actions to the sidebar menu
+            addMessageActionsToSidebar();
+
+            // Setup action handlers
+            setupActionHandlers();
+
+            // Handle binary data and encoding
+            enhanceMessageDisplay();
+        });
+
+        // Enhance message display with encoding information and proper handling of binary content
+        function enhanceMessageDisplay() {
+            // Create tooltip styling if needed
+            const tooltipStyle = document.createElement('style');
+            tooltipStyle.textContent = `
+                .encoding-info {
+                    display: inline-block;
+                    font-size: 0.8em;
+                    margin-left: 0.5em;
+                    padding: 1px 4px;
+                    border-radius: 3px;
+                    background-color: var(--color-secondary);
+                    color: var(--color-text-secondary);
+                }
+
+                .custom-tooltip {
+                    white-space: pre-wrap;
+                    word-break: break-all;
+                }
+            `;
+            document.head.appendChild(tooltipStyle);
+
+            // Update expandable cells to display encoding info
+            document.getElementById('messages-tbody').addEventListener('click', function(e) {
+                if (e.target.closest('.truncated-cell')) {
+                    // If this cell has encoding info, add it to the tooltip
+                    const cell = e.target.closest('td');
+                    if (cell && cell.title && cell.title.startsWith('Encoding:')) {
+                        const tooltip = document.querySelector('.custom-tooltip');
+                        if (tooltip) {
+                            const encodingInfo = document.createElement('div');
+                            encodingInfo.className = 'encoding-info';
+                            encodingInfo.textContent = cell.title;
+                            tooltip.appendChild(encodingInfo);
+                        }
+                    }
+                }
+            });
+        }
+
+        function addMessageActionsToSidebar() {
+            // Find the sidebar to add our action links
+            const sidebar = document.querySelector('.sidebar');
+            if (!sidebar) return;
+
+            // Create action links section
+            const actionsSection = document.createElement('div');
+            actionsSection.className = 'sidebar-section';
+            actionsSection.innerHTML = `
+                <div class="sidebar-heading collapsible">Message Actions</div>
+                <div class="sidebar-group">
+                    <a href="#" class="sidebar-item" data-action="delete-all">
+                        <i class="fas fa-trash"></i> Delete All Messages
+                    </a>
+                    <a href="#" class="sidebar-item" data-action="search-by-text">
+                        <i class="fas fa-search"></i> Search by Text
+                    </a>
+                    <a href="#" class="sidebar-item" data-action="search-by-mid">
+                        <i class="fas fa-hashtag"></i> Search by Message ID
+                    </a>
+                    <a href="#" class="sidebar-item" data-action="advanced-search">
+                        <i class="fas fa-search-plus"></i> Advanced Search
+                    </a>
+                </div>
+
+                <div class="sidebar-heading collapsible">SMPP Message Actions</div>
+                <div class="sidebar-group">
+                    <a href="#" class="sidebar-item" data-action="send-message">
+                        <i class="fas fa-paper-plane"></i> Send Message
+                    </a>
+                    <a href="#" class="sidebar-item" data-action="send-dr">
+                        <i class="fas fa-receipt"></i> Send Delivery Receipt
+                    </a>
+                </div>
+            `;
+
+            // Add after first link group or at the end if not found
+            const firstLinkGroup = sidebar.querySelector('.sidebar-heading');
+            if (firstLinkGroup) {
+                // Insert after the first section
+                firstLinkGroup.parentNode.insertBefore(actionsSection, firstLinkGroup.parentNode.children[1]);
+            } else {
+                // Append to the end of sidebar
+                sidebar.appendChild(actionsSection);
+            }
+
+            // Setup collapsible sections
+            setupCollapsibleSections();
+        }
+
+        function setupCollapsibleSections() {
+            document.querySelectorAll('.sidebar-heading.collapsible').forEach(heading => {
+                // Make sections collapsed by default except Message Actions
+                const isMessageActions = heading.textContent.trim() === 'Message Actions';
+                const group = heading.nextElementSibling;
+                if (group && group.classList.contains('sidebar-group')) {
+                    if (!isMessageActions) {
+                        group.style.display = 'none';
+                    }
+                }
+
+                // Add click handler
+                heading.addEventListener('click', function() {
+                    const group = this.nextElementSibling;
+                    if (group && group.classList.contains('sidebar-group')) {
+                        const isVisible = group.style.display !== 'none';
+                        group.style.display = isVisible ? 'none' : 'block';
+
+                        // Toggle arrow icon if it exists
+                        const arrow = this.querySelector('.arrow');
+                        if (arrow) {
+                            arrow.classList.toggle('down');
+                        }
+                    }
+                });
+
+                // Add arrow indicator
+                const arrow = document.createElement('span');
+                arrow.className = 'arrow' + (isMessageActions ? ' down' : '');
+                heading.appendChild(arrow);
+            });
+        }
+
+        function setupActionHandlers() {
+            // Handle clicks on sidebar action links
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.sidebar-item[data-action]')) {
+                    const action = e.target.closest('.sidebar-item[data-action]').dataset.action;
+                    showActionForm(action);
+                    e.preventDefault();
+                }
+            });
+
+            // Handle close button
+            document.getElementById('close-action-btn').addEventListener('click', function() {
+                hideAllActionForms();
+            });
+
+            // Setup form submissions for message actions
+            document.getElementById('delete-all-submit').addEventListener('click', function() {
+                executeAction('delete-all');
+            });
+
+            document.getElementById('search-text-submit').addEventListener('click', function() {
+                executeAction('search-by-text');
+            });
+
+            document.getElementById('search-mid-submit').addEventListener('click', function() {
+                executeAction('search-by-mid');
+            });
+
+            // Re-add SMPP message action handlers
+            document.getElementById('send-message-submit').addEventListener('click', function() {
+                executeAction('send-message');
+            });
+
+            document.getElementById('send-dr-submit').addEventListener('click', function() {
+                executeAction('send-dr');
+            });
+
+            // Add handler for advanced search
+            document.getElementById('advanced-search-submit').addEventListener('click', function() {
+                executeAction('advanced-search');
+            });
+
+            // Add handler for clearing the advanced search form
+            document.getElementById('advanced-search-clear').addEventListener('click', function() {
+                document.getElementById('adv-message-text').value = '';
+                document.getElementById('adv-http-text').value = '';
+                document.getElementById('adv-smpp-text').value = '';
+                document.getElementById('adv-source').value = '';
+                document.getElementById('adv-destination').value = '';
+                document.getElementById('adv-provider-id').value = '';
+                document.getElementById('adv-message-id').value = '';
+                document.getElementById('adv-direction').value = '';
+                document.getElementById('adv-include-dr').checked = true;
+            });
+        }
+
+        function showActionForm(action) {
+            // Hide all forms first
+            hideAllActionForms(false);
+
+            // Show the actions section
+            const actionsSection = document.getElementById('message-actions-section');
+            actionsSection.style.display = 'block';
+
+            // Clear previous response
+            document.getElementById('response-content').textContent = '';
+            document.getElementById('action-response-area').style.display = 'none';
+
+            // Show the specific form and set title
+            let title = '';
+            switch (action) {
+                case 'delete-all':
+                    document.getElementById('delete-all-form').style.display = 'block';
+                    title = 'Delete All Messages';
+                    break;
+                case 'search-by-text':
+                    document.getElementById('search-by-text-form').style.display = 'block';
+                    title = 'Search Messages by Text';
+                    break;
+                case 'search-by-mid':
+                    document.getElementById('search-by-mid-form').style.display = 'block';
+                    title = 'Search Messages by ID';
+                    break;
+                case 'advanced-search':
+                    document.getElementById('advanced-search-form').style.display = 'block';
+                    title = 'Advanced Message Search';
+                    break;
+                case 'send-message':
+                    document.getElementById('send-message-form').style.display = 'block';
+                    title = 'Send SMPP Message';
+                    break;
+                case 'send-dr':
+                    document.getElementById('send-dr-form').style.display = 'block';
+                    title = 'Send Delivery Receipt';
+                    break;
+            }
+
+            document.getElementById('current-action-title').textContent = title;
+
+            // Ensure sticky controls are refreshed
+            if (typeof APP !== 'undefined' && APP.ensureStickyControls) {
+                setTimeout(APP.ensureStickyControls, 100);
+            }
+        }
+
+        function hideAllActionForms(hideSection = true) {
+            // Hide all forms
+            document.querySelectorAll('.action-form').forEach(form => {
+                form.style.display = 'none';
+            });
+
+            // Hide the section if requested
+            if (hideSection) {
+                document.getElementById('message-actions-section').style.display = 'none';
+            }
+        }
+
+        function executeAction(action) {
+            let url = '';
+            let method = 'GET';
+            let data = null;
+            let contentType = 'application/json';
+
+            switch (action) {
+                case 'delete-all':
+                    url = '/sim/deleteAllMessages';
+                    method = 'DELETE';
+                    break;
+                case 'search-by-text':
+                    const searchText = document.getElementById('search-text-input').value.trim();
+                    if (!searchText) {
+                        showResponse('Please enter text to search for', 'error');
+                        return;
+                    }
+                    url = `/sim/getMessagesByTextContains?text=${encodeURIComponent(searchText)}`;
+                    break;
+                case 'search-by-mid':
+                    const searchMid = document.getElementById('search-mid-input').value.trim();
+                    if (!searchMid) {
+                        showResponse('Please enter a message ID', 'error');
+                        return;
+                    }
+                    url = `/sim/getMessagesByMid?mid=${encodeURIComponent(searchMid)}`;
+                    break;
+                case 'advanced-search':
+                    // Build query parameters for advanced search
+                    const params = new URLSearchParams();
+
+                    const messageText = document.getElementById('adv-message-text').value.trim();
+                    if (messageText) params.append('messageText', messageText);
+
+                    const httpText = document.getElementById('adv-http-text').value.trim();
+                    if (httpText) params.append('httpText', httpText);
+
+                    const smppText = document.getElementById('adv-smpp-text').value.trim();
+                    if (smppText) params.append('smppText', smppText);
+
+                    const source = document.getElementById('adv-source').value.trim();
+                    if (source) params.append('source', source);
+
+                    const destination = document.getElementById('adv-destination').value.trim();
+                    if (destination) params.append('destination', destination);
+
+                    const providerId = document.getElementById('adv-provider-id').value.trim();
+                    if (providerId) params.append('providerId', providerId);
+
+                    const messageId = document.getElementById('adv-message-id').value.trim();
+                    if (messageId) params.append('messageId', messageId);
+
+                    const direction = document.getElementById('adv-direction').value;
+                    if (direction) params.append('direction', direction);
+
+                    // Always include the includeDeliveryReceipts parameter
+                    params.append('includeDeliveryReceipts', document.getElementById('adv-include-dr').checked);
+
+                    url = `/sim/messages/advanced-search?${params.toString()}`;
+                    break;
+                case 'send-message':
+                    const connId = document.getElementById('send-connection-id').value.trim();
+                    if (!connId) {
+                        showResponse('Connection ID is required', 'error');
+                        return;
+                    }
+
+                    url = `/sim/smpp/connection/${connId}/send/message`;
+                    method = 'POST';
+
+                    data = JSON.stringify({
+                        src: document.getElementById('send-source-addr').value.trim(),
+                        dst: document.getElementById('send-dest-addr').value.trim(),
+                        serviceType: document.getElementById('send-service-type').value.trim() || null,
+                        text: document.getElementById('send-message-text').value.trim()
+                    });
+                    break;
+                case 'send-dr':
+                    const drConnId = document.getElementById('dr-connection-id').value.trim();
+                    if (!drConnId) {
+                        showResponse('Connection ID is required', 'error');
+                        return;
+                    }
+
+                    url = `/sim/smpp/connection/${drConnId}/send/dr`;
+                    method = 'POST';
+
+                    data = JSON.stringify({
+                        src: document.getElementById('dr-source-addr').value.trim(),
+                        dst: document.getElementById('dr-dest-addr').value.trim(),
+                        serviceType: document.getElementById('dr-service-type').value.trim() || null,
+                        status: document.getElementById('dr-status').value,
+                        providerResult: document.getElementById('dr-provider-result').value.trim() || null
+                    });
+                    break;
+            }
+
+            // Show loading state
+            showResponse('Loading...', 'loading');
+
+            // Make the request
+            fetch(url, {
+                method: method,
+                headers: contentType ? {
+                    'Content-Type': contentType,
+                    'Accept': 'application/json, text/plain'  // Accept both JSON and plain text
+                } : {},
+                body: data
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    // Check if content type is JSON
+                    const contentType = response.headers.get('content-type');
+                    const isJson = contentType && contentType.includes('application/json');
+
+                    // For text responses with JSON content type, handle them separately
+                    if (isJson) {
+                        return response.text().then(text => {
+                            try {
+                                // Try to parse as JSON
+                                return { isJson: true, data: JSON.parse(text) };
+                            } catch (e) {
+                                // If parsing fails, treat as plain text
+                                console.warn('Response claimed to be JSON but failed to parse:', text);
+                                return { isJson: false, data: text };
+                            }
+                        });
+                    }
+
+                    // For plain text responses
+                    return response.text().then(text => {
+                        return { isJson: false, data: text };
+                    });
+                })
+                .then(({ isJson, data }) => {
+                    // Format and display the response
+                    const formattedResponse = isJson ? JSON.stringify(data, null, 2) : data;
+                    showResponse(formattedResponse);
+
+                    // If this was a search, update the table with results
+                    if (action === 'search-by-text' || action === 'search-by-mid' || action === 'advanced-search') {
+                        if (isJson && Array.isArray(data)) {
+                            showResponse(`Found ${data.length} matching messages.`);
+
+                            // Update the table with the search results
+                            filteredData = data;
+                            currentPage = 1;
+                            renderTable();
+                            renderPagination();
+                        }
+                    } else if (action === 'delete-all') {
+                        // ...existing code...
+                    } else if (action === 'send-message') {
+                        if (formattedResponse.includes("Message is sending")) {
+                            showResponse(`Message sent successfully.\n\nResponse: ${formattedResponse}`, 'success');
+                        } else {
+                            showResponse(`${formattedResponse}`, formattedResponse.includes("Failed") ? 'error' : 'success');
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error executing action:', error);
+                    showResponse(`Error: ${error.message}`, 'error');
+                });
+        }
+
+        function showResponse(message, type = 'success') {
+            const responseArea = document.getElementById('action-response-area');
+            const responseContent = document.getElementById('response-content');
+
+            responseArea.style.display = 'block';
+            responseContent.textContent = message;
+
+            // Apply styling based on response type
+            responseArea.className = 'action-response-area';
+            if (type === 'error') {
+                responseArea.classList.add('error');
+            } else if (type === 'loading') {
+                responseArea.classList.add('loading');
+            } else {
+                responseArea.classList.add('success');
+            }
+
+            // Ensure sticky controls are refreshed
+            if (typeof APP !== 'undefined' && APP.ensureStickyControls) {
+                setTimeout(APP.ensureStickyControls, 100);
+            }
+        }
+    </script>
+</th:block>
+</body>
+</html>

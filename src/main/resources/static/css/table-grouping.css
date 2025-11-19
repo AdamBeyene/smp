@@ -1,0 +1,304 @@
+/**
+ * Table Grouping Styles
+ * Styles for hierarchical/grouped data display with expandable rows
+ */
+
+/* Parent row (concat message full view) */
+.concat-parent-row {
+    background-color: var(--color-surface-variant, #F3F4F6);
+    font-weight: 500;
+}
+
+.dark-mode .concat-parent-row {
+    background-color: var(--color-surface-variant, #1F2937);
+}
+
+.concat-parent-row:hover {
+    background-color: var(--color-hover, #E5E7EB);
+}
+
+.dark-mode .concat-parent-row:hover {
+    background-color: var(--color-hover, #374151);
+}
+
+/* Child row (individual concat message parts) */
+.concat-child-row {
+    background-color: var(--color-surface, #FFFFFF);
+    font-size: 0.92em;
+    color: var(--color-text-secondary, #6B7280);
+}
+
+.dark-mode .concat-child-row {
+    background-color: var(--color-surface, #111827);
+    color: var(--color-text-secondary, #9CA3AF);
+}
+
+.concat-child-row:hover {
+    background-color: var(--color-hover-light, #F9FAFB);
+}
+
+.dark-mode .concat-child-row:hover {
+    background-color: var(--color-hover-light, #1F2937);
+}
+
+/* Left border for child rows to show hierarchy */
+.concat-child-row td:first-child {
+    border-left: 3px solid var(--color-primary, #3B82F6);
+}
+
+/* Expand/collapse icon */
+.expand-icon {
+    display: inline-block;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.2s ease;
+}
+
+.expand-icon:hover {
+    transform: scale(1.2);
+}
+
+/* Concat badge */
+.concat-badge {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.75em;
+    font-weight: 600;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.concat-badge.complete {
+    background-color: #D1FAE5;
+    color: #065F46;
+    border: 1px solid #6EE7B7;
+}
+
+.dark-mode .concat-badge.complete {
+    background-color: #064E3B;
+    color: #6EE7B7;
+    border: 1px solid #065F46;
+}
+
+.concat-badge.incomplete {
+    background-color: #FEF3C7;
+    color: #92400E;
+    border: 1px solid #FCD34D;
+}
+
+.dark-mode .concat-badge.incomplete {
+    background-color: #78350F;
+    color: #FCD34D;
+    border: 1px solid #92400E;
+}
+
+/* Part label */
+.part-label {
+    font-weight: 600;
+    font-family: 'Courier New', monospace;
+}
+
+/* Part text styling */
+.part-text {
+    font-style: italic;
+}
+
+/* Single message rows */
+.single-message-row {
+    background-color: var(--color-surface, #FFFFFF);
+}
+
+.dark-mode .single-message-row {
+    background-color: var(--color-surface, #111827);
+}
+
+/* Binary indicator (existing, but ensuring compatibility) */
+.binary-indicator {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 5px;
+    background-color: #E0E7FF;
+    color: #3730A3;
+    border-radius: 4px;
+    font-size: 0.7em;
+    font-weight: 700;
+}
+
+.dark-mode .binary-indicator {
+    background-color: #312E81;
+    color: #C7D2FE;
+}
+
+/* Toggle buttons for grouped view */
+.grouped-view-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-right: 10px;
+}
+
+.grouped-view-toggle {
+    padding: 6px 12px;
+    border: 1px solid var(--color-border, #D1D5DB);
+    border-radius: 6px;
+    background-color: var(--color-surface, #FFFFFF);
+    color: var(--color-text, #111827);
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: all 0.2s ease;
+}
+
+.dark-mode .grouped-view-toggle {
+    background-color: var(--color-surface, #1F2937);
+    color: var(--color-text, #F9FAFB);
+    border-color: var(--color-border, #374151);
+}
+
+.grouped-view-toggle:hover {
+    background-color: var(--color-primary, #3B82F6);
+    color: white;
+    border-color: var(--color-primary, #3B82F6);
+}
+
+.grouped-view-toggle.active {
+    background-color: var(--color-primary, #3B82F6);
+    color: white;
+    border-color: var(--color-primary, #3B82F6);
+    font-weight: 600;
+}
+
+.expand-collapse-buttons {
+    display: flex;
+    gap: 4px;
+}
+
+.expand-collapse-btn {
+    padding: 4px 8px;
+    border: 1px solid var(--color-border, #D1D5DB);
+    border-radius: 4px;
+    background-color: var(--color-surface, #FFFFFF);
+    color: var(--color-text-secondary, #6B7280);
+    cursor: pointer;
+    font-size: 0.85em;
+    transition: all 0.2s ease;
+}
+
+.dark-mode .expand-collapse-btn {
+    background-color: var(--color-surface, #1F2937);
+    color: var(--color-text-secondary, #9CA3AF);
+    border-color: var(--color-border, #374151);
+}
+
+.expand-collapse-btn:hover {
+    background-color: var(--color-secondary, #6B7280);
+    color: white;
+    border-color: var(--color-secondary, #6B7280);
+}
+
+.expand-collapse-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Zebra striping for better readability */
+.concat-parent-row:nth-of-type(4n+1),
+.concat-parent-row:nth-of-type(4n+1) ~ .concat-child-row {
+    background-color: var(--color-surface-alt, #F9FAFB);
+}
+
+.dark-mode .concat-parent-row:nth-of-type(4n+1),
+.dark-mode .concat-parent-row:nth-of-type(4n+1) ~ .concat-child-row {
+    background-color: var(--color-surface-alt, #0F172A);
+}
+
+/* Animation for expanding/collapsing */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.concat-child-row {
+    animation: slideDown 0.2s ease-out;
+}
+
+/* Status indicators */
+.status-indicator {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 4px;
+}
+
+.status-indicator.complete {
+    background-color: #10B981;
+}
+
+.status-indicator.incomplete {
+    background-color: #F59E0B;
+}
+
+.status-indicator.error {
+    background-color: #EF4444;
+}
+
+/* Grouping label (for future use with connection grouping) */
+.group-header-row {
+    background-color: var(--color-primary-light, #DBEAFE);
+    font-weight: 700;
+    color: var(--color-primary-dark, #1E40AF);
+    cursor: pointer;
+}
+
+.dark-mode .group-header-row {
+    background-color: var(--color-primary-dark, #1E40AF);
+    color: var(--color-primary-light, #DBEAFE);
+}
+
+.group-header-row:hover {
+    background-color: var(--color-primary, #3B82F6);
+    color: white;
+}
+
+.group-header-row td {
+    padding: 10px 12px !important;
+}
+
+/* Member row (for connection grouping) */
+.group-member-row {
+    background-color: var(--color-surface, #FFFFFF);
+}
+
+.dark-mode .group-member-row {
+    background-color: var(--color-surface, #111827);
+}
+
+.group-member-row td:first-child {
+    padding-left: 30px;
+    border-left: 3px solid var(--color-primary, #3B82F6);
+}
+
+/* Group badges */
+.group-badge {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-size: 0.75em;
+    font-weight: 600;
+    background-color: var(--color-secondary-light, #E5E7EB);
+    color: var(--color-secondary-dark, #374151);
+}
+
+.dark-mode .group-badge {
+    background-color: var(--color-secondary-dark, #374151);
+    color: var(--color-secondary-light, #E5E7EB);
+}

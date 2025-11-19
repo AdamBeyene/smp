@@ -1,0 +1,78 @@
+<!--SMSC (Short Message Service Center):
+    A network element in mobile telecom that stores, forwards, converts, and delivers SMS messages.-->
+<!--ESME (External Short Messaging Entity):
+    An external application or system that connects to an SMSC to send and receive SMS messages.-->
+<connections>
+    <connection id="13">
+        <name>Bandwidth</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="ESME">
+            <port>20131</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>10131</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </receiver>
+    </connection>
+    <connection id="312">
+        <name>Stour Marine P2P</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="ESME">
+            <port>23121</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transceiver</bindOption>
+            <threads>20</threads>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>13121</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transceiver</bindOption>
+            <threads>20</threads>
+        </receiver>
+    </connection>
+    <connection id="1300">
+        <name>Bandwidth</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="ESME">
+            <port>30131</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>40131</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </receiver>
+    </connection>
+    <connection id="370">
+        <name>amdtelecom</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="ESME">
+            <port>11372</port>
+            <host>localhost</host>
+            <systemId>qa_amdtelecom</systemId>
+            <password>12345678</password>
+            <bindOption>transmitter</bindOption>
+            <concatenation>UDHI</concatenation>
+            <threads>20</threads>
+            <encoding>GSM7</encoding>
+        </transmitter>
+    </connection>
+</connections>

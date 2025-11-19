@@ -1,0 +1,213 @@
+<connections>
+    <connection id="1" impl="com.telemessage.simulators.http.cellcom.HttpConnectionHandler" method="get">
+        <name>Cellcom</name>
+        <!-- Delivered,Undeliverable,Expired,Deleted , Delivered,Sent-->
+        <automatic_dr>Sent</automatic_dr>
+        <direct_status>0</direct_status>
+        <dr_url><![CDATA[https://rnd.devops.telemessage.co.il/servlet/DeliveryReport]]></dr_url>
+        <!-- in such case we add ip into header: X-Forwarded-For, so DeliveryReport will check DR there -->
+        <dr_from_ip>cellcomfrom.local</dr_from_ip>
+        <in_url><![CDATA[https://rnd.devops.telemessage.co.il/servlet/CellcomIncomingMessage]]></in_url>
+        <threads>30</threads>
+    </connection>
+    <connection id="6" impl="com.telemessage.simulators.http.zero19.HttpConnectionHandler" method="post">
+        <name>019</name>
+        <!--
+            0 => SUCCESS_SMS_PROVIDER_DELIVERY_REPORT_DELIVERED_TO_HANDSET
+            1 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            2 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            3 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            4 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            5 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            6 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            14 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            15 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            16 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            101 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            102 => SUCCESS_SMS_PROVIDER_DELIVERY_REPORT_DELIVERED_TO_HANDSET
+            103 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            104 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            105 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            107 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            108 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            109 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            201 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            999 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            998 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+        -->
+        <automatic_dr>0</automatic_dr>
+        <!--
+            0 SMS will be sent
+            1 There was a problem parsing your XML
+            2 missing field
+            3 Username or password is incorrect
+            4 Not enough credit
+            5 No permission to send SMS at this time
+            997 Not a valid command sent
+            998 There was an unknown error in the request
+            999 Contact support
+         -->
+        <direct_status>0</direct_status>
+        <dr_url><![CDATA[https://rnd.devops.telemessage.co.il/servlet/DeliveryReport]]></dr_url>
+        <dr_from_ip>019from.local</dr_from_ip>
+        <in_url><![CDATA[https://rnd.devops.telemessage.co.il/servlet/CellcomIncomingMessage?callbackID=10008]]></in_url>
+        <threads>20</threads>
+    </connection>
+    <connection id="397" impl="com.telemessage.simulators.http.zero19.HttpConnectionHandler" method="post">
+        <name>019-Savvis</name>
+        <!--
+            0 => SUCCESS_SMS_PROVIDER_DELIVERY_REPORT_DELIVERED_TO_HANDSET
+            1 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            2 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            3 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            4 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            5 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            6 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            14 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            15 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            16 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            101 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            102 => SUCCESS_SMS_PROVIDER_DELIVERY_REPORT_DELIVERED_TO_HANDSET
+            103 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            104 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            105 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            107 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            108 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            109 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            201 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            999 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            998 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+        -->
+        <automatic_dr>0</automatic_dr>
+        <!--
+            0 SMS will be sent
+            1 There was a problem parsing your XML
+            2 missing field
+            3 Username or password is incorrect
+            4 Not enough credit
+            5 No permission to send SMS at this time
+            997 Not a valid command sent
+            998 There was an unknown error in the request
+            999 Contact support
+         -->
+        <direct_status>0</direct_status>
+        <dr_url><![CDATA[https://rnd.devops.telemessage.co.il/servlet/DeliveryReport]]></dr_url>
+        <dr_from_ip>019Savvisfrom.local</dr_from_ip>
+        <in_url><![CDATA[https://rnd.devops.telemessage.co.il/servlet/CellcomIncomingMessage?callbackID=10008]]></in_url>
+        <threads>20</threads>
+    </connection>
+    <connection id="14" impl="com.telemessage.simulators.http.cellcom.HttpConnectionHandler" method="get">
+        <name>Cellcom for PA</name>
+        <!-- Delivered,Undeliverable,Expired,Deleted -->
+        <automatic_dr>Delivered</automatic_dr>
+        <direct_status>true</direct_status>
+        <dr_from_ip>cellcompsfrom.local</dr_from_ip>
+        <dr_url><![CDATA[https://rnd.devops.telemessage.co.il/servlet/DeliveryReport]]></dr_url>
+        <in_url><![CDATA[https://rnd.devops.telemessage.co.il/servlet/CellcomIncomingMessage]]></in_url>
+        <threads>20</threads>
+    </connection>
+    <connection id="15" impl="com.telemessage.simulators.http.zero19.HttpConnectionHandler" method="post">
+        <name>019 first</name>
+        <!--
+            0 => SUCCESS_SMS_PROVIDER_DELIVERY_REPORT_DELIVERED_TO_HANDSET
+            1 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            2 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            3 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            4 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            5 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            6 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            14 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            15 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            16 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            101 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            102 => SUCCESS_SMS_PROVIDER_DELIVERY_REPORT_DELIVERED_TO_HANDSET
+            103 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            104 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            105 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            107 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            108 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            109 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            201 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            999 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+            998 => FAILED_SMS_PROVIDER_DELIVERY_REPORT
+        -->
+        <automatic_dr>0</automatic_dr>
+        <!--
+            0 SMS will be sent
+            1 There was a problem parsing your XML
+            2 missing field
+            3 Username or password is incorrect
+            4 Not enough credit
+            5 No permission to send SMS at this time
+            997 Not a valid command sent
+            998 There was an unknown error in the request
+            999 Contact support
+         -->
+        <direct_status>0</direct_status>
+        <dr_url><![CDATA[https://rnd.devops.telemessage.co.il/servlet/DeliveryReport]]></dr_url>
+        <dr_from_ip>019from.local</dr_from_ip>
+        <in_url><![CDATA[https://rnd.devops.telemessage.co.il/servlet/CellcomIncomingMessage?callbackID=10008]]></in_url>
+        <threads>20</threads>
+    </connection>
+    <connection id="74" impl="com.telemessage.simulators.http.mirs.HttpConnectionHandler" method="get">
+        <name>Mirs</name>
+        <!-- Delivered,Undeliverable,Expired,Deleted -->
+        <direct_status>1,0,Message Sent</direct_status>
+        <threads>20</threads>
+    </connection>
+    <connection id="1500" impl="com.telemessage.simulators.http.gcm.HttpConnectionHandler" method="post">
+        <name>Gcm</name>
+        <!--
+         QuotaExceeded
+         DeviceQuotaExceeded
+         MissingRegistration
+         InvalidRegistration
+         MismatchSenderId
+         NotRegistered
+         MessageTooBig
+         MissingCollapseKey
+         Unavailable
+         InternalServerError
+         InvalidTtl
+         Error
+         success
+         -->
+        <direct_status>success</direct_status>
+        <threads>20</threads>
+    </connection>
+    <connection id="1600" impl="com.telemessage.simulators.http.mms.HttpConnectionHandler" method="post">
+        <name>Cellcom MMS</name>
+        <!--
+		UNKNOWN
+        SUCCESS
+        PARTIALSUCCESS
+        CLIENTERROR
+        OPERATIONRESTRICTED
+        ADDRESSERROR
+        ADDRESSNOTFOUND
+        MULTIMEDIACONTENTREFUSED
+        MESSAGEIDNOTFOUND
+        LINKEDIDNOTFOUND
+        MESSAGEFORMATCORRUPT
+        APPLICATIONIDNOTFOUND
+        REPLYAPPLICATIONIDNOTFOUND
+        SERVERERROR
+        NOTPOSSIBLE
+        MESSAGEREJECTED
+        MULTIPLEADDRESSESNOTSUPPORTED
+        APPLICATIONADDRESSINGNOTSUPPORTED
+        SERVERIOERROR
+        GENERALSERVICEERROR
+        IMPROPERIDENTIFICATION
+        UNSUPPORTEDVERSION
+        UNSUPPORTEDOPERATION
+        VALIDATIONERROR
+        SERVICEERROR
+        SERVICEUNAVAILABLE
+        SERVICEDENIED
+        APPLICATIONDENIED
+         -->
+        <direct_status>success</direct_status>
+        <threads>5</threads>
+    </connection>
+</connections>

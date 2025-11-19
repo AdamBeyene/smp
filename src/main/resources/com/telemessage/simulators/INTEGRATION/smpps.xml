@@ -1,0 +1,27 @@
+<connections>
+       <connection id="410">
+           <name>Rogers - Archive</name>
+           <automatic_dr>DELIVRD</automatic_dr>
+           <transmitter bindType="SMSC">
+               <port>34003</port>
+               <systemId>ArchTel</systemId>
+               <password>MaRchT3l</password>
+               <bindOption>transmitter</bindOption>
+               <threads>20</threads>
+               <concatenation>UDHI</concatenation>
+           </transmitter>
+       </connection>
+       <connection id="400">
+           <name>Telus - Archive</name>
+           <automatic_dr>DELIVRD</automatic_dr>
+           <transmitter bindType="SMSC">
+               <port>34002</port>
+               <systemId>TlmsgArch1</systemId>
+               <password>password</password>
+               <bindOption>transmitter</bindOption>
+               <threads>20</threads>
+               <concatenation>UDHI</concatenation>
+           </transmitter>
+       </connection>
+
+</connections>

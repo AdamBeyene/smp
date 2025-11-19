@@ -1,0 +1,18 @@
+sim:
+ env:
+  configurations:
+   env-current: ${currentEnv:INTEGRATION}
+   env-name: ${envName:integration}
+   env-url: ${envUrl:https://integration.telemessage.co.il}
+
+
+management:
+ endpoint:
+  logfile:
+   enabled: true
+   external-file: ${user.dir}/shared/sim/logs/smpp/simApp.log
+
+logging:
+ file:
+  path: ${user.dir}/shared/sim/logs/smpp
+  name: simApp.log

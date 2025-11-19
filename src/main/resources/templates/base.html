@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title layout:title-pattern="$LAYOUT_TITLE - $CONTENT_TITLE">Sim</title>
+
+    <!-- Fonts and Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- Unified Styles -->
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+
+    <th:block layout:fragment="extraHead"></th:block>
+</head>
+<body>
+<div layout:fragment="top-menu" class="top-menu">
+    <a th:href="@{/ui}" class="swagger-link">←Back to Swagger</a>
+    <a th:href="@{/wallboard}">Monitor</a>
+    <a th:href="@{/connections}">Connections</a>
+    <a th:href="@{/messages}">Messages</a>
+    <button id="darkModeToggle" title="Toggle Dark Mode">
+        <i class="fas fa-moon"></i> <i class="fas fa-sun"></i>
+    </button>
+</div>
+
+<!--<div layout:fragment="header">-->
+<!--    <div class="header">Default Header</div>-->
+<!--</div>-->
+
+<div class="container">
+    <div layout:fragment="sidebar" class="sidebar">
+        <p>Default Sidebar</p>
+    </div>
+    <div layout:fragment="content" class="main-content">
+        <p>Default Content Area</p>
+    </div>
+</div>
+
+<!-- Dark Mode Toggle Script -->
+<script>
+    (function() {
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const body = document.body;
+        const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)");
+
+        function applyTheme(theme) {
+            if (theme === 'dark') { body.classList.add('dark-mode'); }
+            else { body.classList.remove('dark-mode'); }
+        }
+
+        function toggleTheme() {
+            const currentTheme = body.classList.contains('dark-mode') ? 'dark' : 'light';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            applyTheme(newTheme);
+            localStorage.setItem('theme', newTheme); // Save preference
+        }
+
+        const savedTheme = localStorage.getItem('theme');
+        const systemPrefersDark = prefersDarkScheme.matches;
+
+        // Apply theme on initial load
+        if (savedTheme) { applyTheme(savedTheme); }
+        else {
+            applyTheme('light');
+        }
+
+        // Add click listener
+        if (darkModeToggle) { darkModeToggle.addEventListener('click', toggleTheme); }
+
+        // Listen for system changes (optional)
+        prefersDarkScheme.addEventListener('change', (e) => {
+            if (!localStorage.getItem('theme')) { applyTheme(e.matches ? 'dark' : 'light'); }
+        });
+
+        const menuLinks = document.querySelectorAll('.top-menu a');
+        const currentUrl = window.location.pathname;
+
+        // Helper function to determine if a link is active
+        function isLinkActive(linkHref, currentPath) {
+            // Remove trailing slashes for consistent comparison
+            const cleanLinkHref = linkHref.replace(/\/$/, '');
+            const cleanCurrentPath = currentPath.replace(/\/$/, '');
+
+            // Handle root URL separately
+            if (cleanLinkHref === '') {
+                return cleanCurrentPath === '' || cleanCurrentPath === '/';
+            }
+
+            // Exact match, sub-path, or same pathname with query parameters
+            return cleanCurrentPath === cleanLinkHref ||
+                (cleanCurrentPath.startsWith(cleanLinkHref + '/') && cleanLinkHref !== '') ||
+                (cleanCurrentPath === cleanLinkHref && window.location.search !== '');
+        }
+
+        // Set active class on page load based on URL
+        menuLinks.forEach(link => {
+            const linkHref = link.getAttribute('href') || '';
+            if (isLinkActive(linkHref, currentUrl)) {
+                link.classList.add('active');
+            }
+
+            // Add click listener to toggle active class
+            link.addEventListener('click', function() {
+                menuLinks.forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    })();
+</script>
+
+<th:block layout:fragment="extraScripts"></th:block>
+<script th:src="@{/js/Atable.js}" src="/js/Atable.js"></script>
+</body>
+</html>

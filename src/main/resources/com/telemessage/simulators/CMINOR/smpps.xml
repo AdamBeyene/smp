@@ -1,0 +1,1608 @@
+<connections>
+    <connection id="1">
+        <name>Cellcom SMPP</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>20011</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>1001100</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+        </receiver>
+    </connection>
+    <connection id="2">
+        <name>Hot Mobile TRX</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <receiver bindType="SMSC">
+            <port>2775</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </receiver>
+    </connection>
+    <connection id="200">
+        <name>Hot Mobile TRX</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <receiver bindType="SMSC">
+            <port>2776</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </receiver>
+    </connection>
+    <connection id="5">
+        <name>Cablenw-new</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>20051</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+        </transmitter>
+    </connection>
+
+    <connection id="6">
+        <name>smsTrade</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>20061</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+        </transmitter>
+    </connection>
+    <connection id="7">
+        <name>Charlie Sprint</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <!--<transmitter bindType="SMSC">-->
+        <!--<port>20071</port>-->
+        <!--<systemId>tmtest</systemId>-->
+        <!--<password>1234</password>-->
+        <!--<bindOption>transmitter</bindOption>-->
+        <!--<threads>20</threads>-->
+        <!--</transmitter>-->
+        <receiver bindType="SMSC">
+            <port>10071</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+            <concatenation>PAYLOAD</concatenation>
+        </receiver>
+    </connection>
+    <connection id="10">
+        <name>ViaHub for PS</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <receiver bindType="SMSC">
+            <port>10101</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+        </receiver>
+    </connection>
+    <connection id="11">
+        <name>ViaHub for PS Direct</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <receiver bindType="SMSC">
+            <port>10111</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+        </receiver>
+    </connection>
+    <connection id="13">
+        <name>Bandwidth</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>20131</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>10131</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>80</threads>
+            <concatenation>UDHI</concatenation>
+        </receiver>
+    </connection>
+    <connection id="888">
+        <name>Bandwidth with SAR</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>18881</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+            <concatenation>SAR</concatenation>
+        </transmitter>
+    </connection>
+    <connection id="18">
+        <name>Monty Mobile Direct</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <receiver bindType="SMSC">
+            <port>10181</port>
+            <systemId>montydirect</systemId>
+            <password>12345678</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </receiver>
+    </connection>
+    <connection id="19">
+        <name>Monty Mobile wholesale</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <receiver bindType="SMSC">
+            <port>10191</port>
+            <systemId>montytm</systemId>
+            <password>12345678</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </receiver>
+    </connection>
+    <connection id="23">
+        <name>Alltel - SNPP</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <receiver bindType="SMSC">
+            <port>10231</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </receiver>
+    </connection>
+    <connection id="28">
+        <name>Charlie smsRout worldwide</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>20281</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>10281</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </receiver>
+    </connection>
+    <connection id="33">
+        <name>Charlie smsRout USA</name>
+        <transmitter bindType="SMSC">
+            <port>20331</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </transmitter>
+    </connection>
+    <connection id="37">
+        <name>USCellular EMG</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>20371</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>10371</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+        </receiver>
+    </connection>
+    <connection id="41">
+        <name>Viaero Messaging Gateway</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>20411</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>10411</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+        </receiver>
+    </connection>
+    <connection id="44">
+        <name>Cablew-new Jamaica</name>
+        <receiver bindType="SMSC">
+            <port>10441</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+        </receiver>
+    </connection>
+    <connection id="54">
+        <name>Mblox Charlie USA</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>20541</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>10541</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+        </receiver>
+    </connection>
+    <connection id="55">
+        <name>Mblox Charlie USA</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>20551</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>10551</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+        </receiver>
+    </connection>
+    <connection id="75">
+        <name>CablenwGuernsey</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>20751</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>10751</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+        </receiver>
+    </connection>
+    <connection id="80">
+        <name>CablenwGuernsey USA</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>20801</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>10801</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+        </receiver>
+    </connection>
+    <connection id="143">
+        <name>Maldives 2way</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>31431</port>
+            <host>qacharlie-fe1.dev.telemessage.co.il</host>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>11431</port>
+            <host>qacharlie-fe1.dev.telemessage.co.il</host>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </receiver>
+    </connection>
+    <connection id="263">
+        <name>ambient</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <receiver bindType="SMSC">
+            <port>12631</port>
+            <host>qacharlie-fe1.dev.telemessage.co.il</host>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+        </receiver>
+    </connection>
+    <connection id="267">
+        <name>Materna</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="ESME">
+            <port>22671</port>
+            <host>qacharlie-fe1.dev.telemessage.co.il</host>
+            <systemId>qa_materna</systemId>
+            <password>12345678</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+            <concatenation>PAYLOAD</concatenation>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>12671</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+        </receiver>
+    </connection>
+    <connection id="300">
+        <name>Mstat</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="ESME">
+            <port>23001</port>
+            <host>qacharlie-fe1.dev.telemessage.co.il</host>
+            <systemId>qa_mstat</systemId>
+            <password>12345678</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+        </transmitter>
+    </connection>
+    <connection id="306">
+        <name>infoBip1</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="ESME">
+            <port>23061</port>
+            <host>qacharlie-fe1.dev.telemessage.co.il</host>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+        </transmitter>
+    </connection>
+    <connection id="310">
+        <name>NexmoTR</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>23101</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transceiver</bindOption>
+            <threads>20</threads>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>13101</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transceiver</bindOption>
+            <threads>20</threads>
+        </receiver>
+    </connection>
+    <connection id="312">
+        <name>Stour Marine P2P</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>23121</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transceiver</bindOption>
+            <threads>40</threads>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>13121</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transceiver</bindOption>
+            <threads>40</threads>
+        </receiver>
+    </connection>
+    <connection id="313">
+        <name>Twilio TRX</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>31301</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transceiver</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+            <encoding>GSM7</encoding>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <encoding>GSM7</encoding>
+            <port>31300</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transceiver</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </receiver>
+    </connection>
+    <connection id="320">
+        <name>TelusTAP</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <receiver bindType="SMSC">
+            <port>13201</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+        </receiver>
+    </connection>
+    <connection id="321">
+        <name>interactiveDigitalMediaUS</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>23211</port>
+            <host>qacharlie-fe1.dev.telemessage.co.il</host>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+        </transmitter>
+    </connection>
+    <connection id="322">
+        <name>Nexmo</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="ESME">
+            <port>23221</port>
+            <host>qacharlie-fe1.dev.telemessage.co.il</host>
+            <systemId>nexmo1</systemId>
+            <password>12345678</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+            <concatenation>PAYLOAD</concatenation>
+        </transmitter>
+        <receiver bindType="ESME">
+            <port>13221</port>
+            <host>qacharlie-fe1.dev.telemessage.co.il</host>
+            <systemId>nexmo1</systemId>
+            <password>12345678</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+        </receiver>
+    </connection>
+    <connection id="324">
+        <name>RdCom</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="ESME">
+            <port>23241</port>
+            <systemId>rdcomit</systemId>
+            <password>12345678</password>
+            <host>qacharlie-fe1.dev.telemessage.co.il</host>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+        </transmitter>
+    </connection>
+    <connection id="325">
+        <name>compatel</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="ESME">
+            <port>23251</port>
+            <host>qacharlie-fe1.dev.telemessage.co.il</host>
+            <systemId>qa_compatel</systemId>
+            <password>12345678</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+        </transmitter>
+    </connection>
+    <connection id="370">
+        <name>amdtelecom</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="ESME">
+            <port>23701</port>
+            <host>qacharlie-fe1.dev.telemessage.co.il</host>
+            <systemId>qa_amdtelecom</systemId>
+            <password>12345678</password>
+            <bindOption>transmitter</bindOption>
+            <concatenation>UDHI</concatenation>
+            <threads>20</threads>
+            <encoding>GSM7</encoding>
+        </transmitter>
+    </connection>
+    <connection id="371">
+        <name>ibasis</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="ESME">
+            <port>23711</port>
+            <host>qacharlie-fe1.dev.telemessage.co.il</host>
+            <systemId>qa_ibasis</systemId>
+            <password>12345678</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+        </transmitter>
+    </connection>
+    <connection id="372">
+        <name>Capital One</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="ESME">
+            <port>23721</port>
+            <host>qacharlie-fe1.dev.telemessage.co.il</host>
+            <systemId>caponesmpp</systemId>
+            <password>80330061</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+        </transmitter>
+        <receiver bindType="ESME">
+            <port>13721</port>
+            <host>qacharlie-fe1.dev.telemessage.co.il</host>
+            <systemId>caponesmpp</systemId>
+            <password>80330061</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+        </receiver>
+    </connection>
+    <connection id="373">
+        <name>CLX Incoming</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <receiver bindType="SMSC">
+            <port>13731</port>
+            <host>qacharlie-fe1.dev.telemessage.co.il</host>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </receiver>
+    </connection>
+    <connection id="375">
+        <name>Mitto</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="ESME">
+            <port>23751</port>
+            <host>qacharlie-fe1.dev.telemessage.co.il</host>
+            <systemId>mittosmpp</systemId>
+            <password>54803500</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+        </transmitter>
+    </connection>
+    <connection id="376">
+        <name>Twilio</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="ESME">
+            <port>23761</port>
+            <host>qacharlie-fe1.dev.telemessage.co.il</host>
+            <systemId>twiliosmpp</systemId>
+            <password>48035005</password>
+            <bindOption>transmitter</bindOption>
+            <concatenation>UDHI</concatenation>
+        </transmitter>
+        <receiver bindType="ESME">
+            <port>13761</port>
+            <host>qacharlie-fe1.dev.telemessage.co.il</host>
+            <systemId>twiliosmpp</systemId>
+            <password>48035005</password>
+            <bindOption>receiver</bindOption>
+            <concatenation>UDHI</concatenation>
+            <threads>20</threads>
+        </receiver>
+    </connection>
+    <connection id="378">
+        <name>CLX Worldwide</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>23781</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>13781</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+        </receiver>
+    </connection>
+    <connection id="379">
+        <name>CLX USA</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>23791</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>13791</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </receiver>
+    </connection>
+    <connection id="380">
+        <name>CLX Worldwide Charlie</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="ESME">
+            <port>23801</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>13801</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </receiver>
+    </connection>
+    <connection id="381">
+        <name>CLX for FR incoming</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>23811</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>13811</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </receiver>
+    </connection>
+    <connection id="385">
+        <name>viahub</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="ESME">
+            <port>23851</port>
+            <host>qacharlie-fe1.dev.telemessage.co.il</host>
+            <systemId>viahub</systemId>
+            <password>52602074</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+        </transmitter>
+    </connection>
+    <connection id="388">
+        <name>InfoBip for Incoming</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="ESME">
+            <port>16535</port>
+            <host>qacharlie-fe1.dev.telemessage.co.il</host>
+            <systemId>plivosmpp</systemId>
+            <password>12345678</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </transmitter>
+        <receiver bindType="ESME">
+            <port>13871</port>
+            <host>qacharlie-fe1.dev.telemessage.co.il</host>
+            <systemId>infobip</systemId>
+            <password>12345678</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </receiver>
+    </connection>
+    <!--<connection id="999">
+        <name>Nexmo</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <receiver bindType="SMSC">
+            <port>36514</port>
+            <host>qacharlie-fe1.dev.telemessage.co.il</host>
+            <systemId>qa_nexmo</systemId>
+            <password>12345678</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+        </receiver>
+    </connection>-->
+    <connection id="100">
+        <name>Cellcom SMPP</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>30011</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>400110</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+        </receiver>
+    </connection>
+
+    <connection id="500">
+        <name>Cablenw-new</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>30051</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+        </transmitter>
+    </connection>
+
+    <connection id="600">
+        <name>smsTrade</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>30061</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+        </transmitter>
+    </connection>
+    <connection id="700">
+        <name>Charlie Sprint</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>30071</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>40071</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+            <concatenation>PAYLOAD</concatenation>
+        </receiver>
+    </connection>
+    <connection id="1000">
+        <name>ViaHub for PS</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <receiver bindType="SMSC">
+            <port>40101</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+        </receiver>
+    </connection>
+    <connection id="1100">
+        <name>ViaHub for PS Direct</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <receiver bindType="SMSC">
+            <port>40111</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+        </receiver>
+    </connection>
+    <connection id="1300">
+        <name>Bandwidth</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>30131</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>40131</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>80</threads>
+            <concatenation>UDHI</concatenation>
+        </receiver>
+    </connection>
+    <connection id="1800">
+        <name>Monty Mobile Direct</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <receiver bindType="SMSC">
+            <port>40181</port>
+            <systemId>montydirect</systemId>
+            <password>12345678</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </receiver>
+    </connection>
+    <connection id="1900">
+        <name>Monty Mobile wholesale</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <receiver bindType="SMSC">
+            <port>40191</port>
+            <systemId>montytm</systemId>
+            <password>12345678</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </receiver>
+    </connection>
+    <connection id="2300">
+        <name>Alltel - SNPP</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <receiver bindType="SMSC">
+            <port>40231</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </receiver>
+    </connection>
+    <connection id="2800">
+        <name>Charlie smsRout worldwide</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>30281</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>40281</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </receiver>
+    </connection>
+    <connection id="3300">
+        <name>Charlie smsRout USA</name>
+        <transmitter bindType="SMSC">
+            <port>30331</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </transmitter>
+    </connection>
+    <connection id="3700">
+        <name>USCellular EMG</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>30371</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>40371</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+        </receiver>
+    </connection>
+    <connection id="4100">
+        <name>Viaero Messaging Gateway</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>30411</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>40411</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+        </receiver>
+    </connection>
+    <connection id="4400">
+        <name>Cablew-new Jamaica</name>
+        <receiver bindType="SMSC">
+            <port>40441</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+        </receiver>
+    </connection>
+    <connection id="5400">
+        <name>Mblox Charlie USA</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>30541</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>40541</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+        </receiver>
+    </connection>
+    <connection id="5500">
+        <name>Mblox Charlie USA</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>30551</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>40551</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+        </receiver>
+    </connection>
+    <connection id="7500">
+        <name>CablenwGuernsey</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>30751</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>40751</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+        </receiver>
+    </connection>
+    <connection id="8000">
+        <name>CablenwGuernsey USA</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>30801</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>40801</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+        </receiver>
+    </connection>
+    <connection id="9200">
+        <name>RogersPlugin</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>30921</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>40921</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+        </receiver>
+    </connection>
+    <connection id="14300">
+        <name>Maldives 2way</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>41431</port>
+            <host>qacharlie-fe2.dev.telemessage.co.il</host>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>21431</port>
+            <host>qacharlie-fe2.dev.telemessage.co.il</host>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </receiver>
+    </connection>
+    <connection id="26300">
+        <name>ambient</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <receiver bindType="SMSC">
+            <port>42631</port>
+            <host>qacharlie-fe2.dev.telemessage.co.il</host>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+        </receiver>
+    </connection>
+    <connection id="26700">
+        <name>Materna</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="ESME">
+            <port>32671</port>
+            <host>qacharlie-fe2.dev.telemessage.co.il</host>
+            <systemId>qa_materna</systemId>
+            <password>12345678</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+            <concatenation>PAYLOAD</concatenation>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>42671</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+        </receiver>
+    </connection>
+    <connection id="30000">
+        <name>Mstat</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="ESME">
+            <port>33001</port>
+            <host>qacharlie-fe2.dev.telemessage.co.il</host>
+            <systemId>qa_mstat</systemId>
+            <password>12345678</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+        </transmitter>
+    </connection>
+    <connection id="30600">
+        <name>infoBip1</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="ESME">
+            <port>33061</port>
+            <host>qacharlie-fe2.dev.telemessage.co.il</host>
+            <systemId>qa_infobip</systemId>
+            <password>12345678</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+        </transmitter>
+    </connection>
+    <connection id="31000">
+        <name>NexmoTR</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>33101</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transceiver</bindOption>
+            <threads>20</threads>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>43101</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transceiver</bindOption>
+            <threads>20</threads>
+        </receiver>
+    </connection>
+    <connection id="31200">
+        <name>Stour Marine P2P</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>33121</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transceiver</bindOption>
+            <threads>40</threads>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>43121</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transceiver</bindOption>
+            <threads>40</threads>
+        </receiver>
+    </connection>
+    <connection id="32000">
+        <name>TelusTAP</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <receiver bindType="SMSC">
+            <port>43201</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+        </receiver>
+    </connection>
+    <connection id="32100">
+        <name>interactiveDigitalMediaUS</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>33211</port>
+            <host>qacharlie-fe2.dev.telemessage.co.il</host>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+        </transmitter>
+    </connection>
+    <connection id="32200">
+        <name>Nexmo</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="ESME">
+            <port>33221</port>
+            <host>qacharlie-fe2.dev.telemessage.co.il</host>
+            <systemId>nexmo1</systemId>
+            <password>12345678</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+            <concatenation>PAYLOAD</concatenation>
+        </transmitter>
+        <receiver bindType="ESME">
+            <port>43221</port>
+            <host>qacharlie-fe2.dev.telemessage.co.il</host>
+            <systemId>nexmo1</systemId>
+            <password>12345678</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+        </receiver>
+    </connection>
+    <connection id="32400">
+        <name>RdCom</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="ESME">
+            <port>33241</port>
+            <systemId>rdcomit</systemId>
+            <password>12345678</password>
+            <host>qacharlie-fe2.dev.telemessage.co.il</host>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+        </transmitter>
+    </connection>
+    <connection id="32500">
+        <name>compatel</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="ESME">
+            <port>33251</port>
+            <host>qacharlie-fe2.dev.telemessage.co.il</host>
+            <systemId>qa_compatel</systemId>
+            <password>12345678</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+        </transmitter>
+    </connection>
+    <connection id="37000">
+        <name>amdtelecom</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="ESME">
+            <port>33701</port>
+            <host>qacharlie-fe2.dev.telemessage.co.il</host>
+            <systemId>qa_amdtelecom</systemId>
+            <password>12345678</password>
+            <bindOption>transmitter</bindOption>
+            <concatenation>UDHI</concatenation>
+            <threads>20</threads>
+            <encoding>GSM7</encoding>
+        </transmitter>
+    </connection>
+    <!--
+	<connection id="37100">
+        <name>ibasis</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="ESME">
+            <port>33711</port>
+            <host>qacharlie-fe2.dev.telemessage.co.il</host>
+            <systemId>qa_ibasis</systemId>
+            <password>12345678</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+        </transmitter>
+    </connection>
+	-->
+    <connection id="37200">
+        <name>Capital One</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="ESME">
+            <port>33721</port>
+            <host>qacharlie-fe2.dev.telemessage.co.il</host>
+            <systemId>caponesmpp</systemId>
+            <password>80330061</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+        </transmitter>
+        <receiver bindType="ESME">
+            <port>43721</port>
+            <host>qacharlie-fe2.dev.telemessage.co.il</host>
+            <systemId>caponesmpp</systemId>
+            <password>80330061</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+        </receiver>
+    </connection>
+    <connection id="37300">
+        <name>CLX Incoming</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <receiver bindType="SMSC">
+            <port>43731</port>
+            <host>qacharlie-fe2.dev.telemessage.co.il</host>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </receiver>
+    </connection>
+    <connection id="37500">
+        <name>Mitto</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="ESME">
+            <port>33751</port>
+            <host>qacharlie-fe2.dev.telemessage.co.il</host>
+            <systemId>mittosmpp</systemId>
+            <password>54803500</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+        </transmitter>
+    </connection>
+    <connection id="37600">
+        <name>Twilio</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="ESME">
+            <port>33761</port>
+            <host>qacharlie-fe2.dev.telemessage.co.il</host>
+            <systemId>twiliosmpp</systemId>
+            <password>48035005</password>
+            <bindOption>transmitter</bindOption>
+            <concatenation>UDHI</concatenation>
+        </transmitter>
+        <receiver bindType="ESME">
+            <port>43761</port>
+            <host>qacharlie-fe2.dev.telemessage.co.il</host>
+            <systemId>twiliosmpp</systemId>
+            <password>48035005</password>
+            <bindOption>receiver</bindOption>
+            <concatenation>UDHI</concatenation>
+            <threads>20</threads>
+        </receiver>
+    </connection>
+    <connection id="37800">
+        <name>CLX Worldwide</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>33781</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>43781</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+        </receiver>
+    </connection>
+    <connection id="37900">
+        <name>CLX USA</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>33791</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>43791</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </receiver>
+    </connection>
+    <connection id="38000">
+        <name>CLX Worldwide Charlie</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="ESME">
+            <port>33801</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>43801</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </receiver>
+    </connection>
+    <connection id="38100">
+        <name>CLX for FR incoming</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>33811</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>43811</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </receiver>
+    </connection>
+    <connection id="38500">
+        <name>viahub</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="ESME">
+            <port>33851</port>
+            <host>qacharlie-fe2.dev.telemessage.co.il</host>
+            <systemId>viahub</systemId>
+            <password>52602074</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+        </transmitter>
+    </connection>
+    <connection id="38700">
+        <name>InfoBip for Incoming</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="ESME">
+            <port>33871</port>
+            <host>qacharlie-fe2.dev.telemessage.co.il</host>
+            <systemId>plivosmpp</systemId>
+            <password>12345678</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </transmitter>
+        <receiver bindType="ESME">
+            <port>43871</port>
+            <host>qacharlie-fe2.dev.telemessage.co.il</host>
+            <systemId>infobip</systemId>
+            <password>12345678</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </receiver>
+    </connection>
+    <!-- <connection id="999">
+         <name>Nexmo</name>
+         <automatic_dr>DELIVRD</automatic_dr>
+         <receiver bindType="SMSC">
+             <port>36514</port>
+             <host>qacharlie-fe2.dev.telemessage.co.il</host>
+             <systemId>qa_nexmo</systemId>
+             <password>12345678</password>
+             <bindOption>receiver</bindOption>
+             <threads>20</threads>
+         </receiver>
+     </connection>-->
+
+    <connection id="398">
+        <name>Telus 2way</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>33981</port>
+            <systemId>telemsg3</systemId>
+            <password>password</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>43981</port>
+            <systemId>telemsg3</systemId>
+            <password>password</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </receiver>
+    </connection>
+    <connection id="399">
+        <name>MessageBird Transmitter (MT)</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <receiver bindType="SMSC">
+            <port>2777</port>
+            <systemId>telemsg3</systemId>
+            <password>password</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </receiver>
+    </connection>
+    <connection id="402">
+        <name>Plivo Direct</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="ESME">
+            <port>16551</port>
+            <host>qacharlie-fe1.dev.telemessage.co.il</host>
+            <systemId>plivopsdirect</systemId>
+            <password>48035005</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </transmitter>
+    </connection>
+    <connection id="4021">
+        <name>Plivo Direct</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="ESME">
+            <port>16550</port>
+            <host>qacharlie-fe2.dev.telemessage.co.il</host>
+            <systemId>plivopsdirect</systemId>
+            <password>48035005</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </transmitter>
+    </connection>
+    <connection id="444">
+        <name>Rogers-CA</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+<!--        <direct_status>ESME_RTHROTTLED</direct_status>-->
+        <transmitter bindType="SMSC">
+            <port>14442</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+            <encoding>GSM7</encoding>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>14441</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+            <encoding>GSM7</encoding>
+        </receiver>
+    </connection>
+    <connection id="44400">
+        <name>Rogers-CA</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>24442</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+            <encoding>GSM7</encoding>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>24441</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+            <encoding>GSM7</encoding>
+        </receiver>
+    </connection>
+    <!--       ARCHIVE        -->
+    <!--    <connection id="400">-->
+    <!--        <name>Telus - Archive</name>-->
+    <!--        <automatic_dr>DELIVRD</automatic_dr>-->
+    <!--        <transmitter bindType="SMSC">-->
+    <!--            <port>34002</port>-->
+    <!--            <systemId>TlmsgArch1</systemId>-->
+    <!--            <password>password</password>-->
+    <!--            <bindOption>transmitter</bindOption>-->
+    <!--            <threads>20</threads>-->
+    <!--            <concatenation>UDHI</concatenation>-->
+    <!--        </transmitter>-->
+    <!--    </connection>-->
+    <!--    <connection id="410">-->
+    <!--        <name>Rogers - Archive</name>-->
+    <!--        <automatic_dr>DELIVRD</automatic_dr>-->
+    <!--        <transmitter bindType="SMSC">-->
+    <!--            <port>34003</port>-->
+    <!--            <systemId>ArchTel</systemId>-->
+    <!--            <password>MaRchT3l</password>-->
+    <!--            <bindOption>transmitter</bindOption>-->
+    <!--            <threads>20</threads>-->
+    <!--            <concatenation>UDHI</concatenation>-->
+    <!--            <encoding>Cp1252</encoding> &lt;!&ndash; 0x80&ndash;&gt;-->
+    <!--        </transmitter>-->
+    <!--    </connection>-->
+    <!--    <connection id="420">-->
+    <!--        <name>HKCSL - Archive</name>-->
+    <!--        <automatic_dr>DELIVRD</automatic_dr>-->
+    <!--        <transmitter bindType="SMSC">-->
+    <!--            <port>34004</port>-->
+    <!--            <systemId>TELEMSMS</systemId>-->
+    <!--            <password>telemcsl</password>-->
+    <!--            <bindOption>transmitter</bindOption>-->
+    <!--            <threads>20</threads>-->
+    <!--            <concatenation>UDHI</concatenation>-->
+    <!--            <encoding>GSM7</encoding>-->
+    <!--        </transmitter>-->
+    <!--    </connection>-->
+    <!--    <connection id="430">-->
+    <!--        <name>3HK - Archive</name>-->
+    <!--        <automatic_dr>DELIVRD</automatic_dr>-->
+    <!--        <transmitter bindType="SMSC">-->
+    <!--            <port>34005</port>-->
+    <!--            <systemId>TM-SMSA</systemId>-->
+    <!--            <password>testQC9s</password>-->
+    <!--            <bindOption>transmitter</bindOption>-->
+    <!--            <threads>20</threads>-->
+    <!--            <concatenation>UDHI</concatenation>-->
+    <!--        </transmitter>-->
+    <!--    </connection>-->
+</connections>
