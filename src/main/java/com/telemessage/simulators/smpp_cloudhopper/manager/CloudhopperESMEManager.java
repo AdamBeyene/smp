@@ -326,6 +326,11 @@ public class CloudhopperESMEManager implements CloudhopperConnectionManager {
             }
         }
 
+        // Shutdown session handler (cleanup executor)
+        if (sessionHandler != null) {
+            sessionHandler.shutdown();
+        }
+
         // Unbind and close session
         if (session != null && session.isBound()) {
             try {

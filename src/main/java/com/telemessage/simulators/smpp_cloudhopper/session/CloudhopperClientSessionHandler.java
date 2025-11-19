@@ -19,6 +19,9 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -62,6 +65,14 @@ public class CloudhopperClientSessionHandler extends DefaultSmppSessionHandler {
     // Concatenation assembly maps
     private final Map<String, Map<Integer, ConcatPart>> concatenationMap = new ConcurrentHashMap<>();
     private final Map<String, ReentrantLock> concatenationLocks = new ConcurrentHashMap<>();
+    private final Map<String, Long> concatenationTimestamps = new ConcurrentHashMap<>();
+
+    // Timeout configuration (5 minutes)
+    private static final long MESSAGE_TIMEOUT_MS = 5 * 60 * 1000;
+    private static final long CLEANUP_INTERVAL_MS = 60 * 1000;  // Run cleanup every minute
+
+    // Cleanup task executor
+    private final ScheduledExecutorService cleanupExecutor;
 
     /**
      * Constructor.
@@ -80,6 +91,24 @@ public class CloudhopperClientSessionHandler extends DefaultSmppSessionHandler {
         this.config = config;
         this.sessionStateManager = sessionStateManager;
         this.messagesCache = messagesCache;
+
+        // Initialize cleanup executor
+        this.cleanupExecutor = Executors.newSingleThreadScheduledExecutor(r -> {
+            Thread t = new Thread(r);
+            t.setName("concat-cleanup-" + connectionId);
+            t.setDaemon(true);
+            return t;
+        });
+
+        // Schedule cleanup task
+        cleanupExecutor.scheduleAtFixedRate(
+            this::cleanupIncompleteMessages,
+            CLEANUP_INTERVAL_MS,
+            CLEANUP_INTERVAL_MS,
+            TimeUnit.MILLISECONDS
+        );
+
+        log.info("Initialized CloudhopperClientSessionHandler for connection {} with timeout cleanup", connectionId);
     }
 
     @Override
@@ -220,6 +249,9 @@ public class CloudhopperClientSessionHandler extends DefaultSmppSessionHandler {
             Map<Integer, ConcatPart> partsMap =
                 concatenationMap.computeIfAbsent(reference, k -> new ConcurrentHashMap<>());
 
+            // Record timestamp for first part received
+            concatenationTimestamps.putIfAbsent(reference, System.currentTimeMillis());
+
             // Add this part
             partsMap.put(concatData.getPartNumber(), concatData);
 
@@ -314,6 +346,7 @@ public class CloudhopperClientSessionHandler extends DefaultSmppSessionHandler {
         // Clean up concatenation data
         concatenationMap.remove(reference);
         concatenationLocks.remove(reference);
+        concatenationTimestamps.remove(reference);
 
         log.info("Complete concatenated message assembled: msgId={}, parts={}, text={}",
             messageId, partsMap.size(), fullText.substring(0, Math.min(20, fullText.length())));
@@ -485,5 +518,179 @@ public class CloudhopperClientSessionHandler extends DefaultSmppSessionHandler {
         log.warn("Recoverable PDU exception for connection {}", connectionId, e);
         sessionStateManager.incrementErrors(connectionId);
         super.fireRecoverablePduException(e);
+    }
+
+    /**
+     * Cleans up incomplete concatenated messages that have timed out.
+     *
+     * <p>This method runs periodically (every minute) to check for incomplete
+     * concatenated messages that have been waiting longer than MESSAGE_TIMEOUT_MS
+     * (5 minutes). For timed-out messages, it performs best-effort assembly with
+     * whatever parts have been received and then cleans up the references.</p>
+     *
+     * <p><b>Timeout Strategy:</b></p>
+     * <ul>
+     *   <li>If timeout expires and not all parts received, assemble what we have</li>
+     *   <li>Mark incomplete messages with special metadata</li>
+     *   <li>Clean up memory to prevent leaks</li>
+     *   <li>Log warnings about missing parts</li>
+     * </ul>
+     */
+    private void cleanupIncompleteMessages() {
+        try {
+            long currentTime = System.currentTimeMillis();
+            int cleanedCount = 0;
+            int bestEffortCount = 0;
+
+            // Find timed-out messages
+            for (Map.Entry<String, Long> entry : concatenationTimestamps.entrySet()) {
+                String reference = entry.getKey();
+                long timestamp = entry.getValue();
+
+                if (currentTime - timestamp > MESSAGE_TIMEOUT_MS) {
+                    // Message has timed out
+                    ReentrantLock lock = concatenationLocks.get(reference);
+                    if (lock != null && lock.tryLock()) {
+                        try {
+                            Map<Integer, ConcatPart> partsMap = concatenationMap.get(reference);
+                            if (partsMap != null && !partsMap.isEmpty()) {
+                                // Get expected total parts from any part
+                                ConcatPart anyPart = partsMap.values().iterator().next();
+                                int totalParts = anyPart.getTotalParts();
+                                int receivedParts = partsMap.size();
+
+                                if (receivedParts < totalParts) {
+                                    // Incomplete message - do best-effort assembly
+                                    log.warn("Incomplete concatenated message timed out: ref={}, received={}/{}, age={}ms",
+                                            reference, receivedParts, totalParts, currentTime - timestamp);
+
+                                    assembleBestEffortMessage(partsMap, reference, totalParts);
+                                    bestEffortCount++;
+                                } else {
+                                    // Should have been complete but wasn't cleaned up properly
+                                    log.warn("Complete but uncleaned concatenated message: ref={}, parts={}",
+                                            reference, receivedParts);
+                                }
+                            }
+
+                            // Clean up
+                            concatenationMap.remove(reference);
+                            concatenationLocks.remove(reference);
+                            concatenationTimestamps.remove(reference);
+                            cleanedCount++;
+
+                        } finally {
+                            lock.unlock();
+                        }
+                    }
+                }
+            }
+
+            if (cleanedCount > 0) {
+                log.info("Cleanup completed: {} references cleaned, {} best-effort assemblies",
+                        cleanedCount, bestEffortCount);
+            }
+
+        } catch (Exception e) {
+            log.error("Error during incomplete message cleanup", e);
+        }
+    }
+
+    /**
+     * Assembles a message from incomplete parts (best-effort).
+     *
+     * <p>When a concatenated message times out before all parts arrive,
+     * this method attempts to assemble what we have received and cache it
+     * with special metadata indicating incomplete status.</p>
+     *
+     * @param partsMap Map of received parts
+     * @param reference Message reference number
+     * @param expectedTotalParts Expected total number of parts
+     */
+    private void assembleBestEffortMessage(Map<Integer, ConcatPart> partsMap,
+                                          String reference, int expectedTotalParts) {
+        try {
+            // Concatenate available parts in order
+            byte[] allRawBytes = new byte[0];
+            int assembledParts = 0;
+            StringBuilder missingParts = new StringBuilder();
+
+            for (int i = 1; i <= expectedTotalParts; i++) {
+                ConcatPart part = partsMap.get(i);
+                if (part != null && part.getContent() != null) {
+                    byte[] newBytes = new byte[allRawBytes.length + part.getContent().length];
+                    System.arraycopy(allRawBytes, 0, newBytes, 0, allRawBytes.length);
+                    System.arraycopy(part.getContent(), 0, newBytes, allRawBytes.length, part.getContent().length);
+                    allRawBytes = newBytes;
+                    assembledParts++;
+                } else {
+                    if (missingParts.length() > 0) missingParts.append(", ");
+                    missingParts.append(i);
+                }
+            }
+
+            // Decode message text (use UTF-8 as safe default)
+            String partialText = new String(allRawBytes, java.nio.charset.StandardCharsets.UTF_8);
+
+            // Generate message ID
+            String messageId = CloudhopperUtils.generateMessageId();
+
+            // Get concatenation type from first part
+            ConcatPart firstPart = partsMap.values().iterator().next();
+            String concatType = firstPart.type.name();
+
+            // Create message object with incomplete metadata
+            MessagesObject msgObj = MessagesObject.builder()
+                    .id(messageId)
+                    .dir("IN_PARTIAL")  // Special direction for incomplete messages
+                    .from("UNKNOWN")
+                    .to("UNKNOWN")
+                    .text("[INCOMPLETE] " + partialText)
+                    .messageEncoding("UTF-8")
+                    .messageTime(MessageUtils.getMessageDateFromTimestamp(System.currentTimeMillis()))
+                    // Concatenation metadata
+                    .concatenationType(concatType)
+                    .totalParts(expectedTotalParts)
+                    .partNumber(assembledParts)  // Abuse partNumber to store received count
+                    .referenceNumber(reference)
+                    // Cloudhopper metadata
+                    .implementationType("Cloudhopper")
+                    .smppVersion("3.4")
+                    .rawMessageBytes(allRawBytes)
+                    .build();
+
+            // Cache incomplete message
+            messagesCache.addCacheRecord(messageId, msgObj);
+
+            log.warn("Best-effort message assembled: msgId={}, ref={}, parts={}/{}, missing=[{}]",
+                    messageId, reference, assembledParts, expectedTotalParts, missingParts);
+
+        } catch (Exception e) {
+            log.error("Failed to assemble best-effort message for ref={}", reference, e);
+        }
+    }
+
+    /**
+     * Shuts down the cleanup executor.
+     *
+     * <p>Call this method when the session handler is no longer needed
+     * to properly clean up resources.</p>
+     */
+    public void shutdown() {
+        log.info("Shutting down CloudhopperClientSessionHandler for connection {}", connectionId);
+
+        if (cleanupExecutor != null) {
+            cleanupExecutor.shutdown();
+            try {
+                if (!cleanupExecutor.awaitTermination(5, TimeUnit.SECONDS)) {
+                    cleanupExecutor.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                cleanupExecutor.shutdownNow();
+                Thread.currentThread().interrupt();
+            }
+        }
+
+        log.info("CloudhopperClientSessionHandler shutdown complete for connection {}", connectionId);
     }
 }
