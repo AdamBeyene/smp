@@ -144,23 +144,33 @@ public class CloudhopperClientSessionHandler extends DefaultSmppSessionHandler {
      * Handles single (non-concatenated) message.
      */
     private PduResponse handleSingleMessage(DeliverSm deliverSm) {
-        // Decode message
-        String messageText = CloudhopperUtils.decodeMessage(
-            deliverSm.getShortMessage(),
-            deliverSm.getDataCoding()
-        );
+        // Smart encoding detection
+        String declaredEncoding = getEncodingName(deliverSm.getDataCoding());
+        org.apache.commons.lang3.tuple.Pair<String, String> result =
+            CloudhopperUtils.detectAndDecodeMessage(
+                deliverSm.getShortMessage(),
+                declaredEncoding
+            );
+        String messageText = result.getLeft();
+        String actualEncoding = result.getRight();
+
+        // Log if encoding was corrected
+        if (!actualEncoding.equals(declaredEncoding)) {
+            log.info("Single message ENCODING CORRECTED: Declared='{}', Actual='{}'",
+                declaredEncoding, actualEncoding);
+        }
 
         // Generate message ID
         String messageId = CloudhopperUtils.generateMessageId();
 
-        // Create message object using builder pattern
+        // Create message object using builder pattern with ACTUAL encoding
         MessagesObject msgObj = MessagesObject.builder()
             .dir("IN_FULL")
             .id(messageId)
             .from(deliverSm.getSourceAddress().getAddress())
             .to(deliverSm.getDestAddress().getAddress())
             .text(messageText)
-            .messageEncoding(getEncodingName(deliverSm.getDataCoding()))
+            .messageEncoding(actualEncoding)  // Use detected encoding
             .messageTime(MessageUtils.getMessageDateFromTimestamp(System.currentTimeMillis()))
             .build();
 
@@ -229,31 +239,43 @@ public class CloudhopperClientSessionHandler extends DefaultSmppSessionHandler {
             Map<Integer, ConcatPart> partsMap,
             String reference) {
 
-        // Assemble complete message
-        StringBuilder completeText = new StringBuilder();
+        // Concatenate RAW BYTES first (not decoded text)
+        byte[] allRawBytes = new byte[0];
 
         for (int i = 1; i <= partsMap.size(); i++) {
             ConcatPart part = partsMap.get(i);
             if (part != null && part.getContent() != null) {
-                String partText = CloudhopperUtils.decodeMessage(
-                    part.getContent(),
-                    deliverSm.getDataCoding()
-                );
-                completeText.append(partText);
+                byte[] newBytes = new byte[allRawBytes.length + part.getContent().length];
+                System.arraycopy(allRawBytes, 0, newBytes, 0, allRawBytes.length);
+                System.arraycopy(part.getContent(), 0, newBytes, allRawBytes.length, part.getContent().length);
+                allRawBytes = newBytes;
             }
+        }
+
+        // Smart encoding detection on complete message
+        String declaredEncoding = getEncodingName(deliverSm.getDataCoding());
+        org.apache.commons.lang3.tuple.Pair<String, String> result =
+            CloudhopperUtils.detectAndDecodeMessage(allRawBytes, declaredEncoding);
+        String fullText = result.getLeft();
+        String actualEncoding = result.getRight();
+
+        // Log if encoding was corrected
+        if (!actualEncoding.equals(declaredEncoding)) {
+            log.warn("Concatenated message ENCODING CORRECTED: Declared='{}', Actual='{}', parts={}",
+                declaredEncoding, actualEncoding, partsMap.size());
         }
 
         // Generate message ID
         String messageId = CloudhopperUtils.generateMessageId();
 
-        // Create message object using builder pattern
+        // Create message object with ACTUAL encoding
         MessagesObject msgObj = MessagesObject.builder()
             .dir("IN_CONCAT")
             .id(messageId)
             .from(deliverSm.getSourceAddress().getAddress())
             .to(deliverSm.getDestAddress().getAddress())
-            .text(completeText.toString())
-            .messageEncoding(getEncodingName(deliverSm.getDataCoding()))
+            .text(fullText)
+            .messageEncoding(actualEncoding)  // Use detected encoding, not declared
             .messageTime(MessageUtils.getMessageDateFromTimestamp(System.currentTimeMillis()))
             .totalParts(partsMap.size())
             .build();

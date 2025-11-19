@@ -499,6 +499,273 @@ public final class CloudhopperUtils {
     }
 
     /**
+     * Smart encoding detection - tries multiple encodings and picks best match.
+     * Works for ANY language using universal heuristics.
+     *
+     * <p>This method addresses common encoding mismatches where the declared
+     * encoding doesn't match the actual encoding used. It tries multiple
+     * encodings and scores each result using language-agnostic heuristics.</p>
+     *
+     * <p><b>Universal Heuristics (work for ANY language):</b></p>
+     * <ul>
+     *   <li>Replacement character detection (�, U+FFFD) - wrong encoding indicator</li>
+     *   <li>Control character ratio - binary/corrupt data indicator</li>
+     *   <li>Printable character ratio - text quality indicator</li>
+     *   <li>Unicode block changes - coherence indicator (language-independent)</li>
+     *   <li>Byte-to-char ratio anomalies - encoding mismatch detector</li>
+     * </ul>
+     *
+     * <p><b>Common Corrections:</b></p>
+     * <ul>
+     *   <li>UTF-16BE ↔ UTF-16LE (endianness confusion)</li>
+     *   <li>UTF-8 ↔ ISO-8859-1 (single vs multi-byte)</li>
+     *   <li>ISO-8859-1 ↔ Windows-1252 (codepage confusion)</li>
+     * </ul>
+     *
+     * @param rawBytes Raw message bytes
+     * @param declaredEncoding Declared encoding (from data_coding)
+     * @return Pair of (decoded text, actual encoding)
+     */
+    public static org.apache.commons.lang3.tuple.Pair<String, String> detectAndDecodeMessage(
+            byte[] rawBytes, String declaredEncoding) {
+
+        if (rawBytes == null || rawBytes.length == 0) {
+            return org.apache.commons.lang3.tuple.Pair.of("",
+                declaredEncoding != null ? declaredEncoding : "UTF-8");
+        }
+
+        String[] encodingsToTry = buildEncodingPriorityList(declaredEncoding);
+        String bestText = null;
+        String bestEncoding = declaredEncoding;
+        double bestScore = -1;
+
+        for (String encodingName : encodingsToTry) {
+            try {
+                Charset charset = getCharsetForEncoding(encodingName);
+                if (charset == null) continue;
+
+                String decoded = new String(rawBytes, charset);
+                double score = scoreDecodedText(decoded, rawBytes.length);
+
+                log.trace("Encoding {} score: {}", encodingName, score);
+
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestText = decoded;
+                    bestEncoding = encodingName;
+                }
+
+                // Excellent match, stop searching
+                if (score >= 0.95) break;
+
+            } catch (Exception e) {
+                log.debug("Failed to decode with {}", encodingName, e);
+            }
+        }
+
+        if (!bestEncoding.equals(declaredEncoding)) {
+            log.warn("ENCODING CORRECTED: Declared='{}', Actual='{}', Score={}",
+                declaredEncoding, bestEncoding, bestScore);
+        }
+
+        return org.apache.commons.lang3.tuple.Pair.of(
+            bestText != null ? bestText : "", bestEncoding);
+    }
+
+    /**
+     * Build smart encoding priority list based on declared encoding.
+     * Prioritizes encodings commonly confused with the declared one.
+     */
+    private static String[] buildEncodingPriorityList(String declaredEncoding) {
+        if (declaredEncoding == null || declaredEncoding.isEmpty()) {
+            return new String[]{"UTF-8", "UTF-16BE", "UTF-16LE", "ISO-8859-1", "Cp1252"};
+        }
+
+        String normalized = declaredEncoding.toUpperCase();
+
+        // UTF-16BE: Often confused with LE
+        if (normalized.contains("UTF-16BE") || normalized.equals("UCS2")) {
+            return new String[]{declaredEncoding, "UTF-16LE", "UTF-8", "ISO-8859-1", "Cp1252"};
+        }
+
+        // UTF-16LE: Often confused with BE
+        if (normalized.contains("UTF-16LE")) {
+            return new String[]{declaredEncoding, "UTF-16BE", "UTF-8", "ISO-8859-1", "Cp1252"};
+        }
+
+        // UTF-8: Often confused with ISO-8859-1
+        if (normalized.contains("UTF-8") || normalized.equals("UTF8")) {
+            return new String[]{declaredEncoding, "ISO-8859-1", "Cp1252", "UTF-16BE", "UTF-16LE"};
+        }
+
+        // ISO-8859-1: Often confused with UTF-8
+        if (normalized.contains("ISO-8859-1") || normalized.equals("LATIN1")) {
+            return new String[]{declaredEncoding, "UTF-8", "Cp1252", "UTF-16BE", "UTF-16LE"};
+        }
+
+        // GSM encodings
+        if (normalized.contains("GSM") || normalized.contains("CCGSM") || normalized.contains("SCGSM")) {
+            return new String[]{declaredEncoding, "ISO-8859-1", "UTF-8", "Cp1252", "UTF-16BE"};
+        }
+
+        // Default
+        return new String[]{declaredEncoding, "UTF-8", "UTF-16BE", "UTF-16LE", "ISO-8859-1", "Cp1252"};
+    }
+
+    /**
+     * Get Charset object for encoding name.
+     */
+    private static Charset getCharsetForEncoding(String encodingName) {
+        try {
+            return switch (encodingName.toUpperCase()) {
+                case "GSM7", "SCGSM", "GSM_DEFAULT" -> StandardCharsets.ISO_8859_1;
+                case "UCS2", "UTF-16BE", "UTF-16" -> StandardCharsets.UTF_16BE;
+                case "UTF-16LE" -> StandardCharsets.UTF_16LE;
+                case "UTF-8", "UTF8" -> StandardCharsets.UTF_8;
+                case "ISO-8859-1", "LATIN1" -> StandardCharsets.ISO_8859_1;
+                case "CP1252", "WINDOWS-1252" -> Charset.forName("Cp1252");
+                default -> Charset.forName(encodingName);
+            };
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * Score decoded text (0.0 = garbage, 1.0 = perfect).
+     * Universal heuristics that work for ANY language.
+     */
+    private static double scoreDecodedText(String text, int originalByteLength) {
+        if (text == null || text.isEmpty()) return 0.0;
+
+        int length = text.length();
+        int printableCount = 0;
+        int replacementCount = 0;
+        int controlCount = 0;
+        int commonChars = 0;
+
+        for (int i = 0; i < length; i++) {
+            char c = text.charAt(i);
+
+            // Replacement character (wrong encoding indicator)
+            if (c == '\uFFFD' || c == '�') {
+                replacementCount++;
+                continue;
+            }
+
+            // Control characters (except \n, \r, \t)
+            if (c < 32 && c != '\n' && c != '\r' && c != '\t') {
+                controlCount++;
+                continue;
+            }
+
+            // Printable characters
+            if (c >= 32 && c <= 126) {
+                printableCount++;
+                // Common ASCII bonus
+                if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
+                    (c >= '0' && c <= '9') || c == ' ' || c == '.' || c == ',') {
+                    commonChars++;
+                }
+            } else if (c > 126) {
+                printableCount++; // Non-ASCII printable (Chinese, Arabic, Hebrew, etc.)
+            }
+        }
+
+        // Calculate score
+        double score = 1.0;
+
+        // Heavy penalty for replacement characters
+        double replacementRatio = (double) replacementCount / length;
+        score -= (replacementRatio * 2.0);
+
+        // Penalty for control characters
+        double controlRatio = (double) controlCount / length;
+        score -= (controlRatio * 1.5);
+
+        // Bonus for printable content
+        double printableRatio = (double) printableCount / length;
+        score *= printableRatio;
+
+        // Bonus for common ASCII
+        if (commonChars > length * 0.3) {
+            score *= 1.1;
+        }
+
+        // UNIVERSAL CHECK: Byte-to-char ratio anomalies
+        if (originalByteLength > 0) {
+            double charToByteRatio = (double) length / originalByteLength;
+
+            // Ratio ~0.5: Multi-byte ↔ single-byte confusion
+            if (charToByteRatio < 0.55 && charToByteRatio > 0.45) {
+                int blockChanges = countUnicodeBlockChanges(text);
+                double blockChangeRatio = (double) blockChanges / Math.max(1, length);
+                if (blockChangeRatio > 0.5) {
+                    score *= 0.15; // Heavy penalty for garbage
+                }
+            }
+
+            // Ratio < 0.4: Binary or very wrong
+            if (charToByteRatio < 0.4) {
+                score *= 0.2;
+            }
+
+            // Ratio > 3.0: Single-byte as multi-byte UTF-8
+            if (charToByteRatio > 3.0) {
+                score *= 0.5;
+            }
+        }
+
+        // Null bytes penalty
+        int nullCount = 0;
+        for (int i = 0; i < length; i++) {
+            if (text.charAt(i) == '\0') nullCount++;
+        }
+        if (nullCount > 0) {
+            score -= ((double) nullCount / length) * 2.0;
+        }
+
+        return Math.max(0.0, Math.min(1.0, score));
+    }
+
+    /**
+     * Count Unicode block changes - universal heuristic.
+     * Wrong encoding = random blocks, many changes.
+     * Correct encoding = coherent text, few changes.
+     */
+    private static int countUnicodeBlockChanges(String text) {
+        if (text == null || text.length() <= 1) return 0;
+
+        int changes = 0;
+        Character.UnicodeBlock previousBlock = null;
+
+        for (int i = 0; i < text.length(); i++) {
+            char c = text.charAt(i);
+
+            // Skip whitespace and punctuation
+            if (Character.isWhitespace(c) ||
+                (c >= 0x20 && c <= 0x2F) ||
+                (c >= 0x3A && c <= 0x40) ||
+                (c >= 0x5B && c <= 0x60) ||
+                (c >= 0x7B && c <= 0x7E)) {
+                continue;
+            }
+
+            Character.UnicodeBlock currentBlock = Character.UnicodeBlock.of(c);
+
+            if (currentBlock != null && previousBlock != null && !currentBlock.equals(previousBlock)) {
+                changes++;
+            }
+
+            if (currentBlock != null) {
+                previousBlock = currentBlock;
+            }
+        }
+
+        return changes;
+    }
+
+    /**
      * Creates a complete SubmitSm PDU for a message part.
      *
      * @param source Source address
