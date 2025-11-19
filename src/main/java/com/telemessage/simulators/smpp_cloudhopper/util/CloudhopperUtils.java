@@ -12,6 +12,7 @@ import com.telemessage.simulators.smpp.concatenation.ConcatenationType;
 import com.telemessage.simulators.smpp.concatenation.ConcatenationData;
 import lombok.extern.slf4j.Slf4j;
 
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -117,9 +118,9 @@ public final class CloudhopperUtils {
 
         int maxLength = isUnicodeEncoding(encoding) ? MAX_SINGLE_UNICODE : MAX_SINGLE_ASCII;
 
-        // Use SimUtils to get actual byte length
+        // Use our own encoding to get actual byte length
         try {
-            byte[] encoded = SimUtils.encodeMessage(text, encoding);
+            byte[] encoded = encodeMessage(text, encoding);
             return encoded.length > maxLength;
         } catch (Exception e) {
             // Fall back to character count

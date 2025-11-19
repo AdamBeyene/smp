@@ -29,9 +29,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Main orchestrator for Cloudhopper SMPP connections.
+ * Main orchestrator for Cloudhopper SMPP smppConnections.
  *
- * <p>This service manages all SMPP connections using the modern Cloudhopper library.
+ * <p>This service manages all SMPP smppConnections using the modern Cloudhopper library.
  * It provides the same interface as the legacy SMPPSimulator for seamless switching.</p>
  *
  * <p><b>Key Features:</b></p>
@@ -80,7 +80,7 @@ public class CloudhopperSimulator implements Simulator {
     private final SessionStateManager sessionStateManager;
 
     @Getter
-    private SMPPConnections connections;
+    private SMPPConnections smppConnections;
 
     private final Map<Integer, CloudhopperConnectionManager> connectionManagers = new ConcurrentHashMap<>();
     private final ExecutorService executorService;
@@ -133,7 +133,7 @@ public class CloudhopperSimulator implements Simulator {
             log.info("Initializing Cloudhopper SMPP Simulator...");
             readFromConfiguration();
             log.info("Cloudhopper SMPP Simulator configuration loaded successfully");
-            log.info("Total connections configured: {}", connectionManagers.size());
+            log.info("Total smppConnections configured: {}", connectionManagers.size());
         } catch (Exception e) {
             log.error("Failed to initialize Cloudhopper SMPP Simulator", e);
             state = State.INVALID;
@@ -159,16 +159,16 @@ public class CloudhopperSimulator implements Simulator {
             }
 
             Persister persister = new Persister();
-            connections = persister.read(SMPPConnections.class, inputStream);
+            smppConnections = persister.read(SMPPConnections.class, inputStream);
 
-            if (connections == null || connections.getConnections() == null) {
-                throw new IllegalStateException("No connections found in configuration");
+            if (smppConnections == null || smppConnections.getConnections() == null) {
+                throw new IllegalStateException("No smppConnections found in configuration");
             }
 
-            log.info("Loaded {} connection configurations", connections.getConnections().size());
+            log.info("Loaded {} connection configurations", smppConnections.getConnections().size());
 
             // Create connection managers for each configured connection
-            for (SMPPConnectionConf connConf : connections.getConnections()) {
+            for (SMPPConnectionConf connConf : smppConnections.getConnections()) {
                 createConnectionManagers(connConf);
             }
 
@@ -218,10 +218,20 @@ public class CloudhopperSimulator implements Simulator {
     }
 
     /**
-     * Starts all configured SMPP connections.
+     * Starts the simulator (Simulator interface implementation).
+     * This is called automatically by Spring after initialization.
+     */
+    @Override
+    public void start() {
+        log.info("Starting CloudhopperSimulator...");
+        startConnections();
+    }
+
+    /**
+     * Starts all configured SMPP smppConnections.
      */
     public void startConnections() {
-        log.info("Starting all Cloudhopper SMPP connections...");
+        log.info("Starting all Cloudhopper SMPP smppConnections...");
         state = State.STARTED;
 
         int successCount = 0;
@@ -243,7 +253,7 @@ public class CloudhopperSimulator implements Simulator {
 
         if (failCount > 0 && successCount == 0) {
             state = State.INVALID;
-            log.error("All connections failed to start!");
+            log.error("All smppConnections failed to start!");
         }
     }
 
@@ -283,11 +293,11 @@ public class CloudhopperSimulator implements Simulator {
      * @return SMPPConnectionConf or null if not found
      */
     public SMPPConnectionConf get(int id) {
-        if (connections == null || connections.getConnections() == null) {
+        if (smppConnections == null || smppConnections.getConnections() == null) {
             return null;
         }
 
-        return connections.getConnections().stream()
+        return smppConnections.getConnections().stream()
             .filter(conn -> conn.getId() == id)
             .findFirst()
             .orElse(null);
@@ -296,26 +306,26 @@ public class CloudhopperSimulator implements Simulator {
     /**
      * Gets all connection configurations.
      *
-     * @return List of all connections
+     * @return List of all smppConnections
      */
     public List<SMPPConnectionConf> getAllConnections() {
-        return connections != null ? connections.getConnections() : List.of();
+        return smppConnections != null ? smppConnections.getConnections() : List.of();
     }
 
     /**
-     * Gets all connections as a map (Simulator interface requirement).
+     * Gets all smppConnections as a map (Simulator interface requirement).
      *
      * @return Map of connection ID to connection configuration
      */
     @Override
     public <T extends com.telemessage.simulators.conf.AbstractConnection> Map<Integer, T> getConnections() {
-        Map<Integer, T> connectionsMap = new java.util.HashMap<>();
-        if (connections != null && connections.getConnections() != null) {
-            for (SMPPConnectionConf conn : connections.getConnections()) {
-                connectionsMap.put(conn.getId(), (T) conn);
+        Map<Integer, T> smppConnectionsMap = new java.util.HashMap<>();
+        if (smppConnections != null && smppConnections.getConnections() != null) {
+            for (SMPPConnectionConf conn : smppConnections.getConnections()) {
+                smppConnectionsMap.put(conn.getId(), (T) conn);
             }
         }
-        return connectionsMap;
+        return smppConnectionsMap;
     }
 
     /**
@@ -336,7 +346,7 @@ public class CloudhopperSimulator implements Simulator {
     }
 
     /**
-     * Shuts down all SMPP connections and cleans up resources.
+     * Shuts down all SMPP smppConnections and cleans up resources.
      */
     @PreDestroy
     public void shutdown() {
