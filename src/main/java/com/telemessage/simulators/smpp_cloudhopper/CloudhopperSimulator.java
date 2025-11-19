@@ -17,8 +17,6 @@ import jakarta.annotation.PreDestroy;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.simpleframework.xml.core.Persister;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
 import java.util.List;
@@ -62,7 +60,6 @@ import java.util.concurrent.TimeUnit;
  * @see CloudhopperSMSCManager
  */
 @Slf4j
-@Service("cloudHopperSimulator")
 public class CloudhopperSimulator implements Simulator {
 
     public static final String CONN_FILE = "smpps.xml";
@@ -98,7 +95,6 @@ public class CloudhopperSimulator implements Simulator {
      * @param envConfig Environment configuration
      * @param messagesCache Shared message cache service
      */
-    @Autowired
     public CloudhopperSimulator(
             CloudhopperProperties properties,
             EnvConfiguration envConfig,
@@ -149,7 +145,7 @@ public class CloudhopperSimulator implements Simulator {
      */
     private void readFromConfiguration() throws Exception {
         String currentEnv = envConfig.getEnvCurrent();
-        String configPath = String.format("com/telemessage/simulators/%s/%s", currentEnv, CONN_FILE);
+        String configPath = String.format("%s/%s", currentEnv, CONN_FILE);
 
         log.info("Loading Cloudhopper configuration from: {}", configPath);
 

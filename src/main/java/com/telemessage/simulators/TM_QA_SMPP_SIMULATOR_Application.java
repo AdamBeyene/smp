@@ -31,12 +31,12 @@ public class TM_QA_SMPP_SIMULATOR_Application {
 
     MessagesCache cacheService;
     EnvConfiguration conf;
-    static SMPPSimulator smppSim;
+    static Simulator smppSim;  // Can be either SMPPSimulator (Logica) or CloudhopperSimulator
     static HttpSimulator httpSim;
 
     public TM_QA_SMPP_SIMULATOR_Application(MessagesCache cacheService,
                                             EnvConfiguration conf,
-                                            SMPPSimulator smppSim,
+                                            Simulator smppSim,
                                             HttpSimulator httpSim
     ) {
         this.conf = conf;

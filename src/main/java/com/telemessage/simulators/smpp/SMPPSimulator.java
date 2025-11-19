@@ -13,8 +13,6 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.simpleframework.xml.core.Persister;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -26,17 +24,15 @@ import java.util.Map;
 import java.util.concurrent.*;
 
 @Slf4j
-@Service
 public class SMPPSimulator extends Thread implements Simulator {
 
     @Getter
     private final MessagesCache messagesCacheService;
-    EnvConfiguration conf;
+    private final EnvConfiguration conf;
 
     @Getter
     SMPPConnections conns;
 
-    @Autowired
     public SMPPSimulator(EnvConfiguration conf, MessagesCache messagesCache) {
         this.conf = conf;
         state = State.starting;
