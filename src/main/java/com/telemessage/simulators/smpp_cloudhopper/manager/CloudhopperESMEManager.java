@@ -6,6 +6,8 @@ import com.cloudhopper.smpp.impl.DefaultSmppSessionHandler;
 import com.cloudhopper.smpp.pdu.*;
 import com.cloudhopper.smpp.type.*;
 import com.telemessage.simulators.controllers.message.MessagesCache;
+import com.telemessage.simulators.controllers.message.MessagesObject;
+import com.telemessage.simulators.controllers.message.MessageUtils;
 import com.telemessage.simulators.smpp.SMPPRequest;
 import com.telemessage.simulators.smpp.conf.SMPPConnectionConf;
 import com.telemessage.simulators.smpp_cloudhopper.config.CloudhopperProperties;
@@ -284,10 +286,20 @@ public class CloudhopperESMEManager implements CloudhopperConnectionManager {
                 sessionStateManager.incrementMessagesSent(connectionId);
 
                 // Cache message
-                messagesCache.addCacheRecord(request, response.getMessageId());
+                String messageId = response.getMessageId();
+                MessagesObject cacheMessage = MessagesObject.builder()
+                    .dir("OUT_FULL")
+                    .id(messageId)
+                    .text(request.getText())
+                    .from(request.getSrc())
+                    .to(request.getDst())
+                    .messageTime(MessageUtils.getMessageDateFromTimestamp(System.currentTimeMillis()))
+                    .messageEncoding(encoding)
+                    .build();
+                messagesCache.addCacheRecord(messageId, cacheMessage);
 
                 log.debug("Message sent successfully: msgId={}, dest={}",
-                    response.getMessageId(), request.getDst());
+                    messageId, request.getDst());
                 return true;
             } else {
                 sessionStateManager.incrementErrors(connectionId);

@@ -7,6 +7,7 @@ import com.cloudhopper.smpp.type.RecoverablePduException;
 import com.cloudhopper.smpp.type.UnrecoverablePduException;
 import com.telemessage.simulators.controllers.message.MessagesCache;
 import com.telemessage.simulators.controllers.message.MessagesObject;
+import com.telemessage.simulators.controllers.message.MessageUtils;
 import com.telemessage.simulators.smpp.conf.SMPPConnectionConf;
 import com.telemessage.simulators.smpp.concatenation.ConcatenationData;
 import com.telemessage.simulators.smpp_cloudhopper.util.CloudhopperUtils;
@@ -16,7 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
@@ -150,18 +150,22 @@ public class CloudhopperClientSessionHandler extends DefaultSmppSessionHandler {
             deliverSm.getDataCoding()
         );
 
-        // Create message object
-        MessagesObject msgObj = new MessagesObject();
-        msgObj.setDir("In");
-        msgObj.setSrc(deliverSm.getSourceAddress().getAddress());
-        msgObj.setDst(deliverSm.getDestAddress().getAddress());
-        msgObj.setText(messageText);
-        msgObj.setEncoding(getEncodingName(deliverSm.getDataCoding()));
-        msgObj.setTimestamp(Instant.now());
+        // Generate message ID
+        String messageId = CloudhopperUtils.generateMessageId();
+
+        // Create message object using builder pattern
+        MessagesObject msgObj = MessagesObject.builder()
+            .dir("IN_FULL")
+            .id(messageId)
+            .from(deliverSm.getSourceAddress().getAddress())
+            .to(deliverSm.getDestAddress().getAddress())
+            .text(messageText)
+            .messageEncoding(getEncodingName(deliverSm.getDataCoding()))
+            .messageTime(MessageUtils.getMessageDateFromTimestamp(System.currentTimeMillis()))
+            .build();
 
         // Cache message
-        String messageId = CloudhopperUtils.generateMessageId();
-        messagesCache.addCacheRecord(msgObj);
+        messagesCache.addCacheRecord(messageId, msgObj);
 
         // Increment counter
         sessionStateManager.incrementMessagesReceived(connectionId);
@@ -239,18 +243,23 @@ public class CloudhopperClientSessionHandler extends DefaultSmppSessionHandler {
             }
         }
 
-        // Create message object
-        MessagesObject msgObj = new MessagesObject();
-        msgObj.setDir("In");
-        msgObj.setSrc(deliverSm.getSourceAddress().getAddress());
-        msgObj.setDst(deliverSm.getDestAddress().getAddress());
-        msgObj.setText(completeText.toString());
-        msgObj.setEncoding(getEncodingName(deliverSm.getDataCoding()));
-        msgObj.setTimestamp(Instant.now());
+        // Generate message ID
+        String messageId = CloudhopperUtils.generateMessageId();
+
+        // Create message object using builder pattern
+        MessagesObject msgObj = MessagesObject.builder()
+            .dir("IN_CONCAT")
+            .id(messageId)
+            .from(deliverSm.getSourceAddress().getAddress())
+            .to(deliverSm.getDestAddress().getAddress())
+            .text(completeText.toString())
+            .messageEncoding(getEncodingName(deliverSm.getDataCoding()))
+            .messageTime(MessageUtils.getMessageDateFromTimestamp(System.currentTimeMillis()))
+            .totalParts(partsMap.size())
+            .build();
 
         // Cache message
-        String messageId = CloudhopperUtils.generateMessageId();
-        messagesCache.addCacheRecord(msgObj);
+        messagesCache.addCacheRecord(messageId, msgObj);
 
         // Increment counter
         sessionStateManager.incrementMessagesReceived(connectionId);
@@ -282,16 +291,22 @@ public class CloudhopperClientSessionHandler extends DefaultSmppSessionHandler {
                 submitSm.getDataCoding()
             );
 
-            // Cache message
-            MessagesObject msgObj = new MessagesObject();
-            msgObj.setDir("In");
-            msgObj.setSrc(submitSm.getSourceAddress().getAddress());
-            msgObj.setDst(submitSm.getDestAddress().getAddress());
-            msgObj.setText(messageText);
-            msgObj.setTimestamp(Instant.now());
-
+            // Generate message ID
             String messageId = CloudhopperUtils.generateMessageId();
-            messagesCache.addCacheRecord(msgObj);
+
+            // Create message object using builder pattern
+            MessagesObject msgObj = MessagesObject.builder()
+                .dir("IN_SUBMIT")
+                .id(messageId)
+                .from(submitSm.getSourceAddress().getAddress())
+                .to(submitSm.getDestAddress().getAddress())
+                .text(messageText)
+                .messageEncoding(getEncodingName(submitSm.getDataCoding()))
+                .messageTime(MessageUtils.getMessageDateFromTimestamp(System.currentTimeMillis()))
+                .build();
+
+            // Cache message
+            messagesCache.addCacheRecord(messageId, msgObj);
 
             sessionStateManager.incrementMessagesReceived(connectionId);
 
