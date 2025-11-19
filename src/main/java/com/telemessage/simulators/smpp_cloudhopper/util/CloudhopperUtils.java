@@ -156,8 +156,7 @@ public final class CloudhopperUtils {
 
         return switch (encoding.toUpperCase()) {
             case "GSM7", "SCGSM", "GSM_DEFAULT" -> SmppConstants.DATA_CODING_DEFAULT;
-            case "UCS2", "UTF-16BE", "UTF-16" -> SmppConstants.DATA_CODING_UCS2;
-            case "UTF-8" -> SmppConstants.DATA_CODING_UTF8;
+            case "UCS2", "UTF-16BE", "UTF-16", "UTF-8" -> SmppConstants.DATA_CODING_UCS2;  // UTF-8 -> UCS2
             case "ISO-8859-1", "LATIN1" -> SmppConstants.DATA_CODING_LATIN1;
             default -> SmppConstants.DATA_CODING_DEFAULT;
         };
@@ -182,7 +181,7 @@ public final class CloudhopperUtils {
         int maxPartLength = isUnicode ? MAX_CONCAT_UNICODE : MAX_CONCAT_ASCII;
 
         // For PAYLOAD type, send as single part with message_payload TLV
-        if (concatenationType == ConcatenationType.PAYLOAD) {
+        if (concatenationType == com.telemessage.simulators.smpp.concatenation.ConcatenationType.PAYLOAD) {
             parts.add(text);
             return parts;
         }
@@ -217,12 +216,37 @@ public final class CloudhopperUtils {
     }
 
     /**
+     * Internal wrapper for concatenation data with message content.
+     */
+    public static class ConcatPart {
+        public final ConcatenationType type;
+        public final int reference;
+        public final int totalParts;
+        public final int partNumber;
+        public final byte[] content;
+
+        public ConcatPart(ConcatenationType type, int reference, int totalParts, int partNumber, byte[] content) {
+            this.type = type;
+            this.reference = reference;
+            this.totalParts = totalParts;
+            this.partNumber = partNumber;
+            this.content = content;
+        }
+
+        // Getters for compatibility
+        public int getReference() { return reference; }
+        public int getTotalParts() { return totalParts; }
+        public int getPartNumber() { return partNumber; }
+        public byte[] getContent() { return content; }
+    }
+
+    /**
      * Extracts concatenation data from a DeliverSm PDU.
      *
      * @param deliverSm DeliverSm PDU
-     * @return ConcatenationData or null if not concatenated
+     * @return ConcatPart or null if not concatenated
      */
-    public static ConcatenationData extractConcatenationData(DeliverSm deliverSm) {
+    public static ConcatPart extractConcatenationData(DeliverSm deliverSm) {
         // Check for UDHI in esm_class
         byte esmClass = deliverSm.getEsmClass();
         if ((esmClass & ESM_CLASS_UDHI) == ESM_CLASS_UDHI) {
@@ -238,7 +262,7 @@ public final class CloudhopperUtils {
         try {
             Tlv payloadTlv = deliverSm.getOptionalParameter(TLV_MESSAGE_PAYLOAD);
             if (payloadTlv != null) {
-                return new ConcatenationData(
+                return new ConcatPart(
                     ConcatenationType.PAYLOAD,
                     0, // No reference for payload
                     1, // Single part
@@ -257,9 +281,9 @@ public final class CloudhopperUtils {
      * Extracts UDHI concatenation data from message bytes.
      *
      * @param messageBytes Message bytes with UDH header
-     * @return ConcatenationData or null
+     * @return ConcatPart or null
      */
-    private static ConcatenationData extractUdhiConcatenationData(byte[] messageBytes) {
+    private static ConcatPart extractUdhiConcatenationData(byte[] messageBytes) {
         if (messageBytes == null || messageBytes.length < 6) {
             return null;
         }
@@ -288,7 +312,7 @@ public final class CloudhopperUtils {
             byte[] content = new byte[messageBytes.length - udhLength - 1];
             System.arraycopy(messageBytes, udhLength + 1, content, 0, content.length);
 
-            return new ConcatenationData(
+            return new ConcatPart(
                 ConcatenationType.UDHI,
                 reference,
                 totalParts,
@@ -305,9 +329,9 @@ public final class CloudhopperUtils {
      * Extracts SAR concatenation data from TLV parameters.
      *
      * @param deliverSm DeliverSm PDU with TLV parameters
-     * @return ConcatenationData or null
+     * @return ConcatPart or null
      */
-    private static ConcatenationData extractSarConcatenationData(DeliverSm deliverSm) {
+    private static ConcatPart extractSarConcatenationData(DeliverSm deliverSm) {
         try {
             Tlv refTlv = deliverSm.getOptionalParameter(TLV_SAR_MSG_REF_NUM);
             Tlv totalTlv = deliverSm.getOptionalParameter(TLV_SAR_TOTAL_SEGMENTS);
@@ -321,7 +345,7 @@ public final class CloudhopperUtils {
             int totalParts = totalTlv.getValueAsUnsignedByte();
             int partNumber = seqTlv.getValueAsUnsignedByte();
 
-            return new ConcatenationData(
+            return new ConcatPart(
                 ConcatenationType.SAR,
                 reference,
                 totalParts,
@@ -347,9 +371,13 @@ public final class CloudhopperUtils {
         }
 
         try {
-            // Reuse existing SimUtils encoding detection
-            String encoding = SimUtils.determineEncoding(dataCoding, messageBytes);
-            return SimUtils.decodeMessage(messageBytes, encoding);
+            Charset charset = switch (dataCoding) {
+                case SmppConstants.DATA_CODING_DEFAULT -> StandardCharsets.ISO_8859_1; // GSM7 approximation
+                case SmppConstants.DATA_CODING_LATIN1 -> StandardCharsets.ISO_8859_1;
+                case SmppConstants.DATA_CODING_UCS2 -> StandardCharsets.UTF_16BE;
+                default -> StandardCharsets.UTF_8;
+            };
+            return new String(messageBytes, charset);
         } catch (Exception e) {
             log.error("Failed to decode message, falling back to UTF-8", e);
             return new String(messageBytes, StandardCharsets.UTF_8);
@@ -369,7 +397,13 @@ public final class CloudhopperUtils {
         }
 
         try {
-            return SimUtils.encodeMessage(text, encoding);
+            Charset charset = switch (encoding.toUpperCase()) {
+                case "GSM7", "SCGSM", "GSM_DEFAULT" -> StandardCharsets.ISO_8859_1;
+                case "UCS2", "UTF-16BE", "UTF-16", "UTF-8" -> StandardCharsets.UTF_16BE;
+                case "ISO-8859-1", "LATIN1" -> StandardCharsets.ISO_8859_1;
+                default -> StandardCharsets.UTF_8;
+            };
+            return text.getBytes(charset);
         } catch (Exception e) {
             log.error("Failed to encode message, falling back to UTF-8", e);
             return text.getBytes(StandardCharsets.UTF_8);

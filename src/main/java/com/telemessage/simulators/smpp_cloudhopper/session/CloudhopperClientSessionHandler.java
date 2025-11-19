@@ -9,8 +9,8 @@ import com.telemessage.simulators.controllers.message.MessagesCache;
 import com.telemessage.simulators.controllers.message.MessagesObject;
 import com.telemessage.simulators.controllers.message.MessageUtils;
 import com.telemessage.simulators.smpp.conf.SMPPConnectionConf;
-import com.telemessage.simulators.smpp.concatenation.ConcatenationData;
 import com.telemessage.simulators.smpp_cloudhopper.util.CloudhopperUtils;
+import com.telemessage.simulators.smpp_cloudhopper.util.CloudhopperUtils.ConcatPart;
 import com.telemessage.simulators.smpp_cloudhopper.util.SessionStateManager;
 import lombok.extern.slf4j.Slf4j;
 
@@ -60,7 +60,7 @@ public class CloudhopperClientSessionHandler extends DefaultSmppSessionHandler {
     private final MessagesCache messagesCache;
 
     // Concatenation assembly maps
-    private final Map<String, Map<Integer, ConcatenationData>> concatenationMap = new ConcurrentHashMap<>();
+    private final Map<String, Map<Integer, ConcatPart>> concatenationMap = new ConcurrentHashMap<>();
     private final Map<String, ReentrantLock> concatenationLocks = new ConcurrentHashMap<>();
 
     /**
@@ -122,7 +122,7 @@ public class CloudhopperClientSessionHandler extends DefaultSmppSessionHandler {
             }
 
             // Check for concatenation
-            ConcatenationData concatData = CloudhopperUtils.extractConcatenationData(deliverSm);
+            ConcatPart concatData = CloudhopperUtils.extractConcatenationData(deliverSm);
 
             if (concatData != null) {
                 return handleConcatenatedMessage(deliverSm, concatData);
@@ -188,7 +188,7 @@ public class CloudhopperClientSessionHandler extends DefaultSmppSessionHandler {
     /**
      * Handles concatenated message parts.
      */
-    private PduResponse handleConcatenatedMessage(DeliverSm deliverSm, ConcatenationData concatData) {
+    private PduResponse handleConcatenatedMessage(DeliverSm deliverSm, ConcatPart concatData) {
         String reference = String.valueOf(concatData.getReference());
 
         // Get lock for this reference
@@ -197,7 +197,7 @@ public class CloudhopperClientSessionHandler extends DefaultSmppSessionHandler {
         lock.lock();
         try {
             // Get or create parts map
-            Map<Integer, ConcatenationData> partsMap =
+            Map<Integer, ConcatPart> partsMap =
                 concatenationMap.computeIfAbsent(reference, k -> new ConcurrentHashMap<>());
 
             // Add this part
@@ -226,14 +226,14 @@ public class CloudhopperClientSessionHandler extends DefaultSmppSessionHandler {
      */
     private PduResponse handleCompleteMessage(
             DeliverSm deliverSm,
-            Map<Integer, ConcatenationData> partsMap,
+            Map<Integer, ConcatPart> partsMap,
             String reference) {
 
         // Assemble complete message
         StringBuilder completeText = new StringBuilder();
 
         for (int i = 1; i <= partsMap.size(); i++) {
-            ConcatenationData part = partsMap.get(i);
+            ConcatPart part = partsMap.get(i);
             if (part != null && part.getContent() != null) {
                 String partText = CloudhopperUtils.decodeMessage(
                     part.getContent(),
@@ -390,9 +390,9 @@ public class CloudhopperClientSessionHandler extends DefaultSmppSessionHandler {
      * Checks if automatic DR generation is enabled.
      */
     private boolean shouldGenerateDR() {
-        return config.getAutomatic_dr() != null &&
-               !config.getAutomatic_dr().isEmpty() &&
-               !"NONE".equalsIgnoreCase(config.getAutomatic_dr());
+        return config.getAutomaticDR() != null &&
+               !config.getAutomaticDR().isEmpty() &&
+               !"NONE".equalsIgnoreCase(config.getAutomaticDR());
     }
 
     /**
@@ -402,7 +402,6 @@ public class CloudhopperClientSessionHandler extends DefaultSmppSessionHandler {
         return switch (dataCoding) {
             case SmppConstants.DATA_CODING_DEFAULT -> "GSM7";
             case SmppConstants.DATA_CODING_UCS2 -> "UCS2";
-            case SmppConstants.DATA_CODING_UTF8 -> "UTF-8";
             case SmppConstants.DATA_CODING_LATIN1 -> "ISO-8859-1";
             default -> "UNKNOWN";
         };
