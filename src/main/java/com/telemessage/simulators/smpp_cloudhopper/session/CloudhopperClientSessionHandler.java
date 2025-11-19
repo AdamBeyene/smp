@@ -163,7 +163,7 @@ public class CloudhopperClientSessionHandler extends DefaultSmppSessionHandler {
         // Generate message ID
         String messageId = CloudhopperUtils.generateMessageId();
 
-        // Create message object using builder pattern with ACTUAL encoding
+        // Create message object with Cloudhopper metadata
         MessagesObject msgObj = MessagesObject.builder()
             .dir("IN_FULL")
             .id(messageId)
@@ -172,6 +172,16 @@ public class CloudhopperClientSessionHandler extends DefaultSmppSessionHandler {
             .text(messageText)
             .messageEncoding(actualEncoding)  // Use detected encoding
             .messageTime(MessageUtils.getMessageDateFromTimestamp(System.currentTimeMillis()))
+            // Cloudhopper-specific metadata
+            .concatenationType("DEFAULT")
+            .encodingCorrected(!actualEncoding.equals(declaredEncoding))
+            .declaredEncoding(declaredEncoding)
+            .detectedEncoding(actualEncoding)
+            .esmClass(deliverSm.getEsmClass())
+            .dataCoding(deliverSm.getDataCoding())
+            .smppVersion("3.4")
+            .implementationType("Cloudhopper")
+            .rawMessageBytes(deliverSm.getShortMessage())
             .build();
 
         // Cache message
@@ -268,7 +278,11 @@ public class CloudhopperClientSessionHandler extends DefaultSmppSessionHandler {
         // Generate message ID
         String messageId = CloudhopperUtils.generateMessageId();
 
-        // Create message object with ACTUAL encoding
+        // Detect concatenation type from first part
+        ConcatPart firstPart = partsMap.get(1);
+        String concatType = firstPart != null ? firstPart.type.name() : "UNKNOWN";
+
+        // Create message object with Cloudhopper metadata
         MessagesObject msgObj = MessagesObject.builder()
             .dir("IN_CONCAT")
             .id(messageId)
@@ -278,6 +292,17 @@ public class CloudhopperClientSessionHandler extends DefaultSmppSessionHandler {
             .messageEncoding(actualEncoding)  // Use detected encoding, not declared
             .messageTime(MessageUtils.getMessageDateFromTimestamp(System.currentTimeMillis()))
             .totalParts(partsMap.size())
+            .referenceNumber(firstPart != null ? firstPart.reference : null)
+            // Cloudhopper-specific metadata
+            .concatenationType(concatType)
+            .encodingCorrected(!actualEncoding.equals(declaredEncoding))
+            .declaredEncoding(declaredEncoding)
+            .detectedEncoding(actualEncoding)
+            .esmClass(deliverSm.getEsmClass())
+            .dataCoding(deliverSm.getDataCoding())
+            .smppVersion("3.4")
+            .implementationType("Cloudhopper")
+            .rawMessageBytes(allRawBytes)
             .build();
 
         // Cache message
