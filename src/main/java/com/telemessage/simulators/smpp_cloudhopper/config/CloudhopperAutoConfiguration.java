@@ -142,7 +142,7 @@ public class CloudhopperAutoConfiguration {
         // Thread factory with custom naming
         executor.setThreadFactory(runnable -> {
             Thread thread = new Thread(runnable);
-            thread.setName(executorProps.getThreadNamePrefix() + thread.getId());
+            thread.setName(executorProps.getThreadNamePrefix() + thread.threadId());
             thread.setDaemon(false);
             thread.setPriority(Thread.NORM_PRIORITY);
             return thread;

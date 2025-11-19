@@ -114,7 +114,7 @@ public class CloudhopperSimulator implements Simulator {
             threadPoolSize,
             runnable -> {
                 Thread thread = new Thread(runnable);
-                thread.setName("cloudhopper-sim-" + thread.getId());
+                thread.setName("cloudhopper-sim-" + thread.threadId());
                 thread.setDaemon(false);
                 return thread;
             }
@@ -153,7 +153,7 @@ public class CloudhopperSimulator implements Simulator {
 
         log.info("Loading Cloudhopper configuration from: {}", configPath);
 
-        try (InputStream inputStream = SimFileManager.getResourceAsStream(configPath)) {
+        try (InputStream inputStream = SimFileManager.getResolvedResourcePath(configPath)) {
             if (inputStream == null) {
                 throw new IllegalStateException("Configuration file not found: " + configPath);
             }
@@ -300,6 +300,22 @@ public class CloudhopperSimulator implements Simulator {
      */
     public List<SMPPConnectionConf> getAllConnections() {
         return connections != null ? connections.getConnections() : List.of();
+    }
+
+    /**
+     * Gets all connections as a map (Simulator interface requirement).
+     *
+     * @return Map of connection ID to connection configuration
+     */
+    @Override
+    public <T extends com.telemessage.simulators.conf.AbstractConnection> Map<Integer, T> getConnections() {
+        Map<Integer, T> connectionsMap = new java.util.HashMap<>();
+        if (connections != null && connections.getConnections() != null) {
+            for (SMPPConnectionConf conn : connections.getConnections()) {
+                connectionsMap.put(conn.getId(), (T) conn);
+            }
+        }
+        return connectionsMap;
     }
 
     /**
