@@ -10,6 +10,7 @@ import com.cloudhopper.smpp.type.SmppInvalidArgumentException;
 import com.telemessage.simulators.smpp.SimUtils;
 import com.telemessage.simulators.smpp.concatenation.ConcatenationType;
 import com.telemessage.simulators.smpp.concatenation.ConcatenationData;
+import com.telemessage.simulators.smpp_cloudhopper.concatenation.CloudhopperConcatenationType;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.charset.Charset;
@@ -17,6 +18,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 /**
  * Utility class for Cloudhopper SMPP operations.
@@ -275,7 +278,91 @@ public final class CloudhopperUtils {
             log.debug("No message_payload TLV found");
         }
 
+        // Check for TEXT_BASE pattern ("1/3 message text")
+        ConcatPart textBasePart = extractTextBaseConcatenationData(deliverSm);
+        if (textBasePart != null) {
+            return textBasePart;
+        }
+
         return null; // Not a concatenated message
+    }
+
+    /**
+     * Extracts TEXT_BASE concatenation data from message text.
+     * Pattern: "part/total message text" (e.g., "1/3 Hello World")
+     *
+     * @param deliverSm DeliverSm PDU
+     * @return ConcatPart or null if not TEXT_BASE pattern
+     */
+    private static ConcatPart extractTextBaseConcatenationData(DeliverSm deliverSm) {
+        try {
+            // Decode message text
+            String text = decodeMessage(deliverSm.getShortMessage(), deliverSm.getDataCoding());
+            if (text == null || text.isEmpty()) {
+                return null;
+            }
+
+            // Pattern: "1/3 message text"
+            Pattern pattern = Pattern.compile("^(\\d+)/(\\d+)\\s+(.*)$");
+            Matcher matcher = pattern.matcher(text);
+
+            if (matcher.matches()) {
+                int partNumber = Integer.parseInt(matcher.group(1));
+                int totalParts = Integer.parseInt(matcher.group(2));
+                String actualText = matcher.group(3);
+
+                // Validate part numbers
+                if (partNumber < 1 || partNumber > totalParts || totalParts > 255) {
+                    log.warn("Invalid TEXT_BASE pattern: part={}/{}", partNumber, totalParts);
+                    return null;
+                }
+
+                // Generate reference number (consistent across all parts)
+                int referenceNumber = generateTextBaseReference(deliverSm, totalParts, actualText);
+
+                log.debug("TEXT_BASE detected: part {}/{}, ref={}, text='{}'",
+                    partNumber, totalParts, referenceNumber,
+                    actualText.length() > 50 ? actualText.substring(0, 50) + "..." : actualText);
+
+                return new ConcatPart(
+                    ConcatenationType.TEXT_BASE,
+                    referenceNumber,
+                    totalParts,
+                    partNumber,
+                    actualText.getBytes(StandardCharsets.UTF_8)
+                );
+            }
+
+            return null;
+        } catch (Exception e) {
+            log.debug("TEXT_BASE extraction failed", e);
+            return null;
+        }
+    }
+
+    /**
+     * Generates a consistent reference number for TEXT_BASE concatenation.
+     * Uses hash of source|destination|totalParts|textPreview to ensure
+     * all parts of the same message get the same reference number.
+     *
+     * @param deliverSm DeliverSm PDU
+     * @param totalParts Total number of parts
+     * @param text Message text
+     * @return Reference number (0-65535)
+     */
+    private static int generateTextBaseReference(DeliverSm deliverSm, int totalParts, String text) {
+        String sourceAddr = deliverSm.getSourceAddress() != null
+            ? deliverSm.getSourceAddress().getAddress() : "";
+        String destAddr = deliverSm.getDestAddress() != null
+            ? deliverSm.getDestAddress().getAddress() : "";
+
+        // Create reference key: source|dest|totalParts|textPreview(first20chars)
+        String textPreview = text.length() > 20 ? text.substring(0, 20) : text;
+        String referenceKey = sourceAddr + "|" + destAddr + "|" + totalParts + "|" + textPreview;
+
+        // Hash and convert to positive 16-bit value
+        int hash = referenceKey.hashCode();
+        return Math.abs(hash) & 0xFFFF;  // Keep only lower 16 bits, ensure positive
     }
 
     /**
