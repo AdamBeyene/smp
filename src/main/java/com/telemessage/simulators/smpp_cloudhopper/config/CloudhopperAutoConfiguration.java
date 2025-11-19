@@ -4,6 +4,7 @@ import com.telemessage.simulators.Simulator;
 import com.telemessage.simulators.common.conf.EnvConfiguration;
 import com.telemessage.simulators.controllers.message.MessagesCache;
 import com.telemessage.simulators.smpp_cloudhopper.CloudhopperSimulator;
+import com.telemessage.simulators.smpp_cloudhopper.config.CloudhopperProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
