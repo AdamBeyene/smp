@@ -1,18 +1,19 @@
 package com.telemessage.simulators.controllers.connections;
 
 
+import com.telemessage.simulators.Simulator;
 import com.telemessage.simulators.common.JSONUtils;
 import com.telemessage.simulators.common.conf.EnvConfiguration;
 import com.telemessage.simulators.controllers.utils.Utils;
 import com.telemessage.simulators.http.HttpConnection;
 import com.telemessage.simulators.http.HttpSimulator;
 import com.telemessage.simulators.http.conf.HttpConnections;
-import com.telemessage.simulators.smpp.SMPPSimulator;
 import com.telemessage.simulators.smpp.conf.SMPPConnectionConf;
 import com.telemessage.simulators.smpp.conf.SMPPConnections;
 import com.telemessage.simulators.web.wrappers.HttpWebConnection;
 import com.telemessage.simulators.web.wrappers.SMPPWebConnection;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,11 +28,11 @@ import java.util.stream.Collectors;
 public class ConnectionDataController {
 
     EnvConfiguration conf;
-    SMPPSimulator smppConns;
+    Simulator smppConns;
     HttpSimulator httpConns;
 
     @Autowired
-    public ConnectionDataController(EnvConfiguration conf, SMPPSimulator smppConns, HttpSimulator httpConns) {
+    public ConnectionDataController(EnvConfiguration conf, @Qualifier("smppSimulator") Simulator smppConns, HttpSimulator httpConns) {
         this.conf = conf;
         this.smppConns = smppConns;
         this.httpConns = httpConns;

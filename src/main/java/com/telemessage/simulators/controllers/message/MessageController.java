@@ -1,11 +1,13 @@
 package com.telemessage.simulators.controllers.message;
 
+import com.telemessage.simulators.Simulator;
 import com.telemessage.simulators.common.Utils;
 import com.telemessage.simulators.smpp.SMPPRequest;
 import com.telemessage.simulators.smpp.SimUtils;
 import com.telemessage.qatools.error.ErrorTracker;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -48,7 +50,8 @@ public class MessageController {
     }
 
     @Autowired
-    private SMPPSimulator smppSimulator;
+    @Qualifier("smppSimulator")
+    private Simulator smppSimulator;
 
     @GetMapping("/messages")
     @Cacheable("messages")
