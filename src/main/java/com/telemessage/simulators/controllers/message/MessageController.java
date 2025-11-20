@@ -671,9 +671,15 @@ public class MessageController {
             @RequestParam String to,
             @RequestParam String text) {
         try {
-            SMPPConnection receiver = smppSimulator.getReceiver(bindId);
+            // This endpoint is Logica-specific and only works with SMPPSimulator
+            if (!(smppSimulator instanceof SMPPSimulator)) {
+                return ResponseEntity.badRequest().body("This endpoint only works with Logica SMPP implementation. Set cloudhopper.enabled=false");
+            }
+
+            SMPPSimulator logicaSimulator = (SMPPSimulator) smppSimulator;
+            SMPPConnection receiver = logicaSimulator.getReceiver(bindId);
             if (receiver == null) {
-                receiver = smppSimulator.getTransceiver(bindId);
+                receiver = logicaSimulator.getTransceiver(bindId);
             }
             if (receiver == null) {
                 return ResponseEntity.badRequest().body("Receiver or transceiver with bindId " + bindId + " not found or not bound.");
