@@ -19,6 +19,7 @@ import net.freeutils.charset.CharsetProvider;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -35,6 +36,12 @@ import static com.telemessage.simulators.smpp.SimUtils.*;
 @Slf4j
 @NoArgsConstructor
 @Component
+@ConditionalOnProperty(
+    prefix = "cloudhopper",
+    name = "enabled",
+    havingValue = "false",
+    matchIfMissing = true
+)
 public class SMPPTransmitter extends SMPPConnection {
 
     EnvConfiguration conf;
