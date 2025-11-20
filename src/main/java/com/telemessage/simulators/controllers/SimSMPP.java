@@ -124,7 +124,10 @@ public class SimSMPP {
                 conns.add(new SMPPWebConnection(c));
         } else {
 
-            List<SMPPConnectionConf> cs = new ArrayList<>(smppSim.getConnections().values());
+            List<SMPPConnectionConf> cs = new ArrayList<>();
+            for (var conn : smppSim.getConnections().values()) {
+                cs.add((SMPPConnectionConf) conn);
+            }
             Collections.sort(cs, new Comparator<SMPPConnectionConf>() {
                 @Override
                 public int compare(SMPPConnectionConf o1, SMPPConnectionConf o2) {

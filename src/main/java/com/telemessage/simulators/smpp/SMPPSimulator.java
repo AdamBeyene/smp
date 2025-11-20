@@ -251,7 +251,25 @@ public class SMPPSimulator extends Thread implements SMPPSimulatorInterface {
         this.connectionMap = nextDispatchers;
     }
 
-    public boolean send(int id, SMPPRequest req, boolean sendAllPartsOfConcatenateMessage) throws UnsupportedEncodingException, IntegerOutOfRangeException, WrongLengthOfStringException, WrongDateFormatException {
+    /**
+     * Send message through SMPP connection (implements SMPPSimulatorInterface).
+     * Wraps checked exceptions in RuntimeException for interface compatibility.
+     */
+    @Override
+    public boolean send(int id, SMPPRequest req, boolean sendAllParts) {
+        try {
+            return sendInternal(id, req, sendAllParts);
+        } catch (UnsupportedEncodingException | IntegerOutOfRangeException |
+                 WrongLengthOfStringException | WrongDateFormatException e) {
+            log.error("Error sending SMPP message", e);
+            throw new RuntimeException("Failed to send SMPP message: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Internal send implementation with Logica-specific checked exceptions.
+     */
+    private boolean sendInternal(int id, SMPPRequest req, boolean sendAllPartsOfConcatenateMessage) throws UnsupportedEncodingException, IntegerOutOfRangeException, WrongLengthOfStringException, WrongDateFormatException {
         SMPPTransmitter tr = null;
         SMPPTransceiver transceiver = null;
         log.debug("start send message");
