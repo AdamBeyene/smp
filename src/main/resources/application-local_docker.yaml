@@ -27,14 +27,6 @@ logging:
  file:
   path: ${user.dir}/shared/sim/logs/smpp
   name: simApp.log
- level:
-  org.springframework.kafka: error
-  org:
-   apache:
-    kafka: ERROR
-    tomcat: INFO
-    catalina: INFO
-  root: debug
 
 
 # ══════════════════════════════════════════════════════════════════════════════
