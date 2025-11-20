@@ -1,13 +1,13 @@
 package com.telemessage.simulators.controllers.connections;
 
 
-import com.telemessage.simulators.Simulator;
 import com.telemessage.simulators.common.JSONUtils;
 import com.telemessage.simulators.common.conf.EnvConfiguration;
 import com.telemessage.simulators.controllers.utils.Utils;
 import com.telemessage.simulators.http.HttpConnection;
 import com.telemessage.simulators.http.HttpSimulator;
 import com.telemessage.simulators.http.conf.HttpConnections;
+import com.telemessage.simulators.smpp.SMPPSimulatorInterface;
 import com.telemessage.simulators.smpp.conf.SMPPConnectionConf;
 import com.telemessage.simulators.smpp.conf.SMPPConnections;
 import com.telemessage.simulators.web.wrappers.HttpWebConnection;
@@ -28,11 +28,11 @@ import java.util.stream.Collectors;
 public class ConnectionDataController {
 
     EnvConfiguration conf;
-    Simulator smppConns;
+    SMPPSimulatorInterface smppConns;
     HttpSimulator httpConns;
 
     @Autowired
-    public ConnectionDataController(EnvConfiguration conf, @Qualifier("smppSimulator") Simulator smppConns, HttpSimulator httpConns) {
+    public ConnectionDataController(EnvConfiguration conf, @Qualifier("smppSimulator") SMPPSimulatorInterface smppConns, HttpSimulator httpConns) {
         this.conf = conf;
         this.smppConns = smppConns;
         this.httpConns = httpConns;

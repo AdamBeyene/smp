@@ -2,7 +2,6 @@ package com.telemessage.simulators.smpp;
 
 
 import com.logica.smpp.pdu.*;
-import com.telemessage.simulators.Simulator;
 import com.telemessage.simulators.common.conf.EnvConfiguration;
 import com.telemessage.simulators.common.services.filemanager.SimFileManager;
 import com.telemessage.simulators.controllers.message.MessagesCache;
@@ -24,7 +23,7 @@ import java.util.Map;
 import java.util.concurrent.*;
 
 @Slf4j
-public class SMPPSimulator extends Thread implements Simulator {
+public class SMPPSimulator extends Thread implements SMPPSimulatorInterface {
 
     @Getter
     private final MessagesCache messagesCacheService;

@@ -1,10 +1,10 @@
 package com.telemessage.simulators.smpp_cloudhopper;
 
-import com.telemessage.simulators.Simulator;
 import com.telemessage.simulators.common.conf.EnvConfiguration;
 import com.telemessage.simulators.common.services.filemanager.SimFileManager;
 import com.telemessage.simulators.controllers.message.MessagesCache;
 import com.telemessage.simulators.smpp.SMPPRequest;
+import com.telemessage.simulators.smpp.SMPPSimulatorInterface;
 import com.telemessage.simulators.smpp.conf.SMPPConnectionConf;
 import com.telemessage.simulators.smpp.conf.SMPPConnections;
 import com.telemessage.simulators.smpp_cloudhopper.config.CloudhopperProperties;
@@ -60,7 +60,7 @@ import java.util.concurrent.TimeUnit;
  * @see CloudhopperSMSCManager
  */
 @Slf4j
-public class CloudhopperSimulator implements Simulator {
+public class CloudhopperSimulator implements SMPPSimulatorInterface {
 
     public static final String CONN_FILE = "smpps.xml";
 

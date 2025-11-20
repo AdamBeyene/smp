@@ -1,8 +1,8 @@
 package com.telemessage.simulators.controllers.message;
 
-import com.telemessage.simulators.Simulator;
 import com.telemessage.simulators.common.Utils;
 import com.telemessage.simulators.smpp.SMPPRequest;
+import com.telemessage.simulators.smpp.SMPPSimulatorInterface;
 import com.telemessage.simulators.smpp.SimUtils;
 import com.telemessage.qatools.error.ErrorTracker;
 import lombok.extern.slf4j.Slf4j;
@@ -51,7 +51,7 @@ public class MessageController {
 
     @Autowired
     @Qualifier("smppSimulator")
-    private Simulator smppSimulator;
+    private SMPPSimulatorInterface smppSimulator;
 
     @GetMapping("/messages")
     @Cacheable("messages")

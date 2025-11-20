@@ -1,9 +1,9 @@
 package com.telemessage.simulators.controllers.utils;
 
-import com.telemessage.simulators.Simulator;
 import com.telemessage.simulators.common.conf.EnvConfiguration;
 import com.telemessage.simulators.http.HttpConnection;
 import com.telemessage.simulators.http.HttpSimulator;
+import com.telemessage.simulators.smpp.SMPPSimulatorInterface;
 import com.telemessage.simulators.smpp.conf.SMPPConnectionConf;
 import com.telemessage.simulators.web.wrappers.HttpWebConnection;
 import com.telemessage.simulators.web.wrappers.SMPPWebConnection;
@@ -21,12 +21,12 @@ public class Utils {
 
     EnvConfiguration conf;
 
-    static Simulator smppSim;
+    static SMPPSimulatorInterface smppSim;
     static HttpSimulator httpSim;
 
     @Autowired
     public Utils(EnvConfiguration conf,
-                 @Qualifier("smppSimulator") Simulator smppSim,
+                 @Qualifier("smppSimulator") SMPPSimulatorInterface smppSim,
                  HttpSimulator httpSim
     ) {
         this.conf = conf;

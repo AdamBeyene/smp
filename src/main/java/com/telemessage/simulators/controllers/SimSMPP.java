@@ -1,13 +1,13 @@
 package com.telemessage.simulators.controllers;
 
 
-import com.telemessage.simulators.Simulator;
 import com.telemessage.simulators.common.conf.EnvConfiguration;
 import com.telemessage.simulators.controllers.message.MessagesCache;
 import com.telemessage.simulators.controllers.message.MessagesObject;
 import com.telemessage.simulators.controllers.utils.Utils;
 import com.telemessage.simulators.smpp.SMPPConnection;
 import com.telemessage.simulators.smpp.SMPPRequest;
+import com.telemessage.simulators.smpp.SMPPSimulatorInterface;
 import com.telemessage.simulators.smpp.conf.SMPPConnectionConf;
 import com.telemessage.simulators.web.wrappers.AbstractMessage;
 import com.telemessage.simulators.web.wrappers.DeliveryReceiptShortMessage;
@@ -30,10 +30,10 @@ import java.util.concurrent.CompletableFuture;
 public class SimSMPP {
 
     EnvConfiguration conf;
-    static Simulator smppSim;
+    static SMPPSimulatorInterface smppSim;
     MessagesCache cacheService;
     @Autowired
-    public SimSMPP(EnvConfiguration conf, @Qualifier("smppSimulator") Simulator smppSim, MessagesCache cacheService) {
+    public SimSMPP(EnvConfiguration conf, @Qualifier("smppSimulator") SMPPSimulatorInterface smppSim, MessagesCache cacheService) {
         this.conf = conf;
         this.smppSim = smppSim;
         this.cacheService = cacheService;
