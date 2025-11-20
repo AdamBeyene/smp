@@ -1,27 +1,4 @@
-# Multi-stage build for SMPP Simulator
-FROM maven:3.9-eclipse-temurin-21 AS builder
-
-# Set working directory
-WORKDIR /build
-
-# Copy pom.xml first for dependency caching
-COPY pom.xml .
-
-# Copy Maven settings.xml from host (copied by build script from %USERPROFILE%\.m2\settings.xml)
-# This ensures Docker build uses the same repositories and credentials as host Maven
-COPY .mvn-settings.xml /root/.m2/settings.xml
-
-# Download dependencies (cached if pom.xml hasn't changed)
-# Use host's settings.xml if it was copied, otherwise use Maven defaults
-RUN mvn dependency:go-offline -B
-
-# Copy source code
-COPY src ./src
-
-# Build the application (skip tests in Docker build)
-RUN mvn clean package -DskipTests -B
-
-# Runtime stage
+# Runtime-only image - uses pre-built JAR from host's target/ directory
 FROM eclipse-temurin:21-jre-jammy
 
 # Install curl for healthcheck
@@ -30,8 +7,9 @@ RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 # Set working directory
 WORKDIR /app
 
-# Copy JAR from builder stage
-COPY --from=builder /build/target/*.jar app.jar
+# Copy pre-built JAR from host's target directory (built by build-and-run.bat)
+# The batch script runs 'mvn clean package' on the host before Docker build
+COPY target/*.jar app.jar
 
 # Create directory for config files
 RUN mkdir -p /app/config

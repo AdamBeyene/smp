@@ -83,32 +83,7 @@ echo ========================================
 echo.
 
 REM ========================================
-REM Step 4: Prepare Maven settings for Docker build
-REM ========================================
-echo.
-echo Preparing Maven settings for Docker build...
-
-REM Copy Maven settings.xml from user's .m2 directory to project root
-REM This ensures Docker build uses same repositories and credentials as host
-if exist "%USERPROFILE%\.m2\settings.xml" (
-    echo Copying Maven settings.xml from %USERPROFILE%\.m2\settings.xml
-    copy /Y "%USERPROFILE%\.m2\settings.xml" "%PROJECT_ROOT%\.mvn-settings.xml" >nul
-    if errorlevel 1 (
-        echo WARNING: Failed to copy settings.xml, Docker will use default Maven settings
-    ) else (
-        echo Maven settings.xml copied successfully
-    )
-) else (
-    echo WARNING: No settings.xml found at %USERPROFILE%\.m2\settings.xml
-    echo Creating empty settings.xml for Docker build...
-    echo ^<?xml version="1.0" encoding="UTF-8"?^> > "%PROJECT_ROOT%\.mvn-settings.xml"
-    echo ^<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"^> >> "%PROJECT_ROOT%\.mvn-settings.xml"
-    echo ^</settings^> >> "%PROJECT_ROOT%\.mvn-settings.xml"
-)
-
-echo.
-echo ========================================
-REM Step 5: Build and start Docker containers
+REM Step 4: Build and start Docker containers
 REM ========================================
 echo Building and starting Docker containers...
 echo.
@@ -125,8 +100,6 @@ if errorlevel 1 (
     echo ERROR: Docker build failed!
     echo ========================================
     cd "%PROJECT_ROOT%"
-    REM Clean up temporary Maven settings file on error
-    if exist "%PROJECT_ROOT%\.mvn-settings.xml" del "%PROJECT_ROOT%\.mvn-settings.xml" >nul 2>&1
     pause
     exit /b 1
 )
@@ -141,8 +114,6 @@ if errorlevel 1 (
     echo ERROR: Failed to start containers!
     echo ========================================
     cd "%PROJECT_ROOT%"
-    REM Clean up temporary Maven settings file on error
-    if exist "%PROJECT_ROOT%\.mvn-settings.xml" del "%PROJECT_ROOT%\.mvn-settings.xml" >nul 2>&1
     pause
     exit /b 1
 )
@@ -225,13 +196,6 @@ echo Stop containers:
 echo   docker-compose -f src\app_requirements\test_containers\docker-compose.yml down
 echo.
 echo ========================================
-
-REM Clean up temporary Maven settings file
-if exist "%PROJECT_ROOT%\.mvn-settings.xml" (
-    echo.
-    echo Cleaning up temporary Maven settings file...
-    del "%PROJECT_ROOT%\.mvn-settings.xml" >nul 2>&1
-)
 
 endlocal
 pause
