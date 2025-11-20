@@ -108,10 +108,22 @@ public class CloudhopperSMSCManager implements CloudhopperConnectionManager, Smp
     private SmppServerConfiguration buildServerConfiguration() {
         SmppServerConfiguration serverConfig = new SmppServerConfiguration();
 
-        // Get port from receiver configuration
-        int port = config.getReceiver() != null
-            ? config.getReceiver().getPort()
-            : 0;
+        // Get port from any configured element (receiver, transmitter, or transceiver)
+        int port;
+        String systemId;
+
+        if (config.getReceiver() != null) {
+            port = config.getReceiver().getPort();
+            systemId = config.getReceiver().getSystemId();
+        } else if (config.getTransmitter() != null) {
+            port = config.getTransmitter().getPort();
+            systemId = config.getTransmitter().getSystemId();
+        } else if (config.getTransceiver() != null) {
+            port = config.getTransceiver().getPort();
+            systemId = config.getTransceiver().getSystemId();
+        } else {
+            throw new IllegalStateException("No connection type configured for SMSC connection " + connectionId);
+        }
 
         serverConfig.setPort(port);
         serverConfig.setName("smsc-" + connectionId + "-" + config.getName());
@@ -130,11 +142,6 @@ public class CloudhopperSMSCManager implements CloudhopperConnectionManager, Smp
         // Enable non-blocking sockets
         serverConfig.setNonBlockingSocketsEnabled(properties.getNonBlockingSocketsEnabled());
 
-        // Note: SystemId is validated per-session during bind, not configured at server level
-        String systemId = config.getReceiver() != null
-            ? config.getReceiver().getSystemId()
-            : null;
-
         log.debug("SMSC server configuration: port={}, expectedSystemId={}, maxConnections={}",
             port, systemId, properties.getMaxConnectionSize());
 
@@ -146,13 +153,22 @@ public class CloudhopperSMSCManager implements CloudhopperConnectionManager, Smp
         log.info("Bind request received: sessionId={}, systemId={}, type={}",
             sessionId, bindRequest.getSystemId(), bindRequest.getCommandId());
 
-        // Validate system ID and password
-        String expectedSystemId = config.getReceiver() != null
-            ? config.getReceiver().getSystemId()
-            : null;
-        String expectedPassword = config.getReceiver() != null
-            ? config.getReceiver().getPassword()
-            : null;
+        // Get expected credentials from any configured element
+        String expectedSystemId;
+        String expectedPassword;
+
+        if (config.getReceiver() != null) {
+            expectedSystemId = config.getReceiver().getSystemId();
+            expectedPassword = config.getReceiver().getPassword();
+        } else if (config.getTransmitter() != null) {
+            expectedSystemId = config.getTransmitter().getSystemId();
+            expectedPassword = config.getTransmitter().getPassword();
+        } else if (config.getTransceiver() != null) {
+            expectedSystemId = config.getTransceiver().getSystemId();
+            expectedPassword = config.getTransceiver().getPassword();
+        } else {
+            throw new SmppProcessingException(SmppConstants.STATUS_SYSERR);
+        }
 
         if (expectedSystemId != null &&
             !expectedSystemId.equals(bindRequest.getSystemId())) {
