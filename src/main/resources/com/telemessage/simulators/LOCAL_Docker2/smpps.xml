@@ -21,8 +21,8 @@
         <automatic_dr>DELIVRD</automatic_dr>
         <receiver bindType="SMSC">
             <port>2778</port>
-            <systemId>c2_smsc_rx</systemId>
-            <password>smsc789</password>
+            <systemId>smsc_rx</systemId>
+            <password>esme123</password>
             <bindOption>receiver</bindOption>
             <threads>10</threads>
             <concatenation>UDHI</concatenation>
@@ -36,8 +36,8 @@
         <automatic_dr>DELIVRD</automatic_dr>
         <transmitter bindType="SMSC">
             <port>2779</port>
-            <systemId>c2_smsc_tx</systemId>
-            <password>smsc789</password>
+            <systemId>smsc_rx</systemId>
+            <password>esme123</password>
             <bindOption>transmitter</bindOption>
             <threads>10</threads>
             <concatenation>UDHI</concatenation>
@@ -51,8 +51,8 @@
         <automatic_dr>DELIVRD</automatic_dr>
         <transceiver bindType="SMSC">
             <port>2780</port>
-            <systemId>c2_smsc_trx</systemId>
-            <password>smsc789</password>
+            <systemId>smsc_rx</systemId>
+            <password>esme123</password>
             <bindOption>transceiver</bindOption>
             <threads>10</threads>
             <concatenation>UDHI</concatenation>
@@ -70,10 +70,10 @@
         <name>C2-ESME-TX-to-C1-2775</name>
         <automatic_dr>DELIVRD</automatic_dr>
         <transmitter bindType="ESME">
-            <host>simulator-1</host>
+            <host>localhost</host>
             <port>2775</port>
-            <systemId>c2_esme_tx</systemId>
-            <password>esme789</password>
+            <systemId>smsc_rx</systemId>
+            <password>esme123</password>
             <bindOption>transmitter</bindOption>
             <threads>10</threads>
             <concatenation>UDHI</concatenation>
@@ -86,10 +86,10 @@
         <name>C2-ESME-RX-to-C1-2776</name>
         <automatic_dr>DELIVRD</automatic_dr>
         <receiver bindType="ESME">
-            <host>simulator-1</host>
+            <host>localhost</host>
             <port>2776</port>
-            <systemId>c2_esme_rx</systemId>
-            <password>esme789</password>
+            <systemId>smsc_rx</systemId>
+            <password>esme123</password>
             <bindOption>receiver</bindOption>
             <threads>10</threads>
             <concatenation>UDHI</concatenation>
@@ -102,10 +102,10 @@
         <name>C2-ESME-TRX-to-C1-2777</name>
         <automatic_dr>DELIVRD</automatic_dr>
         <transceiver bindType="ESME">
-            <host>simulator-1</host>
+            <host>localhost</host>
             <port>2777</port>
-            <systemId>c2_esme_trx</systemId>
-            <password>esme789</password>
+            <systemId>smsc_rx</systemId>
+            <password>esme123</password>
             <bindOption>transceiver</bindOption>
             <threads>10</threads>
             <concatenation>UDHI</concatenation>

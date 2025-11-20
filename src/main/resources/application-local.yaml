@@ -52,7 +52,7 @@ logging:
 # ══════════════════════════════════════════════════════════════════════════════
 cloudhopper:
   # Enable/Disable Cloudhopper SMPP (default: false = use Logica)
-  enabled: false
+  enabled: true
 
   config:
     # Connection timeouts (milliseconds)
