@@ -16,10 +16,10 @@ services:
       - "2779:2779"
       - "2780:2780"
     environment:
-      - SPRING_PROFILES_ACTIVE=localdocker
+      - SPRING_PROFILES_ACTIVE=local
+      - CURRENTENV=LOCAL_Docker
       - CLOUDHOPPER_ENABLED=true
       - PORT=8020
-      - SIM_ENV_CONFIGURATIONS_ENV_CURRENT=LOCAL_Docker
     volumes:
       # Mount LOCAL_Docker configs to /app/LOCAL_Docker
       - ../../main/resources/com/telemessage/simulators/LOCAL_Docker:/app/LOCAL_Docker:ro
