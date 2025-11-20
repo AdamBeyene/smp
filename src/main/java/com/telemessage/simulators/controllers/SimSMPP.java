@@ -335,7 +335,8 @@ public class SimSMPP {
             produces = MediaType.APPLICATION_JSON_VALUE,
             name = "resetAll")
     public CompletableFuture<String> smppResetAll() {
-        for (SMPPConnectionConf s : smppSim.getConnections().values()) {
+        for (var conn : smppSim.getConnections().values()) {
+            SMPPConnectionConf s = (SMPPConnectionConf) conn;
             for (SMPPConnection c : s.getAllConnections()) {
                 try {
                     if (c != null) {
