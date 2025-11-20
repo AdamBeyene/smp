@@ -122,11 +122,17 @@ public class CloudhopperESMEManager implements CloudhopperConnectionManager {
             return t;
         });
 
-        // Attempt initial connection
-        connect();
-
+        // Set isRunning BEFORE attempting connection so reconnect logic works
         isRunning = true;
-        log.info("ESME connection {} started successfully", connectionId);
+
+        // Attempt initial connection (may fail, but reconnect will handle it)
+        try {
+            connect();
+            log.info("ESME connection {} started successfully", connectionId);
+        } catch (Exception e) {
+            log.warn("ESME connection {} initial bind failed, will retry via reconnect mechanism", connectionId);
+            // Don't rethrow - let reconnect mechanism handle it
+        }
     }
 
     /**
@@ -371,7 +377,13 @@ public class CloudhopperESMEManager implements CloudhopperConnectionManager {
      * Schedules a reconnection attempt.
      */
     private void scheduleReconnect() {
-        if (!properties.getMonitoring().getAutoReconnectEnabled() || !isRunning) {
+        if (!properties.getMonitoring().getAutoReconnectEnabled()) {
+            log.debug("Auto-reconnect disabled for connection {}, skipping reconnect", connectionId);
+            return;
+        }
+
+        if (!isRunning) {
+            log.debug("Connection {} not running, skipping reconnect", connectionId);
             return;
         }
 
