@@ -18,7 +18,7 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=LOCAL_Docker
       - cloudhopper.enabled=true
-      - SERVER_PORT=8020
+      - PORT=8020
       - SIM_ENV_CONFIGURATIONS_ENV_CURRENT=LOCAL_Docker
     volumes:
       # Mount LOCAL_Docker configs to /app/LOCAL_Docker
