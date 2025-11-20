@@ -97,7 +97,7 @@ public class LogicaAutoConfiguration {
         log.info("  - Tested Performance: 300+ msg/s");
         log.info("  - Environment: {}", envConfig.getEnvCurrent());
 
-        SMPPSimulator simulator = new SMPPSimulator();
+        SMPPSimulator simulator = new SMPPSimulator(envConfig, messagesCache);
         log.info("Logica SMPP Simulator created successfully");
 
         return simulator;

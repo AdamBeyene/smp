@@ -7,7 +7,7 @@ import com.telemessage.simulators.controllers.message.MessagesObject;
 import com.telemessage.simulators.controllers.utils.Utils;
 import com.telemessage.simulators.smpp.SMPPConnection;
 import com.telemessage.simulators.smpp.SMPPRequest;
-import com.telemessage.simulators.smpp.SMPPSimulator;
+import com.telemessage.simulators.smpp.SMPPSimulatorInterface;
 import com.telemessage.simulators.smpp.conf.SMPPConnectionConf;
 import com.telemessage.simulators.web.wrappers.AbstractMessage;
 import com.telemessage.simulators.web.wrappers.DeliveryReceiptShortMessage;
@@ -15,6 +15,7 @@ import com.telemessage.simulators.web.wrappers.SMPPWebConnection;
 import com.telemessage.simulators.web.wrappers.ShortMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
@@ -29,10 +30,10 @@ import java.util.concurrent.CompletableFuture;
 public class SimSMPP {
 
     EnvConfiguration conf;
-    static SMPPSimulator smppSim;
+    static SMPPSimulatorInterface smppSim;
     MessagesCache cacheService;
     @Autowired
-    public SimSMPP(EnvConfiguration conf,SMPPSimulator smppSim,MessagesCache cacheService) {
+    public SimSMPP(EnvConfiguration conf, @Qualifier("smppSimulator") SMPPSimulatorInterface smppSim, MessagesCache cacheService) {
         this.conf = conf;
         this.smppSim = smppSim;
         this.cacheService = cacheService;
@@ -123,7 +124,10 @@ public class SimSMPP {
                 conns.add(new SMPPWebConnection(c));
         } else {
 
-            List<SMPPConnectionConf> cs = new ArrayList<>(smppSim.getConnections().values());
+            List<SMPPConnectionConf> cs = new ArrayList<>();
+            for (var conn : smppSim.getConnections().values()) {
+                cs.add((SMPPConnectionConf) conn);
+            }
             Collections.sort(cs, new Comparator<SMPPConnectionConf>() {
                 @Override
                 public int compare(SMPPConnectionConf o1, SMPPConnectionConf o2) {
@@ -331,7 +335,8 @@ public class SimSMPP {
             produces = MediaType.APPLICATION_JSON_VALUE,
             name = "resetAll")
     public CompletableFuture<String> smppResetAll() {
-        for (SMPPConnectionConf s : smppSim.getConnections().values()) {
+        for (var conn : smppSim.getConnections().values()) {
+            SMPPConnectionConf s = (SMPPConnectionConf) conn;
             for (SMPPConnection c : s.getAllConnections()) {
                 try {
                     if (c != null) {

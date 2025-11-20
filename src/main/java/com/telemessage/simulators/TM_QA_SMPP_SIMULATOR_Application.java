@@ -13,6 +13,7 @@ import io.restassured.specification.RequestSpecification;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.retry.annotation.EnableRetry;
@@ -31,12 +32,12 @@ public class TM_QA_SMPP_SIMULATOR_Application {
 
     MessagesCache cacheService;
     EnvConfiguration conf;
-    static SMPPSimulator smppSim;
+    static Simulator smppSim;  // Can be either SMPPSimulator (Logica) or CloudhopperSimulator
     static HttpSimulator httpSim;
 
     public TM_QA_SMPP_SIMULATOR_Application(MessagesCache cacheService,
                                             EnvConfiguration conf,
-                                            SMPPSimulator smppSim,
+                                            @Qualifier("smppSimulator") Simulator smppSim,
                                             HttpSimulator httpSim
     ) {
         this.conf = conf;

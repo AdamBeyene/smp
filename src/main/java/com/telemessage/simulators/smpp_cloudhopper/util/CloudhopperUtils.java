@@ -8,14 +8,17 @@ import com.cloudhopper.smpp.tlv.TlvConvertException;
 import com.cloudhopper.smpp.type.Address;
 import com.cloudhopper.smpp.type.SmppInvalidArgumentException;
 import com.telemessage.simulators.smpp.SimUtils;
-import com.telemessage.simulators.smpp.concatenation.ConcatenationType;
 import com.telemessage.simulators.smpp.concatenation.ConcatenationData;
+import com.telemessage.simulators.smpp_cloudhopper.concatenation.CloudhopperConcatenationType;
 import lombok.extern.slf4j.Slf4j;
 
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 /**
  * Utility class for Cloudhopper SMPP operations.
@@ -117,9 +120,9 @@ public final class CloudhopperUtils {
 
         int maxLength = isUnicodeEncoding(encoding) ? MAX_SINGLE_UNICODE : MAX_SINGLE_ASCII;
 
-        // Use SimUtils to get actual byte length
+        // Use our own encoding to get actual byte length
         try {
-            byte[] encoded = SimUtils.encodeMessage(text, encoding);
+            byte[] encoded = encodeMessage(text, encoding);
             return encoded.length > maxLength;
         } catch (Exception e) {
             // Fall back to character count
@@ -156,8 +159,7 @@ public final class CloudhopperUtils {
 
         return switch (encoding.toUpperCase()) {
             case "GSM7", "SCGSM", "GSM_DEFAULT" -> SmppConstants.DATA_CODING_DEFAULT;
-            case "UCS2", "UTF-16BE", "UTF-16" -> SmppConstants.DATA_CODING_UCS2;
-            case "UTF-8" -> SmppConstants.DATA_CODING_UTF8;
+            case "UCS2", "UTF-16BE", "UTF-16", "UTF-8" -> SmppConstants.DATA_CODING_UCS2;  // UTF-8 -> UCS2
             case "ISO-8859-1", "LATIN1" -> SmppConstants.DATA_CODING_LATIN1;
             default -> SmppConstants.DATA_CODING_DEFAULT;
         };
@@ -171,7 +173,8 @@ public final class CloudhopperUtils {
      * @param concatenationType Concatenation type (UDHI, SAR, etc.)
      * @return List of message parts
      */
-    public static List<String> splitMessage(String text, String encoding, ConcatenationType concatenationType) {
+    public static List<String> splitMessage(String text, String encoding,
+            CloudhopperConcatenationType concatenationType) {
         List<String> parts = new ArrayList<>();
 
         if (text == null || text.isEmpty()) {
@@ -182,7 +185,7 @@ public final class CloudhopperUtils {
         int maxPartLength = isUnicode ? MAX_CONCAT_UNICODE : MAX_CONCAT_ASCII;
 
         // For PAYLOAD type, send as single part with message_payload TLV
-        if (concatenationType == ConcatenationType.PAYLOAD) {
+        if (concatenationType == CloudhopperConcatenationType.PAYLOAD) {
             parts.add(text);
             return parts;
         }
@@ -217,12 +220,37 @@ public final class CloudhopperUtils {
     }
 
     /**
+     * Internal wrapper for concatenation data with message content.
+     */
+    public static class ConcatPart {
+        public final CloudhopperConcatenationType type;
+        public final int reference;
+        public final int totalParts;
+        public final int partNumber;
+        public final byte[] content;
+
+        public ConcatPart(CloudhopperConcatenationType type, int reference, int totalParts, int partNumber, byte[] content) {
+            this.type = type;
+            this.reference = reference;
+            this.totalParts = totalParts;
+            this.partNumber = partNumber;
+            this.content = content;
+        }
+
+        // Getters for compatibility
+        public int getReference() { return reference; }
+        public int getTotalParts() { return totalParts; }
+        public int getPartNumber() { return partNumber; }
+        public byte[] getContent() { return content; }
+    }
+
+    /**
      * Extracts concatenation data from a DeliverSm PDU.
      *
      * @param deliverSm DeliverSm PDU
-     * @return ConcatenationData or null if not concatenated
+     * @return ConcatPart or null if not concatenated
      */
-    public static ConcatenationData extractConcatenationData(DeliverSm deliverSm) {
+    public static ConcatPart extractConcatenationData(DeliverSm deliverSm) {
         // Check for UDHI in esm_class
         byte esmClass = deliverSm.getEsmClass();
         if ((esmClass & ESM_CLASS_UDHI) == ESM_CLASS_UDHI) {
@@ -238,8 +266,8 @@ public final class CloudhopperUtils {
         try {
             Tlv payloadTlv = deliverSm.getOptionalParameter(TLV_MESSAGE_PAYLOAD);
             if (payloadTlv != null) {
-                return new ConcatenationData(
-                    ConcatenationType.PAYLOAD,
+                return new ConcatPart(
+                    CloudhopperConcatenationType.PAYLOAD,
                     0, // No reference for payload
                     1, // Single part
                     1, // Part 1
@@ -250,16 +278,100 @@ public final class CloudhopperUtils {
             log.debug("No message_payload TLV found");
         }
 
+        // Check for TEXT_BASE pattern ("1/3 message text")
+        ConcatPart textBasePart = extractTextBaseConcatenationData(deliverSm);
+        if (textBasePart != null) {
+            return textBasePart;
+        }
+
         return null; // Not a concatenated message
+    }
+
+    /**
+     * Extracts TEXT_BASE concatenation data from message text.
+     * Pattern: "part/total message text" (e.g., "1/3 Hello World")
+     *
+     * @param deliverSm DeliverSm PDU
+     * @return ConcatPart or null if not TEXT_BASE pattern
+     */
+    private static ConcatPart extractTextBaseConcatenationData(DeliverSm deliverSm) {
+        try {
+            // Decode message text
+            String text = decodeMessage(deliverSm.getShortMessage(), deliverSm.getDataCoding());
+            if (text == null || text.isEmpty()) {
+                return null;
+            }
+
+            // Pattern: "1/3 message text"
+            Pattern pattern = Pattern.compile("^(\\d+)/(\\d+)\\s+(.*)$");
+            Matcher matcher = pattern.matcher(text);
+
+            if (matcher.matches()) {
+                int partNumber = Integer.parseInt(matcher.group(1));
+                int totalParts = Integer.parseInt(matcher.group(2));
+                String actualText = matcher.group(3);
+
+                // Validate part numbers
+                if (partNumber < 1 || partNumber > totalParts || totalParts > 255) {
+                    log.warn("Invalid TEXT_BASE pattern: part={}/{}", partNumber, totalParts);
+                    return null;
+                }
+
+                // Generate reference number (consistent across all parts)
+                int referenceNumber = generateTextBaseReference(deliverSm, totalParts, actualText);
+
+                log.debug("TEXT_BASE detected: part {}/{}, ref={}, text='{}'",
+                    partNumber, totalParts, referenceNumber,
+                    actualText.length() > 50 ? actualText.substring(0, 50) + "..." : actualText);
+
+                return new ConcatPart(
+                    CloudhopperConcatenationType.TEXT_BASE,
+                    referenceNumber,
+                    totalParts,
+                    partNumber,
+                    actualText.getBytes(StandardCharsets.UTF_8)
+                );
+            }
+
+            return null;
+        } catch (Exception e) {
+            log.debug("TEXT_BASE extraction failed", e);
+            return null;
+        }
+    }
+
+    /**
+     * Generates a consistent reference number for TEXT_BASE concatenation.
+     * Uses hash of source|destination|totalParts|textPreview to ensure
+     * all parts of the same message get the same reference number.
+     *
+     * @param deliverSm DeliverSm PDU
+     * @param totalParts Total number of parts
+     * @param text Message text
+     * @return Reference number (0-65535)
+     */
+    private static int generateTextBaseReference(DeliverSm deliverSm, int totalParts, String text) {
+        String sourceAddr = deliverSm.getSourceAddress() != null
+            ? deliverSm.getSourceAddress().getAddress() : "";
+        String destAddr = deliverSm.getDestAddress() != null
+            ? deliverSm.getDestAddress().getAddress() : "";
+
+        // Create reference key: source|dest|totalParts|textPreview(first20chars)
+        String textPreview = text.length() > 20 ? text.substring(0, 20) : text;
+        String referenceKey = sourceAddr + "|" + destAddr + "|" + totalParts + "|" + textPreview;
+
+        // Hash and convert to positive 16-bit value
+        int hash = referenceKey.hashCode();
+        return Math.abs(hash) & 0xFFFF;  // Keep only lower 16 bits, ensure positive
     }
 
     /**
      * Extracts UDHI concatenation data from message bytes.
      *
      * @param messageBytes Message bytes with UDH header
-     * @return ConcatenationData or null
+     * @return ConcatPart or null
      */
-    private static ConcatenationData extractUdhiConcatenationData(byte[] messageBytes) {
+    private static ConcatPart extractUdhiConcatenationData(byte[] messageBytes) {
         if (messageBytes == null || messageBytes.length < 6) {
             return null;
         }
@@ -288,8 +400,8 @@ public final class CloudhopperUtils {
             byte[] content = new byte[messageBytes.length - udhLength - 1];
             System.arraycopy(messageBytes, udhLength + 1, content, 0, content.length);
 
-            return new ConcatenationData(
-                ConcatenationType.UDHI,
+            return new ConcatPart(
+                CloudhopperConcatenationType.UDHI,
                 reference,
                 totalParts,
                 partNumber,
@@ -305,9 +417,9 @@ public final class CloudhopperUtils {
      * Extracts SAR concatenation data from TLV parameters.
      *
      * @param deliverSm DeliverSm PDU with TLV parameters
-     * @return ConcatenationData or null
+     * @return ConcatPart or null
      */
-    private static ConcatenationData extractSarConcatenationData(DeliverSm deliverSm) {
+    private static ConcatPart extractSarConcatenationData(DeliverSm deliverSm) {
         try {
             Tlv refTlv = deliverSm.getOptionalParameter(TLV_SAR_MSG_REF_NUM);
             Tlv totalTlv = deliverSm.getOptionalParameter(TLV_SAR_TOTAL_SEGMENTS);
@@ -321,8 +433,8 @@ public final class CloudhopperUtils {
             int totalParts = totalTlv.getValueAsUnsignedByte();
             int partNumber = seqTlv.getValueAsUnsignedByte();
 
-            return new ConcatenationData(
-                ConcatenationType.SAR,
+            return new ConcatPart(
+                CloudhopperConcatenationType.SAR,
                 reference,
                 totalParts,
                 partNumber,
@@ -347,9 +459,13 @@ public final class CloudhopperUtils {
         }
 
         try {
-            // Reuse existing SimUtils encoding detection
-            String encoding = SimUtils.determineEncoding(dataCoding, messageBytes);
-            return SimUtils.decodeMessage(messageBytes, encoding);
+            Charset charset = switch (dataCoding) {
+                case SmppConstants.DATA_CODING_DEFAULT -> StandardCharsets.ISO_8859_1; // GSM7 approximation
+                case SmppConstants.DATA_CODING_LATIN1 -> StandardCharsets.ISO_8859_1;
+                case SmppConstants.DATA_CODING_UCS2 -> StandardCharsets.UTF_16BE;
+                default -> StandardCharsets.UTF_8;
+            };
+            return new String(messageBytes, charset);
         } catch (Exception e) {
             log.error("Failed to decode message, falling back to UTF-8", e);
             return new String(messageBytes, StandardCharsets.UTF_8);
@@ -369,11 +485,284 @@ public final class CloudhopperUtils {
         }
 
         try {
-            return SimUtils.encodeMessage(text, encoding);
+            Charset charset = switch (encoding.toUpperCase()) {
+                case "GSM7", "SCGSM", "GSM_DEFAULT" -> StandardCharsets.ISO_8859_1;
+                case "UCS2", "UTF-16BE", "UTF-16", "UTF-8" -> StandardCharsets.UTF_16BE;
+                case "ISO-8859-1", "LATIN1" -> StandardCharsets.ISO_8859_1;
+                default -> StandardCharsets.UTF_8;
+            };
+            return text.getBytes(charset);
         } catch (Exception e) {
             log.error("Failed to encode message, falling back to UTF-8", e);
             return text.getBytes(StandardCharsets.UTF_8);
         }
+    }
+
+    /**
+     * Smart encoding detection - tries multiple encodings and picks best match.
+     * Works for ANY language using universal heuristics.
+     *
+     * <p>This method addresses common encoding mismatches where the declared
+     * encoding doesn't match the actual encoding used. It tries multiple
+     * encodings and scores each result using language-agnostic heuristics.</p>
+     *
+     * <p><b>Universal Heuristics (work for ANY language):</b></p>
+     * <ul>
+     *   <li>Replacement character detection (�, U+FFFD) - wrong encoding indicator</li>
+     *   <li>Control character ratio - binary/corrupt data indicator</li>
+     *   <li>Printable character ratio - text quality indicator</li>
+     *   <li>Unicode block changes - coherence indicator (language-independent)</li>
+     *   <li>Byte-to-char ratio anomalies - encoding mismatch detector</li>
+     * </ul>
+     *
+     * <p><b>Common Corrections:</b></p>
+     * <ul>
+     *   <li>UTF-16BE ↔ UTF-16LE (endianness confusion)</li>
+     *   <li>UTF-8 ↔ ISO-8859-1 (single vs multi-byte)</li>
+     *   <li>ISO-8859-1 ↔ Windows-1252 (codepage confusion)</li>
+     * </ul>
+     *
+     * @param rawBytes Raw message bytes
+     * @param declaredEncoding Declared encoding (from data_coding)
+     * @return Pair of (decoded text, actual encoding)
+     */
+    public static org.apache.commons.lang3.tuple.Pair<String, String> detectAndDecodeMessage(
+            byte[] rawBytes, String declaredEncoding) {
+
+        if (rawBytes == null || rawBytes.length == 0) {
+            return org.apache.commons.lang3.tuple.Pair.of("",
+                declaredEncoding != null ? declaredEncoding : "UTF-8");
+        }
+
+        String[] encodingsToTry = buildEncodingPriorityList(declaredEncoding);
+        String bestText = null;
+        String bestEncoding = declaredEncoding;
+        double bestScore = -1;
+
+        for (String encodingName : encodingsToTry) {
+            try {
+                Charset charset = getCharsetForEncoding(encodingName);
+                if (charset == null) continue;
+
+                String decoded = new String(rawBytes, charset);
+                double score = scoreDecodedText(decoded, rawBytes.length);
+
+                log.trace("Encoding {} score: {}", encodingName, score);
+
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestText = decoded;
+                    bestEncoding = encodingName;
+                }
+
+                // Excellent match, stop searching
+                if (score >= 0.95) break;
+
+            } catch (Exception e) {
+                log.debug("Failed to decode with {}", encodingName, e);
+            }
+        }
+
+        if (!bestEncoding.equals(declaredEncoding)) {
+            log.warn("ENCODING CORRECTED: Declared='{}', Actual='{}', Score={}",
+                declaredEncoding, bestEncoding, bestScore);
+        }
+
+        return org.apache.commons.lang3.tuple.Pair.of(
+            bestText != null ? bestText : "", bestEncoding);
+    }
+
+    /**
+     * Build smart encoding priority list based on declared encoding.
+     * Prioritizes encodings commonly confused with the declared one.
+     */
+    private static String[] buildEncodingPriorityList(String declaredEncoding) {
+        if (declaredEncoding == null || declaredEncoding.isEmpty()) {
+            return new String[]{"UTF-8", "UTF-16BE", "UTF-16LE", "ISO-8859-1", "Cp1252"};
+        }
+
+        String normalized = declaredEncoding.toUpperCase();
+
+        // UTF-16BE: Often confused with LE
+        if (normalized.contains("UTF-16BE") || normalized.equals("UCS2")) {
+            return new String[]{declaredEncoding, "UTF-16LE", "UTF-8", "ISO-8859-1", "Cp1252"};
+        }
+
+        // UTF-16LE: Often confused with BE
+        if (normalized.contains("UTF-16LE")) {
+            return new String[]{declaredEncoding, "UTF-16BE", "UTF-8", "ISO-8859-1", "Cp1252"};
+        }
+
+        // UTF-8: Often confused with ISO-8859-1
+        if (normalized.contains("UTF-8") || normalized.equals("UTF8")) {
+            return new String[]{declaredEncoding, "ISO-8859-1", "Cp1252", "UTF-16BE", "UTF-16LE"};
+        }
+
+        // ISO-8859-1: Often confused with UTF-8
+        if (normalized.contains("ISO-8859-1") || normalized.equals("LATIN1")) {
+            return new String[]{declaredEncoding, "UTF-8", "Cp1252", "UTF-16BE", "UTF-16LE"};
+        }
+
+        // GSM encodings
+        if (normalized.contains("GSM") || normalized.contains("CCGSM") || normalized.contains("SCGSM")) {
+            return new String[]{declaredEncoding, "ISO-8859-1", "UTF-8", "Cp1252", "UTF-16BE"};
+        }
+
+        // Default
+        return new String[]{declaredEncoding, "UTF-8", "UTF-16BE", "UTF-16LE", "ISO-8859-1", "Cp1252"};
+    }
+
+    /**
+     * Get Charset object for encoding name.
+     */
+    private static Charset getCharsetForEncoding(String encodingName) {
+        try {
+            return switch (encodingName.toUpperCase()) {
+                case "GSM7", "SCGSM", "GSM_DEFAULT" -> StandardCharsets.ISO_8859_1;
+                case "UCS2", "UTF-16BE", "UTF-16" -> StandardCharsets.UTF_16BE;
+                case "UTF-16LE" -> StandardCharsets.UTF_16LE;
+                case "UTF-8", "UTF8" -> StandardCharsets.UTF_8;
+                case "ISO-8859-1", "LATIN1" -> StandardCharsets.ISO_8859_1;
+                case "CP1252", "WINDOWS-1252" -> Charset.forName("Cp1252");
+                default -> Charset.forName(encodingName);
+            };
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * Score decoded text (0.0 = garbage, 1.0 = perfect).
+     * Universal heuristics that work for ANY language.
+     */
+    private static double scoreDecodedText(String text, int originalByteLength) {
+        if (text == null || text.isEmpty()) return 0.0;
+
+        int length = text.length();
+        int printableCount = 0;
+        int replacementCount = 0;
+        int controlCount = 0;
+        int commonChars = 0;
+
+        for (int i = 0; i < length; i++) {
+            char c = text.charAt(i);
+
+            // Replacement character (wrong encoding indicator)
+            if (c == '\uFFFD' || c == '�') {
+                replacementCount++;
+                continue;
+            }
+
+            // Control characters (except \n, \r, \t)
+            if (c < 32 && c != '\n' && c != '\r' && c != '\t') {
+                controlCount++;
+                continue;
+            }
+
+            // Printable characters
+            if (c >= 32 && c <= 126) {
+                printableCount++;
+                // Common ASCII bonus
+                if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
+                    (c >= '0' && c <= '9') || c == ' ' || c == '.' || c == ',') {
+                    commonChars++;
+                }
+            } else if (c > 126) {
+                printableCount++; // Non-ASCII printable (Chinese, Arabic, Hebrew, etc.)
+            }
+        }
+
+        // Calculate score
+        double score = 1.0;
+
+        // Heavy penalty for replacement characters
+        double replacementRatio = (double) replacementCount / length;
+        score -= (replacementRatio * 2.0);
+
+        // Penalty for control characters
+        double controlRatio = (double) controlCount / length;
+        score -= (controlRatio * 1.5);
+
+        // Bonus for printable content
+        double printableRatio = (double) printableCount / length;
+        score *= printableRatio;
+
+        // Bonus for common ASCII
+        if (commonChars > length * 0.3) {
+            score *= 1.1;
+        }
+
+        // UNIVERSAL CHECK: Byte-to-char ratio anomalies
+        if (originalByteLength > 0) {
+            double charToByteRatio = (double) length / originalByteLength;
+
+            // Ratio ~0.5: Multi-byte ↔ single-byte confusion
+            if (charToByteRatio < 0.55 && charToByteRatio > 0.45) {
+                int blockChanges = countUnicodeBlockChanges(text);
+                double blockChangeRatio = (double) blockChanges / Math.max(1, length);
+                if (blockChangeRatio > 0.5) {
+                    score *= 0.15; // Heavy penalty for garbage
+                }
+            }
+
+            // Ratio < 0.4: Binary or very wrong
+            if (charToByteRatio < 0.4) {
+                score *= 0.2;
+            }
+
+            // Ratio > 3.0: Single-byte as multi-byte UTF-8
+            if (charToByteRatio > 3.0) {
+                score *= 0.5;
+            }
+        }
+
+        // Null bytes penalty
+        int nullCount = 0;
+        for (int i = 0; i < length; i++) {
+            if (text.charAt(i) == '\0') nullCount++;
+        }
+        if (nullCount > 0) {
+            score -= ((double) nullCount / length) * 2.0;
+        }
+
+        return Math.max(0.0, Math.min(1.0, score));
+    }
+
+    /**
+     * Count Unicode block changes - universal heuristic.
+     * Wrong encoding = random blocks, many changes.
+     * Correct encoding = coherent text, few changes.
+     */
+    private static int countUnicodeBlockChanges(String text) {
+        if (text == null || text.length() <= 1) return 0;
+
+        int changes = 0;
+        Character.UnicodeBlock previousBlock = null;
+
+        for (int i = 0; i < text.length(); i++) {
+            char c = text.charAt(i);
+
+            // Skip whitespace and punctuation
+            if (Character.isWhitespace(c) ||
+                (c >= 0x20 && c <= 0x2F) ||
+                (c >= 0x3A && c <= 0x40) ||
+                (c >= 0x5B && c <= 0x60) ||
+                (c >= 0x7B && c <= 0x7E)) {
+                continue;
+            }
+
+            Character.UnicodeBlock currentBlock = Character.UnicodeBlock.of(c);
+
+            if (currentBlock != null && previousBlock != null && !currentBlock.equals(previousBlock)) {
+                changes++;
+            }
+
+            if (currentBlock != null) {
+                previousBlock = currentBlock;
+            }
+        }
+
+        return changes;
     }
 
     /**

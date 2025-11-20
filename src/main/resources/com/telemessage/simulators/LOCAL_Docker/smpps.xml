@@ -1,149 +1,52 @@
 <connections>
-    <!-- ARCHIVE -->
-    <connection id="400">
-        <name>Telus - Archive</name>
+    <!-- ============================================ -->
+    <!-- SMSC MODE: Server connections only           -->
+    <!-- No ESME client connections                   -->
+    <!-- ============================================ -->
+
+    <!-- Connection 23: SMSC Receiver on port 2778 -->
+    <connection id="23">
+        <name>SMSC-Receiver-2778</name>
         <automatic_dr>DELIVRD</automatic_dr>
-        <receiver bindType="ESME">
-            <host>localhost</host>
-            <port>34002</port>
-            <systemId>TlmsgArch1</systemId>
-            <password>password</password>
+        <receiver bindType="SMSC">
+            <port>2778</port>
+            <systemId>c2_smsc_rx</systemId>
+            <password>smsc789</password>
             <bindOption>receiver</bindOption>
-            <threads>500</threads>
+            <threads>10</threads>
             <concatenation>UDHI</concatenation>
+            <encoding>UTF-16BE</encoding>
         </receiver>
     </connection>
 
-    <connection id="410">
-        <name>Rogers - Archive</name>
+    <!-- Connection 24: SMSC Transmitter on port 2779 -->
+    <connection id="24">
+        <name>SMSC-Transmitter-2779</name>
         <automatic_dr>DELIVRD</automatic_dr>
-        <receiver bindType="ESME">
-            <host>localhost</host>
-            <port>34003</port>
-            <systemId>ArchTel</systemId>
-            <password>MaRchT3l</password>
-            <bindOption>receiver</bindOption>
-            <threads>500</threads>
+        <transmitter bindType="SMSC">
+            <port>2779</port>
+            <systemId>c2_smsc_tx</systemId>
+            <password>smsc789</password>
+            <bindOption>transmitter</bindOption>
+            <threads>10</threads>
             <concatenation>UDHI</concatenation>
-            <encoding>Cp1252</encoding>
-        </receiver>
+            <encoding>UTF-16BE</encoding>
+        </transmitter>
     </connection>
-    <connection id="420">
-        <name>HKCSL - Archive</name>
+
+    <!-- Connection 25: SMSC Transceiver on port 2780 -->
+    <connection id="25">
+        <name>SMSC-Transceiver-2780</name>
         <automatic_dr>DELIVRD</automatic_dr>
-        <receiver bindType="ESME">
-            <host>localhost</host>
-            <port>34004</port>
-            <systemId>TeleMsg</systemId>
-            <password>tELEmSG</password>
-            <bindOption>receiver</bindOption>
-            <threads>500</threads>
+        <transceiver bindType="SMSC">
+            <port>2780</port>
+            <systemId>c2_smsc_trx</systemId>
+            <password>smsc789</password>
+            <bindOption>transceiver</bindOption>
+            <threads>10</threads>
             <concatenation>UDHI</concatenation>
-<!--            <encoding>UTF-8</encoding>-->
-            <encoding>GSM7</encoding>
-        </receiver>
+            <encoding>UTF-16BE</encoding>
+        </transceiver>
     </connection>
-    <connection id="430">
-        <name>3HK - Archive</name>
-        <automatic_dr>DELIVRD</automatic_dr>
-        <receiver bindType="ESME">
-            <host>localhost</host>
-            <port>34005</port>
-            <systemId>TM-SMSA</systemId>
-            <password>testQC9s</password>
-            <bindOption>receiver</bindOption>
-            <threads>500</threads>
-            <concatenation>UDHI</concatenation>
-        </receiver>
-    </connection>
-    <connection id="440">
-        <name>CELLCOM - Archive</name>
-        <automatic_dr>DELIVRD</automatic_dr>
-        <receiver bindType="ESME">
-            <host>localhost</host>
-            <port>34006</port>
-            <systemId>smarsh_rx</systemId>
-            <password>klektine</password>
-            <bindOption>receiver</bindOption>
-            <threads>500</threads>
-            <concatenation>UDHI</concatenation>
-        </receiver>
-    </connection>
+
 </connections>
-
-
-
-<!--
-
-<connections>
-&lt;!&ndash; ARCHIVE &ndash;&gt;
-<connection id="400">
-    <name>Telus - Archive</name>
-    <automatic_dr>DELIVRD</automatic_dr>
-    <transmitter bindType="SMSC">
-        <host>localhost</host>
-        <port>34112</port>
-        <systemId>TlmsgArch1</systemId>
-        <password>password</password>
-        <bindOption>transmitter</bindOption>
-        <threads>500</threads>
-        <concatenation>UDHI</concatenation>
-    </transmitter>
-</connection>
-
-<connection id="410">
-    <name>Rogers - Archive</name>
-    <automatic_dr>DELIVRD</automatic_dr>
-    <transmitter bindType="SMSC">
-        <host>localhost</host>
-        <port>34113</port>
-        <systemId>ArchTel</systemId>
-        <password>MaRchT3l</password>
-        <bindOption>transmitter</bindOption>
-        <threads>500</threads>
-        <concatenation>UDHI</concatenation>
-        <encoding>Cp1252</encoding>
-    </transmitter>
-</connection>
-<connection id="420">
-    <name>HKCSL - Archive</name>
-    <automatic_dr>DELIVRD</automatic_dr>
-    <transmitter bindType="SMSC">
-        <host>localhost</host>
-        <port>34114</port>
-        <systemId>TeleMsg</systemId>
-        <password>tELEmSG</password>
-        <bindOption>transmitter</bindOption>
-        <threads>500</threads>
-        <concatenation>UDHI</concatenation>
-        &lt;!&ndash;            <encoding>UTF-8</encoding>&ndash;&gt;
-        <encoding>GSM7</encoding>
-    </transmitter>
-</connection>
-<connection id="430">
-    <name>3HK - Archive</name>
-    <automatic_dr>DELIVRD</automatic_dr>
-    <transmitter bindType="SMSC">
-        <host>localhost</host>
-        <port>34115</port>
-        <systemId>TM-SMSA</systemId>
-        <password>testQC9s</password>
-        <bindOption>transmitter</bindOption>
-        <threads>500</threads>
-        <concatenation>UDHI</concatenation>
-    </transmitter>
-</connection>
-<connection id="440">
-    <name>CELLCOM - Archive</name>
-    <automatic_dr>DELIVRD</automatic_dr>
-    <transmitter bindType="SMSC">
-        <host>localhost</host>
-        <port>34116</port>
-        <systemId>smarsh_rx</systemId>
-        <password>klektine</password>
-        <bindOption>transmitter</bindOption>
-        <threads>500</threads>
-        <concatenation>UDHI</concatenation>
-    </transmitter>
-</connection>
-</connections>-->

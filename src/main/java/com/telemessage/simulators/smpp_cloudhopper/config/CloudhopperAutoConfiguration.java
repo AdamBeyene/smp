@@ -1,8 +1,10 @@
 package com.telemessage.simulators.smpp_cloudhopper.config;
 
+import com.telemessage.simulators.Simulator;
 import com.telemessage.simulators.common.conf.EnvConfiguration;
 import com.telemessage.simulators.controllers.message.MessagesCache;
 import com.telemessage.simulators.smpp_cloudhopper.CloudhopperSimulator;
+import com.telemessage.simulators.smpp_cloudhopper.config.CloudhopperProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -60,12 +62,12 @@ public class CloudhopperAutoConfiguration {
     }
 
     /**
-     * Creates the main Cloudhopper SMPP simulator bean.
+     * Creates the CloudhopperSimulator bean (main SMPP simulator).
      *
-     * <p>This is the primary service that orchestrates all SMPP connections,
-     * manages sessions, and handles message routing.</p>
+     * <p>This is the modern Cloudhopper implementation that replaces the legacy
+     * SMPPSimulator when cloudhopper.enabled=true.</p>
      *
-     * @param properties CloudhopperProperties configuration
+     * @param properties Cloudhopper configuration properties
      * @param envConfig Environment configuration
      * @param messagesCache Shared message cache service
      * @return Configured CloudhopperSimulator instance
@@ -75,6 +77,7 @@ public class CloudhopperAutoConfiguration {
             CloudhopperProperties properties,
             EnvConfiguration envConfig,
             MessagesCache messagesCache) {
+
         log.info("Creating CloudhopperSimulator bean with configuration:");
         log.info("  - Connection Timeout: {}ms", properties.getConnectionTimeoutMs());
         log.info("  - Bind Timeout: {}ms", properties.getBindTimeoutMs());
@@ -142,7 +145,7 @@ public class CloudhopperAutoConfiguration {
         // Thread factory with custom naming
         executor.setThreadFactory(runnable -> {
             Thread thread = new Thread(runnable);
-            thread.setName(executorProps.getThreadNamePrefix() + thread.getId());
+            thread.setName(executorProps.getThreadNamePrefix() + thread.threadId());
             thread.setDaemon(false);
             thread.setPriority(Thread.NORM_PRIORITY);
             return thread;

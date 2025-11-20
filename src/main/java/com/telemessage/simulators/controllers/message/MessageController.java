@@ -2,10 +2,12 @@ package com.telemessage.simulators.controllers.message;
 
 import com.telemessage.simulators.common.Utils;
 import com.telemessage.simulators.smpp.SMPPRequest;
+import com.telemessage.simulators.smpp.SMPPSimulatorInterface;
 import com.telemessage.simulators.smpp.SimUtils;
 import com.telemessage.qatools.error.ErrorTracker;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -48,7 +50,8 @@ public class MessageController {
     }
 
     @Autowired
-    private SMPPSimulator smppSimulator;
+    @Qualifier("smppSimulator")
+    private SMPPSimulatorInterface smppSimulator;
 
     @GetMapping("/messages")
     @Cacheable("messages")
@@ -668,9 +671,15 @@ public class MessageController {
             @RequestParam String to,
             @RequestParam String text) {
         try {
-            SMPPConnection receiver = smppSimulator.getReceiver(bindId);
+            // This endpoint is Logica-specific and only works with SMPPSimulator
+            if (!(smppSimulator instanceof SMPPSimulator)) {
+                return ResponseEntity.badRequest().body("This endpoint only works with Logica SMPP implementation. Set cloudhopper.enabled=false");
+            }
+
+            SMPPSimulator logicaSimulator = (SMPPSimulator) smppSimulator;
+            SMPPConnection receiver = logicaSimulator.getReceiver(bindId);
             if (receiver == null) {
-                receiver = smppSimulator.getTransceiver(bindId);
+                receiver = logicaSimulator.getTransceiver(bindId);
             }
             if (receiver == null) {
                 return ResponseEntity.badRequest().body("Receiver or transceiver with bindId " + bindId + " not found or not bound.");

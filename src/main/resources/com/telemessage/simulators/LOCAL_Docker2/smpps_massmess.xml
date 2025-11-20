@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<connections>
+    <!-- Bandwidth - Connection ID: 13 -->
+    <connection id="13">
+        <name>Bandwidth</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <!-- Original transmitter → Now receiver (ESME client) -->
+        <receiver bindType="SMSC">
+            <port>20131</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </receiver>
+        <!-- Original receiver → Now transmitter (ESME client) -->
+        <transmitter bindType="ESME">
+            <port>10131</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </transmitter>
+    </connection>
+
+    <!-- Stour Marine P2P - Connection ID: 312 -->
+    <connection id="312">
+        <name>Stour Marine P2P</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <!-- Original transmitter → Now receiver (ESME client, transceiver) -->
+        <receiver bindType="ESME">
+            <port>23121</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transceiver</bindOption>
+            <threads>20</threads>
+        </receiver>
+        <!-- Original receiver → Now transmitter (ESME client, transceiver) -->
+        <transmitter bindType="ESME">
+            <port>13121</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transceiver</bindOption>
+            <threads>20</threads>
+        </transmitter>
+    </connection>
+
+    <!-- Bandwidth - Connection ID: 1300 -->
+    <connection id="1300">
+        <name>Bandwidth</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <!-- Original transmitter → Now receiver (ESME client) -->
+        <receiver bindType="ESME">
+            <port>30131</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </receiver>
+        <!-- Original receiver → Now transmitter (ESME client) -->
+        <transmitter bindType="ESME">
+            <port>40131</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </transmitter>
+    </connection>
+
+    <!-- amdtelecom - Connection ID: 370 -->
+    <!-- Original transmitter → Now receiver (SMSC server becomes client) -->
+    <connection id="370">
+        <name>amdtelecom</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <receiver bindType="SMSC">
+            <port>11372</port>
+            <systemId>qa_amdtelecom</systemId>
+            <password>12345678</password>
+            <bindOption>receiver</bindOption>
+            <concatenation>UDHI</concatenation>
+            <threads>20</threads>
+            <encoding>GSM7</encoding>
+        </receiver>
+    </connection>
+
+    <!--<connection id="13">
+        <name>Bandwidth</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>10131</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>20131</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </receiver>
+    </connection>
+    <connection id="312">
+        <name>Stour Marine P2P</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>13121</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transceiver</bindOption>
+            <threads>20</threads>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>23121</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transceiver</bindOption>
+            <threads>20</threads>
+        </receiver>
+    </connection>
+    <connection id="1300">
+        <name>Bandwidth</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>40131</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </transmitter>
+        <receiver bindType="SMSC">
+            <port>30131</port>
+            <systemId>tmtest</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>20</threads>
+            <concatenation>UDHI</concatenation>
+        </receiver>
+    </connection>
+    <connection id="370">
+        <name>amdtelecom</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="ESME"></transmitter>
+        <receiver bindType="ESME">
+            <port>11372</port>
+            <host>localhost</host>
+            <systemId>qa_amdtelecom</systemId>
+            <password>12345678</password>
+            <bindOption>receiver</bindOption>
+            <concatenation>UDHI</concatenation>
+            <threads>20</threads>
+            <encoding>GSM7</encoding>
+        </receiver>
+    </connection>-->
+
+</connections>

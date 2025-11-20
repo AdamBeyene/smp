@@ -1,0 +1,48 @@
+services:
+  # Single SMPP Simulator Instance
+  simulator-1:
+    build:
+      context: ../../..
+      dockerfile: src/app_requirements/test_containers/Dockerfile
+    container_name: smpp-simulator-1
+    hostname: simulator-1
+    ports:
+      - "8021:8020"   # Web UI
+      - "9002:9001"   # Additional application port
+      - "2775:2775"   # SMSC ports
+      - "2776:2776"
+      - "2777:2777"
+      - "2778:2778"
+      - "2779:2779"
+      - "2780:2780"
+    environment:
+      - SPRING_PROFILES_ACTIVE=LOCAL_Docker
+      - cloudhopper.enabled=true
+      - SERVER_PORT=8020
+      - SIM_ENV_CONFIGURATIONS_ENV_CURRENT=LOCAL_Docker
+    volumes:
+      # Mount LOCAL_Docker configs to /app/LOCAL_Docker
+      - ../../main/resources/com/telemessage/simulators/LOCAL_Docker:/app/LOCAL_Docker:ro
+    networks:
+      smpp-network:
+        ipv4_address: 172.25.0.10
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8020/actuator/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  smpp-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.0.0/16
+          gateway: 172.25.0.1

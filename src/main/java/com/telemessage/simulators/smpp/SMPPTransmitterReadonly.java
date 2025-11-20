@@ -8,6 +8,7 @@ import com.telemessage.simulators.http.HttpSimulator;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -16,6 +17,12 @@ import java.util.List;
 
 @Slf4j
 @Component
+@ConditionalOnProperty(
+    prefix = "cloudhopper",
+    name = "enabled",
+    havingValue = "false",
+    matchIfMissing = true
+)
 @Data
 public class SMPPTransmitterReadonly extends SMPPTransmitter {
 

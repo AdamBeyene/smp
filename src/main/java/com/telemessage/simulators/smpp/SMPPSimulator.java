@@ -2,7 +2,6 @@ package com.telemessage.simulators.smpp;
 
 
 import com.logica.smpp.pdu.*;
-import com.telemessage.simulators.Simulator;
 import com.telemessage.simulators.common.conf.EnvConfiguration;
 import com.telemessage.simulators.common.services.filemanager.SimFileManager;
 import com.telemessage.simulators.controllers.message.MessagesCache;
@@ -13,8 +12,6 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.simpleframework.xml.core.Persister;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -26,17 +23,15 @@ import java.util.Map;
 import java.util.concurrent.*;
 
 @Slf4j
-@Service
-public class SMPPSimulator extends Thread implements Simulator {
+public class SMPPSimulator extends Thread implements SMPPSimulatorInterface {
 
     @Getter
     private final MessagesCache messagesCacheService;
-    EnvConfiguration conf;
+    private final EnvConfiguration conf;
 
     @Getter
     SMPPConnections conns;
 
-    @Autowired
     public SMPPSimulator(EnvConfiguration conf, MessagesCache messagesCache) {
         this.conf = conf;
         state = State.starting;
@@ -256,7 +251,25 @@ public class SMPPSimulator extends Thread implements Simulator {
         this.connectionMap = nextDispatchers;
     }
 
-    public boolean send(int id, SMPPRequest req, boolean sendAllPartsOfConcatenateMessage) throws UnsupportedEncodingException, IntegerOutOfRangeException, WrongLengthOfStringException, WrongDateFormatException {
+    /**
+     * Send message through SMPP connection (implements SMPPSimulatorInterface).
+     * Wraps checked exceptions in RuntimeException for interface compatibility.
+     */
+    @Override
+    public boolean send(int id, SMPPRequest req, boolean sendAllParts) {
+        try {
+            return sendInternal(id, req, sendAllParts);
+        } catch (UnsupportedEncodingException | IntegerOutOfRangeException |
+                 WrongLengthOfStringException | WrongDateFormatException e) {
+            log.error("Error sending SMPP message", e);
+            throw new RuntimeException("Failed to send SMPP message: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Internal send implementation with Logica-specific checked exceptions.
+     */
+    private boolean sendInternal(int id, SMPPRequest req, boolean sendAllPartsOfConcatenateMessage) throws UnsupportedEncodingException, IntegerOutOfRangeException, WrongLengthOfStringException, WrongDateFormatException {
         SMPPTransmitter tr = null;
         SMPPTransceiver transceiver = null;
         log.debug("start send message");
