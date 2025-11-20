@@ -22,8 +22,8 @@ EXPOSE 9001
 # SMPP ports (container 1: 2775-2777, container 2: 2778-2780)
 EXPOSE 2775 2776 2777 2778 2779 2780
 
-# Set JVM options
-ENV JAVA_OPTS="-Xms512m -Xmx1024m -XX:+UseG1GC"
+# Set JVM options with verbose logging
+ENV JAVA_OPTS="-Xms512m -Xmx1024m -XX:+UseG1GC -Ddebug=true"
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
