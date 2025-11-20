@@ -8,6 +8,7 @@ services:
     hostname: simulator-1
     ports:
       - "8020:8020"   # Web UI
+      - "9001:9001"   # Additional application port
       - "2775:2775"   # SMSC port - Container 2 connects here as ESME
       - "2776:2776"   # SMSC port - Container 2 connects here as ESME
       - "2777:2777"   # SMSC port - Container 2 connects here as ESME
@@ -44,6 +45,7 @@ services:
     hostname: simulator-2
     ports:
       - "8021:8020"   # Web UI (mapped to different host port)
+      - "9002:9001"   # Additional application port (mapped to different host port)
       - "2778:2778"   # SMSC port - Container 1 connects here as ESME
       - "2779:2779"   # SMSC port - Container 1 connects here as ESME
       - "2780:2780"   # SMSC port - Container 1 connects here as ESME
