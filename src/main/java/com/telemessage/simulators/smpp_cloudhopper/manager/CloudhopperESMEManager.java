@@ -180,24 +180,33 @@ public class CloudhopperESMEManager implements CloudhopperConnectionManager {
         SmppBindType bindType = determineBindType();
         sessionConfig.setType(bindType);
 
-        // Connection details
-        String host = (config.getTransmitter() != null)
-            ? config.getTransmitter().getHost()
-            : config.getTransceiver().getHost();
-        int port = (config.getTransmitter() != null)
-            ? config.getTransmitter().getPort()
-            : config.getTransceiver().getPort();
+        // Connection details - handle all three types: transmitter, receiver, transceiver
+        String host;
+        int port;
+        String systemId;
+        String password;
+
+        if (config.getTransmitter() != null) {
+            host = config.getTransmitter().getHost();
+            port = config.getTransmitter().getPort();
+            systemId = config.getTransmitter().getSystemId();
+            password = config.getTransmitter().getPassword();
+        } else if (config.getReceiver() != null) {
+            host = config.getReceiver().getHost();
+            port = config.getReceiver().getPort();
+            systemId = config.getReceiver().getSystemId();
+            password = config.getReceiver().getPassword();
+        } else if (config.getTransceiver() != null) {
+            host = config.getTransceiver().getHost();
+            port = config.getTransceiver().getPort();
+            systemId = config.getTransceiver().getSystemId();
+            password = config.getTransceiver().getPassword();
+        } else {
+            throw new IllegalStateException("No connection type configured for connection " + connectionId);
+        }
 
         sessionConfig.setHost(host != null ? host : "localhost");
         sessionConfig.setPort(port);
-
-        // Authentication
-        String systemId = (config.getTransmitter() != null)
-            ? config.getTransmitter().getSystemId()
-            : config.getTransceiver().getSystemId();
-        String password = (config.getTransmitter() != null)
-            ? config.getTransmitter().getPassword()
-            : config.getTransceiver().getPassword();
 
         sessionConfig.setSystemId(systemId);
         sessionConfig.setPassword(password);
