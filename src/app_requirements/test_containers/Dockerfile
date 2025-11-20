@@ -9,7 +9,8 @@ WORKDIR /app
 
 # Copy pre-built JAR from host's target directory (built by build-and-run.bat)
 # The batch script runs 'mvn clean package' on the host before Docker build
-COPY target/*.jar app.jar
+# IMPORTANT: Copy specific file to avoid copying .jar.original (thin JAR without dependencies)
+COPY target/TM_SMPP_SIM.jar app.jar
 
 # Create directory for config files
 RUN mkdir -p /app/config
