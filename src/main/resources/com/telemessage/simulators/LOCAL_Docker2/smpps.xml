@@ -1,28 +1,28 @@
 <connections>
     <!--
         ========================================
-        Container 1 (simulator-1) SMPP Configuration
+        Container 2 (simulator-2) SMPP Configuration
         ========================================
         This container acts in DUAL role:
-        1. SMSC (Server) - Accepts connections from Container 2 on ports 2775, 2776, 2777
-        2. ESME (Client) - Initiates connections to Container 2 on ports 2778, 2779, 2780
+        1. SMSC (Server) - Accepts connections from Container 1 on ports 2778, 2779, 2780
+        2. ESME (Client) - Initiates connections to Container 1 on ports 2775, 2776, 2777
 
         Total: 6 bidirectional connections for comprehensive testing
     -->
 
     <!-- ============================================ -->
-    <!-- SMSC MODE: Container 1 acts as SERVER        -->
-    <!-- Container 2 connects to these ports as ESME  -->
+    <!-- SMSC MODE: Container 2 acts as SERVER        -->
+    <!-- Container 1 connects to these ports as ESME  -->
     <!-- ============================================ -->
 
-    <!-- Connection 13: SMSC Receiver on port 2775 -->
-    <connection id="13">
-        <name>C1-SMSC-Receiver-2775</name>
+    <!-- Connection 23: SMSC Receiver on port 2778 -->
+    <connection id="23">
+        <name>C2-SMSC-Receiver-2778</name>
         <automatic_dr>DELIVRD</automatic_dr>
         <receiver bindType="SMSC">
-            <port>2775</port>
-            <systemId>c1_smsc_rx</systemId>
-            <password>smsc123</password>
+            <port>2778</port>
+            <systemId>c2_smsc_rx</systemId>
+            <password>smsc789</password>
             <bindOption>receiver</bindOption>
             <threads>10</threads>
             <concatenation>UDHI</concatenation>
@@ -30,14 +30,14 @@
         </receiver>
     </connection>
 
-    <!-- Connection 14: SMSC Transmitter on port 2776 -->
-    <connection id="14">
-        <name>C1-SMSC-Transmitter-2776</name>
+    <!-- Connection 24: SMSC Transmitter on port 2779 -->
+    <connection id="24">
+        <name>C2-SMSC-Transmitter-2779</name>
         <automatic_dr>DELIVRD</automatic_dr>
         <transmitter bindType="SMSC">
-            <port>2776</port>
-            <systemId>c1_smsc_tx</systemId>
-            <password>smsc123</password>
+            <port>2779</port>
+            <systemId>c2_smsc_tx</systemId>
+            <password>smsc789</password>
             <bindOption>transmitter</bindOption>
             <threads>10</threads>
             <concatenation>UDHI</concatenation>
@@ -45,14 +45,14 @@
         </transmitter>
     </connection>
 
-    <!-- Connection 15: SMSC Transceiver on port 2777 -->
-    <connection id="15">
-        <name>C1-SMSC-Transceiver-2777</name>
+    <!-- Connection 25: SMSC Transceiver on port 2780 -->
+    <connection id="25">
+        <name>C2-SMSC-Transceiver-2780</name>
         <automatic_dr>DELIVRD</automatic_dr>
         <transceiver bindType="SMSC">
-            <port>2777</port>
-            <systemId>c1_smsc_trx</systemId>
-            <password>smsc123</password>
+            <port>2780</port>
+            <systemId>c2_smsc_trx</systemId>
+            <password>smsc789</password>
             <bindOption>transceiver</bindOption>
             <threads>10</threads>
             <concatenation>UDHI</concatenation>
@@ -61,19 +61,19 @@
     </connection>
 
     <!-- ============================================ -->
-    <!-- ESME MODE: Container 1 acts as CLIENT        -->
-    <!-- Connects to Container 2's SMSC ports         -->
+    <!-- ESME MODE: Container 2 acts as CLIENT        -->
+    <!-- Connects to Container 1's SMSC ports         -->
     <!-- ============================================ -->
 
-    <!-- Connection 100: ESME Transmitter to Container 2 port 2778 -->
-    <connection id="100">
-        <name>C1-ESME-TX-to-C2-2778</name>
+    <!-- Connection 200: ESME Transmitter to Container 1 port 2775 -->
+    <connection id="200">
+        <name>C2-ESME-TX-to-C1-2775</name>
         <automatic_dr>DELIVRD</automatic_dr>
         <transmitter bindType="ESME">
-            <host>simulator-2</host>
-            <port>2778</port>
-            <systemId>c1_esme_tx</systemId>
-            <password>esme456</password>
+            <host>simulator-1</host>
+            <port>2775</port>
+            <systemId>c2_esme_tx</systemId>
+            <password>esme789</password>
             <bindOption>transmitter</bindOption>
             <threads>10</threads>
             <concatenation>UDHI</concatenation>
@@ -81,15 +81,15 @@
         </transmitter>
     </connection>
 
-    <!-- Connection 101: ESME Receiver to Container 2 port 2779 -->
-    <connection id="101">
-        <name>C1-ESME-RX-to-C2-2779</name>
+    <!-- Connection 201: ESME Receiver to Container 1 port 2776 -->
+    <connection id="201">
+        <name>C2-ESME-RX-to-C1-2776</name>
         <automatic_dr>DELIVRD</automatic_dr>
         <receiver bindType="ESME">
-            <host>simulator-2</host>
-            <port>2779</port>
-            <systemId>c1_esme_rx</systemId>
-            <password>esme456</password>
+            <host>simulator-1</host>
+            <port>2776</port>
+            <systemId>c2_esme_rx</systemId>
+            <password>esme789</password>
             <bindOption>receiver</bindOption>
             <threads>10</threads>
             <concatenation>UDHI</concatenation>
@@ -97,15 +97,15 @@
         </receiver>
     </connection>
 
-    <!-- Connection 102: ESME Transceiver to Container 2 port 2780 -->
-    <connection id="102">
-        <name>C1-ESME-TRX-to-C2-2780</name>
+    <!-- Connection 202: ESME Transceiver to Container 1 port 2777 -->
+    <connection id="202">
+        <name>C2-ESME-TRX-to-C1-2777</name>
         <automatic_dr>DELIVRD</automatic_dr>
         <transceiver bindType="ESME">
-            <host>simulator-2</host>
-            <port>2780</port>
-            <systemId>c1_esme_trx</systemId>
-            <password>esme456</password>
+            <host>simulator-1</host>
+            <port>2777</port>
+            <systemId>c2_esme_trx</systemId>
+            <password>esme789</password>
             <bindOption>transceiver</bindOption>
             <threads>10</threads>
             <concatenation>UDHI</concatenation>
