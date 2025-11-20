@@ -378,7 +378,7 @@ public class CloudhopperESMEManager implements CloudhopperConnectionManager {
      */
     private void scheduleReconnect() {
         if (!properties.getMonitoring().getAutoReconnectEnabled()) {
-            log.debug("Auto-reconnect disabled for connection {}, skipping reconnect", connectionId);
+            log.warn("Auto-reconnect disabled for connection {}, will not retry", connectionId);
             return;
         }
 
@@ -389,23 +389,33 @@ public class CloudhopperESMEManager implements CloudhopperConnectionManager {
 
         int maxAttempts = properties.getMonitoring().getMaxReconnectAttempts();
         if (maxAttempts > 0 && reconnectAttempts >= maxAttempts) {
-            log.error("Max reconnect attempts ({}) reached for connection {}", maxAttempts, connectionId);
+            log.error("╔═══════════════════════════════════════════════════════════════════╗");
+            log.error("║  RECONNECTION STOPPED - Max attempts ({}) reached for conn {}   ║", maxAttempts, connectionId);
+            log.error("║  Set max-reconnect-attempts: 0 for infinite retries              ║");
+            log.error("╚═══════════════════════════════════════════════════════════════════╝");
             return;
         }
 
         reconnectAttempts++;
         long delayMs = properties.getMonitoring().getReconnectDelayMs();
 
-        log.info("Scheduling reconnect attempt {} for connection {} in {}ms",
-            reconnectAttempts, connectionId, delayMs);
+        if (maxAttempts == 0) {
+            log.info("Scheduling reconnect attempt {} (infinite retries) for connection {} in {}ms",
+                reconnectAttempts, connectionId, delayMs);
+        } else {
+            log.info("Scheduling reconnect attempt {}/{} for connection {} in {}ms",
+                reconnectAttempts, maxAttempts, connectionId, delayMs);
+        }
 
         reconnectExecutor.schedule(() -> {
             try {
                 log.info("Attempting reconnect #{} for connection {}", reconnectAttempts, connectionId);
                 connect();
             } catch (Exception e) {
-                log.error("Reconnect attempt #{} failed for connection {}",
-                    reconnectAttempts, connectionId, e);
+                log.error("Reconnect attempt #{} failed for connection {}: {}",
+                    reconnectAttempts, connectionId, e.getMessage());
+                // connect() already called scheduleReconnect() before throwing,
+                // so next attempt is already scheduled
             }
         }, delayMs, TimeUnit.MILLISECONDS);
     }
