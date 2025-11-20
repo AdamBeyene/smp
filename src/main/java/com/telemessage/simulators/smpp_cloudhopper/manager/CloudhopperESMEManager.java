@@ -241,19 +241,33 @@ public class CloudhopperESMEManager implements CloudhopperConnectionManager {
 
     /**
      * Determines the bind type based on configuration.
+     * Maps the bindOption field to SmppBindType, matching Logica implementation.
      */
     private SmppBindType determineBindType() {
-        if (config.getTransceiver() != null) {
-            return SmppBindType.TRANSCEIVER;
+        // Get bindOption from whichever element is configured
+        com.telemessage.simulators.smpp.SMPPConnection.BindOption bindOption;
+
+        if (config.getReceiver() != null) {
+            bindOption = config.getReceiver().getBindOption();
         } else if (config.getTransmitter() != null) {
-            com.telemessage.simulators.smpp.SMPPConnection.BindOption bindOption = config.getTransmitter().getBindOption();
-            if (bindOption == com.telemessage.simulators.smpp.SMPPConnection.BindOption.receiver) {
-                return SmppBindType.RECEIVER;
-            } else {
-                return SmppBindType.TRANSMITTER;
-            }
+            bindOption = config.getTransmitter().getBindOption();
+        } else if (config.getTransceiver() != null) {
+            bindOption = config.getTransceiver().getBindOption();
+        } else {
+            throw new IllegalStateException("No connection type configured for ESME connection " + connectionId);
         }
-        return SmppBindType.TRANSMITTER; // Default
+
+        // Map bindOption to SmppBindType (matching Logica's switch statement logic)
+        switch (bindOption) {
+            case receiver:
+                return SmppBindType.RECEIVER;
+            case transceiver:
+                return SmppBindType.TRANSCEIVER;
+            case transmitter:
+                return SmppBindType.TRANSMITTER;
+            default:
+                throw new IllegalArgumentException("Invalid bind option: " + bindOption);
+        }
     }
 
     @Override
