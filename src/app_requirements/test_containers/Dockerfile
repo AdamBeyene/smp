@@ -7,7 +7,12 @@ WORKDIR /build
 # Copy pom.xml first for dependency caching
 COPY pom.xml .
 
+# Copy Maven settings.xml from host (copied by build script from %USERPROFILE%\.m2\settings.xml)
+# This ensures Docker build uses the same repositories and credentials as host Maven
+COPY .mvn-settings.xml /root/.m2/settings.xml
+
 # Download dependencies (cached if pom.xml hasn't changed)
+# Use host's settings.xml if it was copied, otherwise use Maven defaults
 RUN mvn dependency:go-offline -B
 
 # Copy source code
