@@ -3,12 +3,13 @@ package com.telemessage.simulators.controllers;
 
 import com.telemessage.simulators.common.conf.EnvConfiguration;
 import com.telemessage.simulators.http.HttpSimulator;
-import com.telemessage.simulators.smpp.SMPPSimulator;
+import com.telemessage.simulators.smpp.SMPPSimulatorInterface;
 import com.telemessage.simulators.web.HttpResource;
 import com.telemessage.simulators.web.SMPPResource;
 import lombok.extern.slf4j.Slf4j;
 import org.simpleframework.xml.Path;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Description;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -26,12 +27,12 @@ public class SimControl {
 
     EnvConfiguration conf;
 
-    static SMPPSimulator smppSim;
+    static SMPPSimulatorInterface smppSim;
     static HttpSimulator httpSim;
     @Autowired
     public SimControl(EnvConfiguration conf,
-                                            SMPPSimulator smppSim,
-                                            HttpSimulator httpSim
+                      @Qualifier("smppSimulator") SMPPSimulatorInterface smppSim,
+                      HttpSimulator httpSim
     ) {
         this.conf = conf;
         this.smppSim = smppSim;

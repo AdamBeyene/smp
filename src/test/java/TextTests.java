@@ -234,7 +234,7 @@ public class TextTests {
     @Test
     @Disabled
     public void testPerfSearchTestGenData() throws IOException {
-        cacheService = new MessagesCache();
+        cacheService = new MessagesCache(null);
         cacheService.generateTestData(10000, MessageFile_PATH.resolve("test.json"));
     }
 
@@ -245,7 +245,7 @@ public class TextTests {
         List<String> finds = List.of("1563043424", "zu1OXCoZho20PB", "nSpRq1oE6", "zrHJAM5weSUAfakTMwk",
                 "4c87fd6a-3d5e-441c-a11c-ff62c1220cc3", "08:22:34 IST ") ;
 
-                cacheService = new MessagesCache();
+                cacheService = new MessagesCache(null);
 //            Collection<MessagesObject> dataList = cacheService.getMap().values();
         log.info("{} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} ");
         log.info("{} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} ");

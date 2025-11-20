@@ -34,6 +34,22 @@ public class MessagesObject {
     private Integer totalParts;
     private Integer referenceNumber;
 
+    // Cloudhopper-specific concatenation metadata (optional, backward compatible)
+    private String concatenationType;      // "UDHI", "SAR", "PAYLOAD", "TEXT_BASE", "UDHI_PAYLOAD", "DEFAULT"
+    private Boolean encodingCorrected;     // true if smart detection corrected encoding
+    private String declaredEncoding;       // Original declared encoding from data_coding
+    private String detectedEncoding;       // Actual detected encoding (may differ from declared)
+
+    // Cloudhopper-specific SMPP protocol details (optional, backward compatible)
+    private Byte esmClass;                 // ESM class byte (0x00=default, 0x40=UDHI)
+    private Byte dataCoding;               // Data coding byte from PDU
+    private String smppVersion;            // "3.3", "3.4", "5.0"
+    private String implementationType;     // "Logica" or "Cloudhopper"
+
+    // Cloudhopper-specific quality metrics (optional, backward compatible)
+    private Double encodingConfidence;     // 0.0-1.0 score from smart detection
+    private Integer unicodeBlockChanges;   // Unicode block changes (coherence metric)
+
     //TODO add Provider Result
     //TODO break http message received and set src dest and text fields // report issue
     //TODO text of DR message should be set to the text of status

@@ -15,9 +15,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -33,6 +34,12 @@ import static com.telemessage.simulators.smpp.SMPPConnectionMonitor.DEF_ENQUIRE_
  */
 @Slf4j
 @Component
+@ConditionalOnProperty(
+    prefix = "cloudhopper",
+    name = "enabled",
+    havingValue = "false",
+    matchIfMissing = true
+)
 @org.springframework.context.annotation.Scope("prototype") // ensure each subclass gets its own dependencies injected
 public abstract class SMPPConnection implements DispatcherMonitorListener, SMPPConnManagerListener {
 

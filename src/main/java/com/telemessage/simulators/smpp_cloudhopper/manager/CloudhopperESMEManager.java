@@ -6,14 +6,19 @@ import com.cloudhopper.smpp.impl.DefaultSmppSessionHandler;
 import com.cloudhopper.smpp.pdu.*;
 import com.cloudhopper.smpp.type.*;
 import com.telemessage.simulators.controllers.message.MessagesCache;
+import com.telemessage.simulators.controllers.message.MessagesObject;
+import com.telemessage.simulators.controllers.message.MessageUtils;
 import com.telemessage.simulators.smpp.SMPPRequest;
 import com.telemessage.simulators.smpp.conf.SMPPConnectionConf;
+import com.telemessage.simulators.smpp_cloudhopper.concatenation.CloudhopperConcatenationType;
 import com.telemessage.simulators.smpp_cloudhopper.config.CloudhopperProperties;
+import com.telemessage.simulators.smpp_cloudhopper.sender.CloudhopperMessageSender;
 import com.telemessage.simulators.smpp_cloudhopper.session.CloudhopperClientSessionHandler;
 import com.telemessage.simulators.smpp_cloudhopper.util.CloudhopperUtils;
 import com.telemessage.simulators.smpp_cloudhopper.util.SessionStateManager;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Executors;
@@ -58,6 +63,7 @@ public class CloudhopperESMEManager implements CloudhopperConnectionManager {
     private SmppSession session;
     private CloudhopperClientSessionHandler sessionHandler;
     private ScheduledExecutorService reconnectExecutor;
+    private final CloudhopperMessageSender messageSender;
 
     private volatile boolean isRunning = false;
     private volatile int reconnectAttempts = 0;
@@ -85,6 +91,7 @@ public class CloudhopperESMEManager implements CloudhopperConnectionManager {
         this.sessionStateManager = sessionStateManager;
         this.messagesCache = messagesCache;
         this.executorService = executorService;
+        this.messageSender = new CloudhopperMessageSender();
     }
 
     @Override
@@ -207,9 +214,9 @@ public class CloudhopperESMEManager implements CloudhopperConnectionManager {
         // System type
         sessionConfig.setSystemType(properties.getSession().getDefaultSystemType());
 
-        // Logging
-        sessionConfig.setLogPduEnabled(properties.getSession().getLogPduEnabled());
-        sessionConfig.setLogBytesEnabled(properties.getSession().getLogBytesEnabled());
+        // Logging (use LoggingOptions)
+        sessionConfig.getLoggingOptions().setLogPdu(properties.getSession().getLogPduEnabled());
+        sessionConfig.getLoggingOptions().setLogBytes(properties.getSession().getLogBytesEnabled());
 
         log.debug("Session configuration: bindType={}, host={}:{}, systemId={}, windowSize={}",
             bindType, host, port, systemId, properties.getWindowSize());
@@ -224,8 +231,8 @@ public class CloudhopperESMEManager implements CloudhopperConnectionManager {
         if (config.getTransceiver() != null) {
             return SmppBindType.TRANSCEIVER;
         } else if (config.getTransmitter() != null) {
-            String bindOption = config.getTransmitter().getBindOption();
-            if ("receiver".equalsIgnoreCase(bindOption)) {
+            com.telemessage.simulators.smpp.SMPPConnection.BindOption bindOption = config.getTransmitter().getBindOption();
+            if (bindOption == com.telemessage.simulators.smpp.SMPPConnection.BindOption.receiver) {
                 return SmppBindType.RECEIVER;
             } else {
                 return SmppBindType.TRANSMITTER;
@@ -242,57 +249,56 @@ public class CloudhopperESMEManager implements CloudhopperConnectionManager {
         }
 
         try {
-            // Create submit_sm PDU
-            SubmitSm submitSm = new SubmitSm();
+            // Determine encoding (default to GSM7)
+            String encoding = "GSM7";
 
-            // Set source address
-            submitSm.setSourceAddress(CloudhopperUtils.createAddress(
-                (byte) request.getSrcTon(),
-                (byte) request.getSrcNpi(),
-                request.getSrc()
-            ));
+            // Determine concatenation type (default to UDHI)
+            CloudhopperConcatenationType concatenationType = CloudhopperConcatenationType.UDHI;
 
-            // Set destination address
-            submitSm.setDestAddress(CloudhopperUtils.createAddress(
-                (byte) request.getDstTon(),
-                (byte) request.getDstNpi(),
-                request.getDst()
-            ));
+            // Use CloudhopperMessageSender for automatic splitting and sending
+            CloudhopperMessageSender.SendResult result = messageSender.sendLongMessage(
+                session,
+                request.getSrc(),
+                request.getDst(),
+                request.getText(),
+                encoding,
+                concatenationType,
+                properties.getSession().getResponseTimeoutMs()
+            );
 
-            // Set message text and encoding
-            String encoding = request.getEncoding() != null
-                ? request.getEncoding()
-                : "GSM7";
-            byte[] messageBytes = CloudhopperUtils.encodeMessage(request.getText(), encoding);
-            submitSm.setShortMessage(messageBytes);
-            submitSm.setDataCoding(CloudhopperUtils.getDataCoding(encoding));
+            if (result.isSuccess()) {
+                // Update stats for all parts sent
+                for (int i = 0; i < result.getPartsSent(); i++) {
+                    sessionStateManager.incrementMessagesSent(connectionId);
+                }
 
-            // Set service type
-            if (request.getServiceType() != null) {
-                submitSm.setServiceType(request.getServiceType());
-            }
+                // Cache message(s)
+                List<String> messageIds = result.getMessageIds();
+                for (int i = 0; i < messageIds.size(); i++) {
+                    String messageId = messageIds.get(i);
+                    MessagesObject cacheMessage = MessagesObject.builder()
+                        .dir("OUT_FULL")
+                        .id(messageId)
+                        .text(request.getText())
+                        .from(request.getSrc())
+                        .to(request.getDst())
+                        .messageTime(MessageUtils.getMessageDateFromTimestamp(System.currentTimeMillis()))
+                        .messageEncoding(encoding)
+                        .concatenationType(concatenationType.name())
+                        .implementationType("Cloudhopper")
+                        .totalParts(result.getTotalParts())
+                        .partNumber(i + 1)
+                        .build();
+                    messagesCache.addCacheRecord(messageId, cacheMessage);
+                }
 
-            // Set registered delivery (request DR)
-            submitSm.setRegisteredDelivery(SmppConstants.REGISTERED_DELIVERY_SMSC_RECEIPT_REQUESTED);
-
-            // Send synchronously
-            SubmitSmResp response = session.submit(submitSm,
-                properties.getSession().getResponseTimeoutMs());
-
-            // Check response
-            if (response.getCommandStatus() == SmppConstants.STATUS_OK) {
-                sessionStateManager.incrementMessagesSent(connectionId);
-
-                // Cache message
-                messagesCache.addCacheRecord(request, response.getMessageId());
-
-                log.debug("Message sent successfully: msgId={}, dest={}",
-                    response.getMessageId(), request.getDst());
+                log.info("Message sent successfully: parts={}/{}, dest={}",
+                    result.getPartsSent(), result.getTotalParts(), request.getDst());
                 return true;
             } else {
                 sessionStateManager.incrementErrors(connectionId);
-                log.error("Message submission failed: status={}",
-                    response.getCommandStatus());
+                log.error("Message sending failed: parts={}/{}, error={}",
+                    result.getPartsSent(), result.getTotalParts(), result.getErrorMessage());
                 return false;
             }
 
@@ -318,6 +324,11 @@ public class CloudhopperESMEManager implements CloudhopperConnectionManager {
                 reconnectExecutor.shutdownNow();
                 Thread.currentThread().interrupt();
             }
+        }
+
+        // Shutdown session handler (cleanup executor)
+        if (sessionHandler != null) {
+            sessionHandler.shutdown();
         }
 
         // Unbind and close session
