@@ -1,3 +1,52 @@
 <connections>
-    <!-- Minimal configuration for Docker container - single SMSC server connection -->
+    <!-- ============================================ -->
+    <!-- SMSC MODE: Server connections only           -->
+    <!-- No ESME client connections                   -->
+    <!-- ============================================ -->
+
+    <!-- Connection 23: SMSC Receiver on port 2778 -->
+    <connection id="23">
+        <name>SMSC-Receiver-2778</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <receiver bindType="SMSC">
+            <port>2778</port>
+            <systemId>c2_smsc_rx</systemId>
+            <password>smsc789</password>
+            <bindOption>receiver</bindOption>
+            <threads>10</threads>
+            <concatenation>UDHI</concatenation>
+            <encoding>UTF-16BE</encoding>
+        </receiver>
+    </connection>
+
+    <!-- Connection 24: SMSC Transmitter on port 2779 -->
+    <connection id="24">
+        <name>SMSC-Transmitter-2779</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>2779</port>
+            <systemId>c2_smsc_tx</systemId>
+            <password>smsc789</password>
+            <bindOption>transmitter</bindOption>
+            <threads>10</threads>
+            <concatenation>UDHI</concatenation>
+            <encoding>UTF-16BE</encoding>
+        </transmitter>
+    </connection>
+
+    <!-- Connection 25: SMSC Transceiver on port 2780 -->
+    <connection id="25">
+        <name>SMSC-Transceiver-2780</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transceiver bindType="SMSC">
+            <port>2780</port>
+            <systemId>c2_smsc_trx</systemId>
+            <password>smsc789</password>
+            <bindOption>transceiver</bindOption>
+            <threads>10</threads>
+            <concatenation>UDHI</concatenation>
+            <encoding>UTF-16BE</encoding>
+        </transceiver>
+    </connection>
+
 </connections>
