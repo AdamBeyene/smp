@@ -1,5 +1,5 @@
 services:
-  # Container 1 - SMPP Simulator Instance 1
+  # Single SMPP Simulator Instance
   simulator-1:
     build:
       context: ../../..
@@ -7,11 +7,14 @@ services:
     container_name: smpp-simulator-1
     hostname: simulator-1
     ports:
-      - "8020:8020"   # Web UI
-      - "9001:9001"   # Additional application port
-      - "2775:2775"   # SMSC port - Container 2 connects here as ESME
-      - "2776:2776"   # SMSC port - Container 2 connects here as ESME
-      - "2777:2777"   # SMSC port - Container 2 connects here as ESME
+      - "8021:8020"   # Web UI
+      - "9002:9001"   # Additional application port
+      - "2775:2775"   # SMSC ports
+      - "2776:2776"
+      - "2777:2777"
+      - "2778:2778"
+      - "2779:2779"
+      - "2780:2780"
     environment:
       - SPRING_PROFILES_ACTIVE=LOCAL_Docker
       - cloudhopper.enabled=true
@@ -19,52 +22,10 @@ services:
       - SIM_ENV_CONFIGURATIONS_ENV_CURRENT=LOCAL_Docker
     volumes:
       # Mount LOCAL_Docker configs to /app/LOCAL_Docker
-      # SimFileManager falls back to filesystem path relative to working dir (/app)
       - ../../main/resources/com/telemessage/simulators/LOCAL_Docker:/app/LOCAL_Docker:ro
     networks:
       smpp-network:
         ipv4_address: 172.25.0.10
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8020/actuator/health"]
-      interval: 15s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
-    restart: unless-stopped
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-
-  # Container 2 - SMPP Simulator Instance 2
-  simulator-2:
-    build:
-      context: ../../..
-      dockerfile: src/app_requirements/test_containers/Dockerfile
-    container_name: smpp-simulator-2
-    hostname: simulator-2
-    ports:
-      - "8021:8020"   # Web UI (mapped to different host port)
-      - "9002:9001"   # Additional application port (mapped to different host port)
-      - "2778:2778"   # SMSC port - Container 1 connects here as ESME
-      - "2779:2779"   # SMSC port - Container 1 connects here as ESME
-      - "2780:2780"   # SMSC port - Container 1 connects here as ESME
-    environment:
-      - SPRING_PROFILES_ACTIVE=LOCAL_Docker2
-      - cloudhopper.enabled=true
-      - SERVER_PORT=8020
-      - SIM_ENV_CONFIGURATIONS_ENV_CURRENT=LOCAL_Docker2
-    volumes:
-      # Mount LOCAL_Docker2 configs to /app/LOCAL_Docker2
-      # SimFileManager falls back to filesystem path relative to working dir (/app)
-      - ../../main/resources/com/telemessage/simulators/LOCAL_Docker2:/app/LOCAL_Docker2:ro
-    networks:
-      smpp-network:
-        ipv4_address: 172.25.0.11
-    depends_on:
-      simulator-1:
-        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8020/actuator/health"]
       interval: 15s

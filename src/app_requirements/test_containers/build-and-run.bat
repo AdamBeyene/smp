@@ -122,18 +122,14 @@ cd "%PROJECT_ROOT%"
 
 echo.
 echo ========================================
-echo SUCCESS! Containers are starting...
+echo SUCCESS! Container is starting...
 echo ========================================
 echo.
-echo Container 1 (simulator-1):
-echo   - Web UI: http://localhost:8020
-echo   - SMSC Ports: 2775, 2776, 2777
-echo   - Acts as: SMSC (receives from Container 2) + ESME (sends to Container 2)
-echo.
-echo Container 2 (simulator-2):
+echo SMPP Simulator (simulator-1):
 echo   - Web UI: http://localhost:8021
-echo   - SMSC Ports: 2778, 2779, 2780
-echo   - Acts as: SMSC (receives from Container 1) + ESME (sends to Container 1)
+echo   - App Port: 9002
+echo   - SMSC Ports: 2775-2780
+echo   - Config: LOCAL_Docker
 echo.
 echo ========================================
 echo Waiting for containers to be healthy...
@@ -145,25 +141,20 @@ timeout /t 5 /nobreak >nul
 
 :HEALTH_CHECK_LOOP
 set SIMULATOR1_HEALTHY=0
-set SIMULATOR2_HEALTHY=0
 
 REM Check simulator-1 health
 docker inspect --format="{{.State.Health.Status}}" smpp-simulator-1 2>nul | findstr /i "healthy" >nul
 if !errorlevel!==0 set SIMULATOR1_HEALTHY=1
 
-REM Check simulator-2 health
-docker inspect --format="{{.State.Health.Status}}" smpp-simulator-2 2>nul | findstr /i "healthy" >nul
-if !errorlevel!==0 set SIMULATOR2_HEALTHY=1
-
-if !SIMULATOR1_HEALTHY!==1 if !SIMULATOR2_HEALTHY!==1 (
+if !SIMULATOR1_HEALTHY!==1 (
     echo.
     echo ========================================
-    echo Both containers are healthy and ready!
+    echo Container is healthy and ready!
     echo ========================================
     goto :CONTAINERS_READY
 )
 
-echo Waiting for containers to become healthy... (Ctrl+C to stop waiting)
+echo Waiting for container to become healthy... (Ctrl+C to stop waiting)
 timeout /t 5 /nobreak >nul
 goto :HEALTH_CHECK_LOOP
 
@@ -175,21 +166,14 @@ echo ========================================
 echo.
 echo View container logs:
 echo   docker-compose -f src\app_requirements\test_containers\docker-compose.yml logs -f simulator-1
-echo   docker-compose -f src\app_requirements\test_containers\docker-compose.yml logs -f simulator-2
 echo.
 echo Check container status:
 echo   docker-compose -f src\app_requirements\test_containers\docker-compose.yml ps
 echo.
-echo Send test message from Container 1 to Container 2:
-echo   curl -X POST "http://localhost:8020/sim/smpp/send" -d "id=100" -d "src=1234" -d "dst=5678" -d "text=Hello from Container 1"
+echo Send test SMPP message:
+echo   curl -X POST "http://localhost:8021/sim/smpp/send" -d "id=13" -d "src=1234" -d "dst=5678" -d "text=Test Message"
 echo.
-echo Send test message from Container 2 to Container 1:
-echo   curl -X POST "http://localhost:8021/sim/smpp/send" -d "id=200" -d "src=5678" -d "dst=1234" -d "text=Hello from Container 2"
-echo.
-echo View messages in Container 1:
-echo   curl "http://localhost:8020/messages"
-echo.
-echo View messages in Container 2:
+echo View messages:
 echo   curl "http://localhost:8021/messages"
 echo.
 echo Stop containers:
