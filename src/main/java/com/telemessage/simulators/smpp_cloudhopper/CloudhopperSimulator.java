@@ -104,19 +104,19 @@ public class CloudhopperSimulator implements SMPPSimulatorInterface {
         this.messagesCache = messagesCache;
         this.sessionStateManager = new SessionStateManager();
 
-        // Create thread pool for async operations
-        int threadPoolSize = properties.getExecutor().getCorePoolSize();
-        this.executorService = Executors.newFixedThreadPool(
-            threadPoolSize,
+        // Create cached thread pool for async operations
+        // CachedThreadPool creates new threads as needed, crucial for SMSC to handle
+        // multiple simultaneous bind requests without blocking
+        this.executorService = Executors.newCachedThreadPool(
             runnable -> {
                 Thread thread = new Thread(runnable);
-                thread.setName("cloudhopper-sim-" + thread.threadId());
+                thread.setName("cloudhopper-worker-" + thread.threadId());
                 thread.setDaemon(false);
                 return thread;
             }
         );
 
-        log.info("CloudhopperSimulator initialized with {} executor threads", threadPoolSize);
+        log.info("CloudhopperSimulator initialized with CachedThreadPool executor (creates threads as needed)");
     }
 
     /**
