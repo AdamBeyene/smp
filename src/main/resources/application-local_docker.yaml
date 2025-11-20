@@ -8,19 +8,6 @@ sim:
 
 
 
-spring:
- boot:
-  admin:
-   context-path: /
-   client:
-    url: http://localhost:8070
-    enabled: true
-    auto-registration: true
-    instance:
-     management-base-url: http://localhost:9001/monitor  # Application's actuator URL
-     service-url: http://localhost:8070  # Application's service URL
-   server:
-    enabled: true
 #server:
 # tomcat:
 #  accesslog:

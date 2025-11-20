@@ -44,18 +44,6 @@ spring:
   encoding: UTF-8
   cache: false
  boot:
-  admin:
-   context-path: /
-   client:
-    url: http://localhost:8020
-    enabled: true
-    auto-registration: true
-    instance:
-     management-base-url: http://localhost:9001/monitor  # Application's actuator URL
-     service-url: http://localhost:8020  # Application's service URL
-   server:
-    enabled: true
-  
   # Spring AI MCP Configuration
   ai:
     mcp:
