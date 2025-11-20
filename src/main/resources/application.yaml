@@ -131,8 +131,8 @@ cloudhopper:
     monitoring:
       enquire-link-interval-ms: 30000  # Keep-alive interval
       enquire-link-timeout-ms: 10000   # Keep-alive timeout
-      reconnect-delay-ms: 5000         # Reconnect delay after failure
-      max-reconnect-attempts: 5        # Max reconnect attempts (0 = infinite)
+      reconnect-delay-ms: 20000        # Reconnect delay after failure (20 seconds)
+      max-reconnect-attempts: 0        # Max reconnect attempts (0 = infinite retries)
       auto-reconnect-enabled: true     # Enable auto-reconnection
       health-monitoring-enabled: true  # Enable health checks
 

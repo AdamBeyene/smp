@@ -188,6 +188,9 @@ public class CloudhopperSimulator implements SMPPSimulatorInterface {
     /**
      * Creates connection managers for a connection configuration.
      *
+     * <p>Determines whether to create ESME (client) or SMSC (server) manager
+     * based on the bindType attribute of the connection elements.</p>
+     *
      * @param connConf Connection configuration
      */
     private void createConnectionManagers(SMPPConnectionConf connConf) {
@@ -195,8 +198,24 @@ public class CloudhopperSimulator implements SMPPSimulatorInterface {
 
         log.info("Creating managers for connection ID {}: {}", connectionId, connConf.getName());
 
-        // Create ESME manager if transmitter/transceiver configured
-        if (connConf.getTransmitter() != null || connConf.getTransceiver() != null) {
+        // Determine bind type from any configured element
+        SMPPConnection.BindType bindType = null;
+        if (connConf.getTransmitter() != null) {
+            bindType = connConf.getTransmitter().getBindType();
+        } else if (connConf.getReceiver() != null) {
+            bindType = connConf.getReceiver().getBindType();
+        } else if (connConf.getTransceiver() != null) {
+            bindType = connConf.getTransceiver().getBindType();
+        }
+
+        if (bindType == null) {
+            log.warn("No connection elements found for connection {}, skipping", connectionId);
+            return;
+        }
+
+        // Create appropriate manager based on bindType
+        if (bindType == SMPPConnection.BindType.ESME) {
+            // ESME (client) - initiates connection to SMSC
             CloudhopperESMEManager esmeManager = new CloudhopperESMEManager(
                 connectionId,
                 connConf,
@@ -206,11 +225,10 @@ public class CloudhopperSimulator implements SMPPSimulatorInterface {
                 executorService
             );
             connectionManagers.put(connectionId, esmeManager);
-            log.info("Created ESME manager for connection {}", connectionId);
-        }
+            log.info("Created ESME (client) manager for connection {} (bindType=ESME)", connectionId);
 
-        // Create SMSC manager if receiver configured
-        if (connConf.getReceiver() != null) {
+        } else if (bindType == SMPPConnection.BindType.SMSC) {
+            // SMSC (server) - accepts incoming connections from ESME
             CloudhopperSMSCManager smscManager = new CloudhopperSMSCManager(
                 connectionId,
                 connConf,
@@ -219,8 +237,8 @@ public class CloudhopperSimulator implements SMPPSimulatorInterface {
                 messagesCache,
                 executorService
             );
-            connectionManagers.put(connectionId + 10000, smscManager); // Offset for receiver
-            log.info("Created SMSC manager for connection {}", connectionId);
+            connectionManagers.put(connectionId + 10000, smscManager); // Offset for SMSC to avoid ID conflicts
+            log.info("Created SMSC (server) manager for connection {} (bindType=SMSC)", connectionId);
         }
     }
 
