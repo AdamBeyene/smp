@@ -150,14 +150,23 @@ public class CloudhopperSimulator implements SMPPSimulatorInterface {
      * Reads SMPP connection configuration from XML file.
      *
      * <p>Configuration file location: /com/telemessage/simulators/{ENV}/smpps.xml</p>
+     * <p>Can be overridden with SMPP_CONFIG_FILE environment variable for container-specific configs</p>
      *
      * @throws Exception if configuration loading fails
      */
     private void readFromConfiguration() throws Exception {
         String currentEnv = envConfig.getEnvCurrent();
-        String configPath = String.format("%s/%s", currentEnv, CONN_FILE);
 
-        log.info("Loading Cloudhopper configuration from: {}", configPath);
+        // Allow override via environment variable (for Docker host.docker.internal configs)
+        String configFile = System.getenv("SMPP_CONFIG_FILE");
+        if (configFile == null || configFile.trim().isEmpty()) {
+            configFile = CONN_FILE;
+        }
+
+        String configPath = String.format("%s/%s", currentEnv, configFile);
+
+        log.info("Loading Cloudhopper configuration from: {} (configFile={}, env={})",
+                 configPath, configFile, currentEnv);
 
         try (InputStream inputStream = SimFileManager.getResolvedResourcePath(configPath)) {
             if (inputStream == null) {

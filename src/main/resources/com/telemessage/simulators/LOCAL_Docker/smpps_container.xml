@@ -1,0 +1,116 @@
+<connections>
+    <!--
+        ========================================
+        Container 1 (simulator-1) SMPP Configuration
+        ========================================
+        This container acts in DUAL role:
+        1. SMSC (Server) - Accepts connections from Container 2 on ports 2775, 2776, 2777
+        2. ESME (Client) - Initiates connections to Container 2 on ports 2778, 2779, 2780
+
+        Total: 6 bidirectional connections for comprehensive testing
+    -->
+
+    <!-- ============================================ -->
+    <!-- SMSC MODE: Container 1 acts as SERVER        -->
+    <!-- Container 2 connects to these ports as ESME  -->
+    <!-- ============================================ -->
+
+    <!-- Connection 20: SMSC Receiver on port 2775 -->
+    <connection id="20">
+        <name>C1-SMSC-Receiver-2775</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <receiver bindType="SMSC">
+            <port>2775</port>
+            <systemId>smsc_rx</systemId>
+            <password>esme123</password>
+            <bindOption>receiver</bindOption>
+            <threads>10</threads>
+            <concatenation>UDHI</concatenation>
+            <encoding>UTF-16BE</encoding>
+        </receiver>
+    </connection>
+
+    <!-- Connection 21: SMSC Transmitter on port 2776 -->
+    <connection id="21">
+        <name>C1-SMSC-Transmitter-2776</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>2776</port>
+            <systemId>smsc_rx</systemId>
+            <password>esme123</password>
+            <bindOption>transmitter</bindOption>
+            <threads>10</threads>
+            <concatenation>UDHI</concatenation>
+            <encoding>UTF-16BE</encoding>
+        </transmitter>
+    </connection>
+
+    <!-- Connection 22: SMSC Transceiver on port 2777 -->
+    <connection id="22">
+        <name>C1-SMSC-Transceiver-2777</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transceiver bindType="SMSC">
+            <port>2777</port>
+            <systemId>smsc_rx</systemId>
+            <password>esme123</password>
+            <bindOption>transceiver</bindOption>
+            <threads>10</threads>
+            <concatenation>UDHI</concatenation>
+            <encoding>UTF-16BE</encoding>
+        </transceiver>
+    </connection>
+
+    <!-- ============================================ -->
+    <!-- ESME MODE: Container 1 acts as CLIENT        -->
+    <!-- Connects to Container 2's SMSC ports         -->
+    <!-- ============================================ -->
+
+    <!-- Connection 100: ESME Transmitter to Container 2 port 2778 -->
+    <connection id="100">
+        <name>C1-ESME-TX-to-C2-2778</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="ESME">
+            <host>host.docker.internal</host>
+            <port>2778</port>
+            <systemId>smsc_rx</systemId>
+            <password>esme123</password>
+            <bindOption>transmitter</bindOption>
+            <threads>10</threads>
+            <concatenation>UDHI</concatenation>
+            <encoding>UTF-16BE</encoding>
+        </transmitter>
+    </connection>
+
+    <!-- Connection 101: ESME Receiver to Container 2 port 2779 -->
+    <connection id="101">
+        <name>C1-ESME-RX-to-C2-2779</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <receiver bindType="ESME">
+            <host>host.docker.internal</host>
+            <port>2779</port>
+            <systemId>smsc_rx</systemId>
+            <password>esme123</password>
+            <bindOption>receiver</bindOption>
+            <threads>10</threads>
+            <concatenation>UDHI</concatenation>
+            <encoding>UTF-16BE</encoding>
+        </receiver>
+    </connection>
+
+    <!-- Connection 102: ESME Transceiver to Container 2 port 2780 -->
+    <connection id="102">
+        <name>C1-ESME-TRX-to-C2-2780</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transceiver bindType="ESME">
+            <host>host.docker.internal</host>
+            <port>2780</port>
+            <systemId>smsc_rx</systemId>
+            <password>esme123</password>
+            <bindOption>transceiver</bindOption>
+            <threads>10</threads>
+            <concatenation>UDHI</concatenation>
+            <encoding>UTF-16BE</encoding>
+        </transceiver>
+    </connection>
+
+</connections>
