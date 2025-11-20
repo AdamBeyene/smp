@@ -1,5 +1,6 @@
 package com.telemessage.simulators.smpp_cloudhopper.session;
 
+import com.cloudhopper.smpp.PduAsyncResponse;
 import com.cloudhopper.smpp.SmppConstants;
 import com.cloudhopper.smpp.impl.DefaultSmppSessionHandler;
 import com.cloudhopper.smpp.pdu.*;
