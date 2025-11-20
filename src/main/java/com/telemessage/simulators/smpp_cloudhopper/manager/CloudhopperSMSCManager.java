@@ -4,6 +4,8 @@ import com.cloudhopper.smpp.*;
 import com.cloudhopper.smpp.impl.DefaultSmppServer;
 import com.cloudhopper.smpp.pdu.BaseBind;
 import com.cloudhopper.smpp.pdu.BaseBindResp;
+import com.cloudhopper.smpp.SmppConstants;
+import com.cloudhopper.smpp.type.SmppProcessingException;
 import com.telemessage.simulators.controllers.message.MessagesCache;
 import com.telemessage.simulators.smpp.SMPPRequest;
 import com.telemessage.simulators.smpp.conf.SMPPConnectionConf;
@@ -128,13 +130,12 @@ public class CloudhopperSMSCManager implements CloudhopperConnectionManager, Smp
         // Enable non-blocking sockets
         serverConfig.setNonBlockingSocketsEnabled(properties.getNonBlockingSocketsEnabled());
 
-        // System ID
+        // Note: SystemId is validated per-session during bind, not configured at server level
         String systemId = config.getReceiver() != null
             ? config.getReceiver().getSystemId()
             : null;
-        serverConfig.setSystemId(systemId);
 
-        log.debug("SMSC server configuration: port={}, systemId={}, maxConnections={}",
+        log.debug("SMSC server configuration: port={}, expectedSystemId={}, maxConnections={}",
             port, systemId, properties.getMaxConnectionSize());
 
         return serverConfig;
