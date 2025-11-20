@@ -149,11 +149,12 @@ public class CloudhopperSimulator implements Simulator {
      */
     private void readFromConfiguration() throws Exception {
         String currentEnv = envConfig.getEnvCurrent();
-        String configPath = String.format("com/telemessage/simulators/%s/%s", currentEnv, CONN_FILE);
+        String configPath = String.format("%s/%s", currentEnv, CONN_FILE);
 
         log.info("Loading Cloudhopper configuration from: {}", configPath);
 
-        try (InputStream inputStream = SimFileManager.getResourceAsStream(configPath)) {
+        try {
+            InputStream inputStream = SimFileManager.getResolvedResourcePath(configPath);
             if (inputStream == null) {
                 throw new IllegalStateException("Configuration file not found: " + configPath);
             }
@@ -172,6 +173,7 @@ public class CloudhopperSimulator implements Simulator {
                 createConnectionManagers(connConf);
             }
 
+            inputStream.close();
         } catch (Exception e) {
             log.error("Failed to read configuration from {}", configPath, e);
             throw e;
