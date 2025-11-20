@@ -18,8 +18,9 @@ services:
       - SERVER_PORT=8020
       - SIM_ENV_CONFIGURATIONS_ENV_CURRENT=LOCAL_Docker
     volumes:
-      # Mount container 1 specific config
-      - ../../main/resources/com/telemessage/simulators/LOCAL_Docker:/app/config/LOCAL_Docker:ro
+      # Mount entire resources directory to override classpath resources
+      # This allows the container to use LOCAL_Docker configs instead of default ones baked in JAR
+      - ../../main/resources:/app/resources:ro
     networks:
       smpp-network:
         ipv4_address: 172.25.0.10
@@ -55,8 +56,9 @@ services:
       - SERVER_PORT=8020
       - SIM_ENV_CONFIGURATIONS_ENV_CURRENT=LOCAL_Docker2
     volumes:
-      # Mount container 2 specific config
-      - ../../main/resources/com/telemessage/simulators/LOCAL_Docker2:/app/config/LOCAL_Docker2:ro
+      # Mount entire resources directory to override classpath resources
+      # This allows the container to use LOCAL_Docker2 configs instead of default ones baked in JAR
+      - ../../main/resources:/app/resources:ro
     networks:
       smpp-network:
         ipv4_address: 172.25.0.11

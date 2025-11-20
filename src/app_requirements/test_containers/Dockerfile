@@ -30,4 +30,6 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
   CMD curl -f http://localhost:8020/actuator/health || exit 1
 
 # Run the application
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
+# Add /app/resources to classpath to allow external configs to override JAR's internal resources
+# This enables containers to use environment-specific configs (LOCAL_Docker, LOCAL_Docker2)
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -cp /app/resources:/app/app.jar org.springframework.boot.loader.launch.JarLauncher"]
