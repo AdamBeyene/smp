@@ -13,11 +13,6 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.5.0</version>
-            </dependency>
-            <dependency>
                 <groupId>commons-logging</groupId>
                 <artifactId>commons-logging</artifactId>
                 <version>1.2</version>
@@ -141,51 +136,11 @@
             </testResource>
         </testResources>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <!--                <version>3.2.4</version> &lt;!&ndash; Ensure correct version &ndash;&gt;-->
-                <executions>
-                    <execution>
-                        <id>shade-jar-with-dependencies</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <finalName>TM_SMPP_SIM</finalName>
-                            <createDependencyReducedPom>false</createDependencyReducedPom>
-                            <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <manifestEntries>
-                                        <Main-Class>com.telemessage.simulators.TM_QA_SMPP_SIMULATOR_Application</Main-Class>
-                                    </manifestEntries>
-                                </transformer>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                                    <resource>META-INF/services/org.codehaus.groovy.runtime.ExtensionModule</resource>
-                                </transformer>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                                    <resource>META-INF/services/org.apache.groovy.runtime.ExtensionModule</resource>
-                                </transformer>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                                    <resource>META-INF/services/java.nio.charset.spi.CharsetProvider</resource>
-                                </transformer>
-                            </transformers>
-                            <filters>
-                                <filter>
-<!--                                    <artifact>*:*</artifact>-->
-                                    <!--<excludes>
-                                        <exclude>META-INF/*.SF</exclude>
-                                        <exclude>META-INF/*.DSA</exclude>
-                                        <exclude>META-INF/*.RSA</exclude>
-                                    </excludes>-->
-                                </filter>
-                            </filters>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+            <!-- REMOVED: maven-shade-plugin conflicts with spring-boot-maven-plugin
+                 Spring Boot plugin handles JAR packaging correctly with embedded dependencies.
+                 Using both causes resource loading issues and application hangs.
+                 See: https://docs.spring.io/spring-boot/docs/current/maven-plugin/reference/htmlsingle/
+            -->
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

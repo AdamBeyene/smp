@@ -178,6 +178,7 @@ public class CloudhopperSimulator implements SMPPSimulatorInterface {
                 createConnectionManagers(connConf);
             }
 
+            inputStream.close();
         } catch (Exception e) {
             log.error("Failed to read configuration from {}", configPath, e);
             throw e;
