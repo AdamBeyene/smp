@@ -28,7 +28,17 @@ src\app_requirements\test_containers\build-and-run.bat
 
 ## Testing
 
-### Send test SMPP message
+The container runs 6 SMSC server connections on ports 2775-2780 (connection IDs: 13-18).
+External SMPP clients can connect to these ports to test message sending/receiving.
+
+### Connect with SMPP client
+```bash
+# Example: Connect to port 2777 (transceiver) as ESME client
+# systemId: smsc_trx
+# password: smsc123
+```
+
+### Send test message via web API
 ```bash
 curl -X POST "http://localhost:8021/sim/smpp/send" -d "id=13" -d "src=1234" -d "dst=5678" -d "text=Test Message"
 ```
@@ -37,6 +47,17 @@ curl -X POST "http://localhost:8021/sim/smpp/send" -d "id=13" -d "src=1234" -d "
 ```bash
 curl "http://localhost:8021/messages"
 ```
+
+## SMPP Connections Available
+
+| ID | Type | Port | System ID | Password | Bind Type |
+|----|------|------|-----------|----------|-----------|
+| 13 | Receiver | 2775 | smsc_rx | smsc123 | SMSC Server |
+| 14 | Transmitter | 2776 | smsc_tx | smsc123 | SMSC Server |
+| 15 | Transceiver | 2777 | smsc_trx | smsc123 | SMSC Server |
+| 16 | Receiver | 2778 | smsc_rx2 | smsc123 | SMSC Server |
+| 17 | Transmitter | 2779 | smsc_tx2 | smsc123 | SMSC Server |
+| 18 | Transceiver | 2780 | smsc_trx2 | smsc123 | SMSC Server |
 
 ## Management Commands
 
