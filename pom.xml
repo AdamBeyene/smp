@@ -157,7 +157,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>${spring.version}</version>
+                <!-- Version inherited from spring-boot-starter-parent (3.3.8) -->
                 <configuration>
                     <finalName>TM_SMPP_SIM</finalName>
                     <layout>JAR</layout>
@@ -757,7 +757,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-            <version>${spring.version}</version>
+            <!-- Version inherited from spring-boot-starter-parent (3.3.8) -->
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.logging.log4j</groupId>
