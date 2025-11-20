@@ -6,7 +6,6 @@ import com.telemessage.simulators.common.conf.EnvConfiguration;
 import com.telemessage.simulators.controllers.message.MessagesCache;
 import com.telemessage.simulators.http.HttpSimulator;
 import com.telemessage.simulators.smpp.SMPPSimulator;
-import de.codecentric.boot.admin.server.config.EnableAdminServer;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
@@ -22,7 +21,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @Slf4j
 @SpringBootApplication(scanBasePackages = {"com.telemessage.simulators"})
 @EnableScheduling
-@EnableAdminServer
 @EnableRetry
 @EnableMcpServer
 public class TM_QA_SMPP_SIMULATOR_Application {
