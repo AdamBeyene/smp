@@ -14,13 +14,13 @@ services:
       - "2777:2777"   # SMSC port - Container 2 connects here as ESME
     environment:
       - SPRING_PROFILES_ACTIVE=LOCAL_Docker
-      - CLOUDHOPPER_ENABLED=true
+      - cloudhopper.enabled=true
       - SERVER_PORT=8020
       - SIM_ENV_CONFIGURATIONS_ENV_CURRENT=LOCAL_Docker
     volumes:
-      # Mount entire resources directory to override classpath resources
-      # This allows the container to use LOCAL_Docker configs instead of default ones baked in JAR
-      - ../../main/resources:/app/resources:ro
+      # Mount LOCAL_Docker configs to /app/LOCAL_Docker
+      # SimFileManager falls back to filesystem path relative to working dir (/app)
+      - ../../main/resources/com/telemessage/simulators/LOCAL_Docker:/app/LOCAL_Docker:ro
     networks:
       smpp-network:
         ipv4_address: 172.25.0.10
@@ -52,13 +52,13 @@ services:
       - "2780:2780"   # SMSC port - Container 1 connects here as ESME
     environment:
       - SPRING_PROFILES_ACTIVE=LOCAL_Docker2
-      - CLOUDHOPPER_ENABLED=true
+      - cloudhopper.enabled=true
       - SERVER_PORT=8020
       - SIM_ENV_CONFIGURATIONS_ENV_CURRENT=LOCAL_Docker2
     volumes:
-      # Mount entire resources directory to override classpath resources
-      # This allows the container to use LOCAL_Docker2 configs instead of default ones baked in JAR
-      - ../../main/resources:/app/resources:ro
+      # Mount LOCAL_Docker2 configs to /app/LOCAL_Docker2
+      # SimFileManager falls back to filesystem path relative to working dir (/app)
+      - ../../main/resources/com/telemessage/simulators/LOCAL_Docker2:/app/LOCAL_Docker2:ro
     networks:
       smpp-network:
         ipv4_address: 172.25.0.11
