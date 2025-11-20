@@ -17,7 +17,7 @@ services:
       - "2780:2780"
     environment:
       - SPRING_PROFILES_ACTIVE=LOCAL_Docker
-      - cloudhopper.enabled=true
+      - CLOUDHOPPER_ENABLED=true
       - PORT=8020
       - SIM_ENV_CONFIGURATIONS_ENV_CURRENT=LOCAL_Docker
     volumes:
