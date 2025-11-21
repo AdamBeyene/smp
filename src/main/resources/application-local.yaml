@@ -52,7 +52,7 @@ logging:
 # ══════════════════════════════════════════════════════════════════════════════
 cloudhopper:
   # Enable/Disable Cloudhopper SMPP (default: false = use Logica)
-  enabled: true
+  enabled: ${cloudhopperEnabled:false}
 
   config:
     # Connection timeouts (milliseconds)
@@ -88,7 +88,7 @@ cloudhopper:
       enquire-link-interval-ms: 30000  # Keep-alive interval
       enquire-link-timeout-ms: 10000   # Keep-alive timeout
       reconnect-delay-ms: 5000         # Reconnect delay after failure
-      max-reconnect-attempts: 5        # Max reconnect attempts (0 = infinite)
+      max-reconnect-attempts: 0        # Max reconnect attempts (0 = infinite)
       auto-reconnect-enabled: true     # Enable auto-reconnection
       health-monitoring-enabled: true  # Enable health checks
 

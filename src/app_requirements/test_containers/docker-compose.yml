@@ -16,7 +16,8 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=local
       - CURRENTENV=LOCAL_Docker
-      - CLOUDHOPPER_ENABLED=true
+      - CLOUDHOPPERENABLED=false
+#      - CLOUDHOPPER_ENABLED=false
       - PORT=8020
       # Container uses smpps_container.xml which has host.docker.internal for ESME connections
       - SMPP_CONFIG_FILE=smpps_container.xml

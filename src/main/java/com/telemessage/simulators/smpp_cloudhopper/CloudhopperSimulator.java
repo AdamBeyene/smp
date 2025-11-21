@@ -3,6 +3,7 @@ package com.telemessage.simulators.smpp_cloudhopper;
 import com.telemessage.simulators.common.conf.EnvConfiguration;
 import com.telemessage.simulators.common.services.filemanager.SimFileManager;
 import com.telemessage.simulators.controllers.message.MessagesCache;
+import com.telemessage.simulators.smpp.SMPPConnection;
 import com.telemessage.simulators.smpp.SMPPRequest;
 import com.telemessage.simulators.smpp.SMPPSimulatorInterface;
 import com.telemessage.simulators.smpp.conf.SMPPConnectionConf;
