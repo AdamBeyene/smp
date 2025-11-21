@@ -70,7 +70,7 @@
         <name>C1-ESME-TX-to-C2-2778</name>
         <automatic_dr>DELIVRD</automatic_dr>
         <transmitter bindType="ESME">
-            <host>localhost</host>
+            <host>host.docker.internal</host>
             <port>2778</port>
             <systemId>smsc_rx</systemId>
             <password>esme123</password>
@@ -86,7 +86,7 @@
         <name>C1-ESME-RX-to-C2-2779</name>
         <automatic_dr>DELIVRD</automatic_dr>
         <receiver bindType="ESME">
-            <host>localhost</host>
+            <host>host.docker.internal</host>
             <port>2779</port>
             <systemId>smsc_rx</systemId>
             <password>esme123</password>
@@ -102,7 +102,7 @@
         <name>C1-ESME-TRX-to-C2-2780</name>
         <automatic_dr>DELIVRD</automatic_dr>
         <transceiver bindType="ESME">
-            <host>localhost</host>
+            <host>host.docker.internal</host>
             <port>2780</port>
             <systemId>smsc_rx</systemId>
             <password>esme123</password>

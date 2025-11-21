@@ -8,10 +8,15 @@
     <artifactId>smppsim</artifactId>
     <version>21.0</version>
     <description>qasmppsim spring boot</description>
-<!--    <packaging>jar</packaging>-->
-<!--    clean validate compile compiler:testCompile process-resources-->
+    <!--    <packaging>jar</packaging>-->
+    <!--    clean validate compile compiler:testCompile process-resources-->
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.5.0</version>
+            </dependency>
             <dependency>
                 <groupId>commons-logging</groupId>
                 <artifactId>commons-logging</artifactId>
@@ -46,20 +51,20 @@
     <properties>
         <java.version>21</java.version>
         <JAVA_1_8_HOME>${project.basedir}\apps\jdk1.8.0_151</JAVA_1_8_HOME>
-            <mainClass>com.telemessage.simulators.TM_QA_SMPP_SIMULATOR_Application</mainClass>
-            <start-class>com.telemessage.simulators.TM_QA_SMPP_SIMULATOR_Application</start-class>
-            <jackson.version>2.17.2</jackson.version>
-            <kafka.version>3.2.3</kafka.version>
-            <spring.version>3.3.2</spring.version>
-            <javax.jaxb>2.4.0-b180830.0359</javax.jaxb>
-            <sun.jaxb>4.0.1</sun.jaxb>
-            <auto-service.version>1.0.1</auto-service.version>
-            <swagger.version>2.5.0</swagger.version>
-            <java.version>21</java.version>
-            <qa.tools.mcp.verison>1.0.4</qa.tools.mcp.verison>
-            <spring-ai.version>1.1.0-M3</spring-ai.version>
-            <!-- Security: Override to fix CVE-2025-22228 -->
-            <spring-security.version>6.3.8</spring-security.version>
+        <mainClass>com.telemessage.simulators.TM_QA_SMPP_SIMULATOR_Application</mainClass>
+        <start-class>com.telemessage.simulators.TM_QA_SMPP_SIMULATOR_Application</start-class>
+        <jackson.version>2.17.2</jackson.version>
+        <kafka.version>3.2.3</kafka.version>
+        <spring.version>3.3.2</spring.version>
+        <javax.jaxb>2.4.0-b180830.0359</javax.jaxb>
+        <sun.jaxb>4.0.1</sun.jaxb>
+        <auto-service.version>1.0.1</auto-service.version>
+        <swagger.version>2.5.0</swagger.version>
+        <java.version>21</java.version>
+        <qa.tools.mcp.verison>1.0.4</qa.tools.mcp.verison>
+        <spring-ai.version>1.1.0-M3</spring-ai.version>
+        <!-- Security: Override to fix CVE-2025-22228 -->
+        <spring-security.version>6.3.8</spring-security.version>
     </properties>
 
     <parent>
@@ -97,12 +102,6 @@
             </snapshots>
         </repository>
         <repository>
-            <snapshots/>
-            <id>snapshots</id>
-            <name>libs-snapshot</name>
-            <url>http://serverbuilder.telemessage.co.il:8090/artifactory/libs-snapshot</url>
-        </repository>
-        <repository>
             <id>spring-milestones</id>
             <name>Spring Milestones</name>
             <url>https://repo.spring.io/milestone</url>
@@ -136,11 +135,51 @@
             </testResource>
         </testResources>
         <plugins>
-            <!-- REMOVED: maven-shade-plugin conflicts with spring-boot-maven-plugin
-                 Spring Boot plugin handles JAR packaging correctly with embedded dependencies.
-                 Using both causes resource loading issues and application hangs.
-                 See: https://docs.spring.io/spring-boot/docs/current/maven-plugin/reference/htmlsingle/
-            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <!--                <version>3.2.4</version> &lt;!&ndash; Ensure correct version &ndash;&gt;-->
+                <executions>
+                    <execution>
+                        <id>shade-jar-with-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>TM_SMPP_SIM</finalName>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <manifestEntries>
+                                        <Main-Class>com.telemessage.simulators.TM_QA_SMPP_SIMULATOR_Application</Main-Class>
+                                    </manifestEntries>
+                                </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>META-INF/services/org.codehaus.groovy.runtime.ExtensionModule</resource>
+                                </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>META-INF/services/org.apache.groovy.runtime.ExtensionModule</resource>
+                                </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>META-INF/services/java.nio.charset.spi.CharsetProvider</resource>
+                                </transformer>
+                            </transformers>
+                            <filters>
+                                <filter>
+                                    <!--                                    <artifact>*:*</artifact>-->
+                                    <!--<excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>-->
+                                </filter>
+                            </filters>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -157,7 +196,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>${spring.version}</version>
+                <!-- Version inherited from spring-boot-starter-parent (3.3.8) -->
                 <configuration>
                     <finalName>TM_SMPP_SIM</finalName>
                     <layout>JAR</layout>
@@ -538,10 +577,10 @@
                     <artifactId>groovy</artifactId>
                     <groupId>org.codehaus.groovy</groupId>
                 </exclusion>
-<!--                <exclusion>-->
-<!--                    <artifactId>httpclient</artifactId>-->
-<!--                    <groupId>org.apache.httpcomponents</groupId>-->
-<!--                </exclusion>-->
+                <!--                <exclusion>-->
+                <!--                    <artifactId>httpclient</artifactId>-->
+                <!--                    <groupId>org.apache.httpcomponents</groupId>-->
+                <!--                </exclusion>-->
             </exclusions>
         </dependency>
         <dependency>
@@ -567,6 +606,11 @@
             <version>2.7.1</version>
         </dependency>
         <dependency>
+
+
+
+
+
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
             <optional>true</optional>
@@ -605,16 +649,16 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <dependency>
-            <groupId>de.codecentric</groupId>
-            <artifactId>spring-boot-admin-starter-server</artifactId>
-            <version>3.4.1</version>
-        </dependency>
-        <dependency>
-            <groupId>de.codecentric</groupId>
-            <artifactId>spring-boot-admin-starter-client</artifactId>
-            <version>3.4.1</version>
-        </dependency>
+
+
+
+
+
+
+
+
+
+
         <!-- https://mvnrepository.com/artifact/com.sun.mail/jakarta.mail -->
         <dependency>
             <groupId>com.sun.mail</groupId>
@@ -757,7 +801,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-            <version>${spring.version}</version>
+            <!-- Version inherited from spring-boot-starter-parent (3.3.8) -->
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.logging.log4j</groupId>
@@ -847,7 +891,7 @@
                 <current.env>CRND</current.env>
             </properties>
         </profile>
-       <profile>
+        <profile>
             <id>KEEPER</id>
             <activation>
                 <property>

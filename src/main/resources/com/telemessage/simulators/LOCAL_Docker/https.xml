@@ -4,10 +4,10 @@
         <!-- Delivered,Undeliverable,Expired,Deleted , Delivered,Sent-->
         <automatic_dr>Sent</automatic_dr>
         <direct_status>0</direct_status>
-        <dr_url><![CDATA[http://localhost:8020/servlet/DeliveryReport]]></dr_url>
+        <dr_url><![CDATA[http://localhost:8021/servlet/DeliveryReport]]></dr_url>
         <!-- in such case we add ip into header: X-Forwarded-For, so DeliveryReport will check DR there -->
         <dr_from_ip>cellcomfrom.local</dr_from_ip>
-        <in_url><![CDATA[http://localhost:8020/servlet/CellcomIncomingMessage]]></in_url>
+        <in_url><![CDATA[http://localhost:8021/servlet/CellcomIncomingMessage]]></in_url>
         <threads>30</threads>
     </connection>
     <connection id="6" impl="com.telemessage.simulators.http.zero19.HttpConnectionHandler" method="post">
@@ -48,9 +48,9 @@
             999 Contact support
          -->
         <direct_status>0</direct_status>
-        <dr_url><![CDATA[http://localhost:8020/servlet/DeliveryReport]]></dr_url>
+        <dr_url><![CDATA[http://localhost:8021/servlet/DeliveryReport]]></dr_url>
         <dr_from_ip>019from.local</dr_from_ip>
-        <in_url><![CDATA[http://localhost:8020/servlet/CellcomIncomingMessage?callbackID=10008]]></in_url>
+        <in_url><![CDATA[http://localhost:8021/servlet/CellcomIncomingMessage?callbackID=10008]]></in_url>
         <threads>20</threads>
     </connection>
     <connection id="14" impl="com.telemessage.simulators.http.cellcom.HttpConnectionHandler" method="get">
@@ -59,8 +59,8 @@
         <automatic_dr>Delivered</automatic_dr>
         <direct_status>true</direct_status>
         <dr_from_ip>cellcompsfrom.local</dr_from_ip>
-        <dr_url><![CDATA[http://localhost:8020/servlet/DeliveryReport]]></dr_url>
-        <in_url><![CDATA[http://localhost:8020/servlet/CellcomIncomingMessage]]></in_url>
+        <dr_url><![CDATA[http://localhost:8021/servlet/DeliveryReport]]></dr_url>
+        <in_url><![CDATA[http://localhost:8021/servlet/CellcomIncomingMessage]]></in_url>
         <threads>20</threads>
     </connection>
     <connection id="15" impl="com.telemessage.simulators.http.zero19.HttpConnectionHandler" method="post">
@@ -101,9 +101,9 @@
         999 Contact support
      -->
     <direct_status>0</direct_status>
-    <dr_url><![CDATA[http://crnd12:8020/servlet/DeliveryReport]]></dr_url>
+    <dr_url><![CDATA[http://crnd12:8021/servlet/DeliveryReport]]></dr_url>
     <dr_from_ip>019from.local</dr_from_ip>
-    <in_url><![CDATA[http://crnd12:8020/servlet/CellcomIncomingMessage?callbackID=10008]]></in_url>
+    <in_url><![CDATA[http://crnd12:8021/servlet/CellcomIncomingMessage?callbackID=10008]]></in_url>
     <threads>20</threads>
 </connection>
     <connection id="74" impl="com.telemessage.simulators.http.mirs.HttpConnectionHandler" method="get">
@@ -170,23 +170,23 @@
             999 Contact support
          -->
         <direct_status>0</direct_status>
-        <dr_url><![CDATA[http://localhost:8020/servlet/DeliveryReport]]></dr_url>
+        <dr_url><![CDATA[http://localhost:8021/servlet/DeliveryReport]]></dr_url>
         <dr_from_ip>019from.local</dr_from_ip>
-        <in_url><![CDATA[http://localhost:8020/servlet/CellcomIncomingMessage?callbackID=10008]]></in_url>
+        <in_url><![CDATA[http://localhost:8021/servlet/CellcomIncomingMessage?callbackID=10008]]></in_url>
         <threads>20</threads>
     </connection>
     <connection id="1000" impl="com.telemessage.simulators.http.archive.retain.HttpConnectionHandler" method="get">
         <name>Archive</name>
         <direct_status>SUCCESS</direct_status>
-        <dr_url><![CDATA[http://localhost:8020/servlet/DeliveryReport]]></dr_url>
-        <in_url><![CDATA[http://localhost:8020/servlet/archiver/]]></in_url>
+        <dr_url><![CDATA[http://localhost:8021/servlet/DeliveryReport]]></dr_url>
+        <in_url><![CDATA[http://localhost:8021/servlet/archiver/]]></in_url>
         <threads>30</threads>
     </connection>
     <connection id="1001" impl="com.telemessage.simulators.http.archive.netmail.HttpConnectionHandler" method="get">
         <name>Archive</name>
         <direct_status>SUCCESS</direct_status>
-        <dr_url><![CDATA[http://localhost:8020/servlet/DeliveryReport]]></dr_url>
-        <in_url><![CDATA[http://localhost:8020/servlet/archiver/]]></in_url>
+        <dr_url><![CDATA[http://localhost:8021/servlet/DeliveryReport]]></dr_url>
+        <in_url><![CDATA[http://localhost:8021/servlet/archiver/]]></in_url>
         <threads>30</threads>
     </connection>
 </connections>

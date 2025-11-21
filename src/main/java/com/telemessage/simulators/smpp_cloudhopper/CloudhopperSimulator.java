@@ -3,6 +3,7 @@ package com.telemessage.simulators.smpp_cloudhopper;
 import com.telemessage.simulators.common.conf.EnvConfiguration;
 import com.telemessage.simulators.common.services.filemanager.SimFileManager;
 import com.telemessage.simulators.controllers.message.MessagesCache;
+import com.telemessage.simulators.smpp.SMPPConnection;
 import com.telemessage.simulators.smpp.SMPPRequest;
 import com.telemessage.simulators.smpp.SMPPSimulatorInterface;
 import com.telemessage.simulators.smpp.conf.SMPPConnectionConf;
@@ -104,19 +105,19 @@ public class CloudhopperSimulator implements SMPPSimulatorInterface {
         this.messagesCache = messagesCache;
         this.sessionStateManager = new SessionStateManager();
 
-        // Create thread pool for async operations
-        int threadPoolSize = properties.getExecutor().getCorePoolSize();
-        this.executorService = Executors.newFixedThreadPool(
-            threadPoolSize,
+        // Create cached thread pool for async operations
+        // CachedThreadPool creates new threads as needed, crucial for SMSC to handle
+        // multiple simultaneous bind requests without blocking
+        this.executorService = Executors.newCachedThreadPool(
             runnable -> {
                 Thread thread = new Thread(runnable);
-                thread.setName("cloudhopper-sim-" + thread.threadId());
+                thread.setName("cloudhopper-worker-" + thread.threadId());
                 thread.setDaemon(false);
                 return thread;
             }
         );
 
-        log.info("CloudhopperSimulator initialized with {} executor threads", threadPoolSize);
+        log.info("CloudhopperSimulator initialized with CachedThreadPool executor (creates threads as needed)");
     }
 
     /**
@@ -150,14 +151,23 @@ public class CloudhopperSimulator implements SMPPSimulatorInterface {
      * Reads SMPP connection configuration from XML file.
      *
      * <p>Configuration file location: /com/telemessage/simulators/{ENV}/smpps.xml</p>
+     * <p>Can be overridden with SMPP_CONFIG_FILE environment variable for container-specific configs</p>
      *
      * @throws Exception if configuration loading fails
      */
     private void readFromConfiguration() throws Exception {
         String currentEnv = envConfig.getEnvCurrent();
-        String configPath = String.format("%s/%s", currentEnv, CONN_FILE);
 
-        log.info("Loading Cloudhopper configuration from: {}", configPath);
+        // Allow override via environment variable (for Docker host.docker.internal configs)
+        String configFile = System.getenv("SMPP_CONFIG_FILE");
+        if (configFile == null || configFile.trim().isEmpty()) {
+            configFile = CONN_FILE;
+        }
+
+        String configPath = String.format("%s/%s", currentEnv, configFile);
+
+        log.info("Loading Cloudhopper configuration from: {} (configFile={}, env={})",
+                 configPath, configFile, currentEnv);
 
         try (InputStream inputStream = SimFileManager.getResolvedResourcePath(configPath)) {
             if (inputStream == null) {
@@ -188,6 +198,9 @@ public class CloudhopperSimulator implements SMPPSimulatorInterface {
     /**
      * Creates connection managers for a connection configuration.
      *
+     * <p>Determines whether to create ESME (client) or SMSC (server) manager
+     * based on the bindType attribute of the connection elements.</p>
+     *
      * @param connConf Connection configuration
      */
     private void createConnectionManagers(SMPPConnectionConf connConf) {
@@ -195,8 +208,24 @@ public class CloudhopperSimulator implements SMPPSimulatorInterface {
 
         log.info("Creating managers for connection ID {}: {}", connectionId, connConf.getName());
 
-        // Create ESME manager if transmitter/transceiver configured
-        if (connConf.getTransmitter() != null || connConf.getTransceiver() != null) {
+        // Determine bind type from any configured element
+        SMPPConnection.BindType bindType = null;
+        if (connConf.getTransmitter() != null) {
+            bindType = connConf.getTransmitter().getBindType();
+        } else if (connConf.getReceiver() != null) {
+            bindType = connConf.getReceiver().getBindType();
+        } else if (connConf.getTransceiver() != null) {
+            bindType = connConf.getTransceiver().getBindType();
+        }
+
+        if (bindType == null) {
+            log.warn("No connection elements found for connection {}, skipping", connectionId);
+            return;
+        }
+
+        // Create appropriate manager based on bindType
+        if (bindType == SMPPConnection.BindType.ESME) {
+            // ESME (client) - initiates connection to SMSC
             CloudhopperESMEManager esmeManager = new CloudhopperESMEManager(
                 connectionId,
                 connConf,
@@ -206,11 +235,10 @@ public class CloudhopperSimulator implements SMPPSimulatorInterface {
                 executorService
             );
             connectionManagers.put(connectionId, esmeManager);
-            log.info("Created ESME manager for connection {}", connectionId);
-        }
+            log.info("Created ESME (client) manager for connection {} (bindType=ESME)", connectionId);
 
-        // Create SMSC manager if receiver configured
-        if (connConf.getReceiver() != null) {
+        } else if (bindType == SMPPConnection.BindType.SMSC) {
+            // SMSC (server) - accepts incoming connections from ESME
             CloudhopperSMSCManager smscManager = new CloudhopperSMSCManager(
                 connectionId,
                 connConf,
@@ -219,8 +247,8 @@ public class CloudhopperSimulator implements SMPPSimulatorInterface {
                 messagesCache,
                 executorService
             );
-            connectionManagers.put(connectionId + 10000, smscManager); // Offset for receiver
-            log.info("Created SMSC manager for connection {}", connectionId);
+            connectionManagers.put(connectionId + 10000, smscManager); // Offset for SMSC to avoid ID conflicts
+            log.info("Created SMSC (server) manager for connection {} (bindType=SMSC)", connectionId);
         }
     }
 

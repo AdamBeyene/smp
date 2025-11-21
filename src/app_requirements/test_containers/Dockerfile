@@ -9,21 +9,23 @@ WORKDIR /app
 
 # Copy pre-built JAR from host's target directory (built by build-and-run.bat)
 # The batch script runs 'mvn clean package' on the host before Docker build
-COPY target/*.jar app.jar
+# IMPORTANT: Copy specific file to avoid copying .jar.original (thin JAR without dependencies)
+COPY target/TM_SMPP_SIM.jar app.jar
 
-# Create directory for config files
-RUN mkdir -p /app/config
+# Create directories for config files and logs
+RUN mkdir -p /app/config /app/shared/sim/logs/smpp
 
 # Expose ports
 # Web UI ports
-EXPOSE 8020 8021
+EXPOSE 8021
 # Additional port (application specific)
 EXPOSE 9001
 # SMPP ports (container 1: 2775-2777, container 2: 2778-2780)
 EXPOSE 2775 2776 2777 2778 2779 2780
 
-# Set JVM options with verbose logging
-ENV JAVA_OPTS="-Xms512m -Xmx1024m -XX:+UseG1GC -Ddebug=true"
+# Set JVM options with verbose logging and non-blocking entropy source
+# -Djava.security.egd=file:/dev/./urandom prevents blocking on /dev/random during startup
+ENV JAVA_OPTS="-Xms512m -Xmx1024m -XX:+UseG1GC -Djava.security.egd=file:/dev/./urandom"
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \

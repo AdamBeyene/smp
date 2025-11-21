@@ -122,11 +122,17 @@ public class CloudhopperESMEManager implements CloudhopperConnectionManager {
             return t;
         });
 
-        // Attempt initial connection
-        connect();
-
+        // Set isRunning BEFORE attempting connection so reconnect logic works
         isRunning = true;
-        log.info("ESME connection {} started successfully", connectionId);
+
+        // Attempt initial connection (may fail, but reconnect will handle it)
+        try {
+            connect();
+            log.info("ESME connection {} started successfully", connectionId);
+        } catch (Exception e) {
+            log.warn("ESME connection {} initial bind failed, will retry via reconnect mechanism", connectionId);
+            // Don't rethrow - let reconnect mechanism handle it
+        }
     }
 
     /**
@@ -174,24 +180,33 @@ public class CloudhopperESMEManager implements CloudhopperConnectionManager {
         SmppBindType bindType = determineBindType();
         sessionConfig.setType(bindType);
 
-        // Connection details
-        String host = (config.getTransmitter() != null)
-            ? config.getTransmitter().getHost()
-            : config.getTransceiver().getHost();
-        int port = (config.getTransmitter() != null)
-            ? config.getTransmitter().getPort()
-            : config.getTransceiver().getPort();
+        // Connection details - handle all three types: transmitter, receiver, transceiver
+        String host;
+        int port;
+        String systemId;
+        String password;
+
+        if (config.getTransmitter() != null) {
+            host = config.getTransmitter().getHost();
+            port = config.getTransmitter().getPort();
+            systemId = config.getTransmitter().getSystemId();
+            password = config.getTransmitter().getPassword();
+        } else if (config.getReceiver() != null) {
+            host = config.getReceiver().getHost();
+            port = config.getReceiver().getPort();
+            systemId = config.getReceiver().getSystemId();
+            password = config.getReceiver().getPassword();
+        } else if (config.getTransceiver() != null) {
+            host = config.getTransceiver().getHost();
+            port = config.getTransceiver().getPort();
+            systemId = config.getTransceiver().getSystemId();
+            password = config.getTransceiver().getPassword();
+        } else {
+            throw new IllegalStateException("No connection type configured for connection " + connectionId);
+        }
 
         sessionConfig.setHost(host != null ? host : "localhost");
         sessionConfig.setPort(port);
-
-        // Authentication
-        String systemId = (config.getTransmitter() != null)
-            ? config.getTransmitter().getSystemId()
-            : config.getTransceiver().getSystemId();
-        String password = (config.getTransmitter() != null)
-            ? config.getTransmitter().getPassword()
-            : config.getTransceiver().getPassword();
 
         sessionConfig.setSystemId(systemId);
         sessionConfig.setPassword(password);
@@ -226,19 +241,33 @@ public class CloudhopperESMEManager implements CloudhopperConnectionManager {
 
     /**
      * Determines the bind type based on configuration.
+     * Maps the bindOption field to SmppBindType, matching Logica implementation.
      */
     private SmppBindType determineBindType() {
-        if (config.getTransceiver() != null) {
-            return SmppBindType.TRANSCEIVER;
+        // Get bindOption from whichever element is configured
+        com.telemessage.simulators.smpp.SMPPConnection.BindOption bindOption;
+
+        if (config.getReceiver() != null) {
+            bindOption = config.getReceiver().getBindOption();
         } else if (config.getTransmitter() != null) {
-            com.telemessage.simulators.smpp.SMPPConnection.BindOption bindOption = config.getTransmitter().getBindOption();
-            if (bindOption == com.telemessage.simulators.smpp.SMPPConnection.BindOption.receiver) {
-                return SmppBindType.RECEIVER;
-            } else {
-                return SmppBindType.TRANSMITTER;
-            }
+            bindOption = config.getTransmitter().getBindOption();
+        } else if (config.getTransceiver() != null) {
+            bindOption = config.getTransceiver().getBindOption();
+        } else {
+            throw new IllegalStateException("No connection type configured for ESME connection " + connectionId);
         }
-        return SmppBindType.TRANSMITTER; // Default
+
+        // Map bindOption to SmppBindType (matching Logica's switch statement logic)
+        switch (bindOption) {
+            case receiver:
+                return SmppBindType.RECEIVER;
+            case transceiver:
+                return SmppBindType.TRANSCEIVER;
+            case transmitter:
+                return SmppBindType.TRANSMITTER;
+            default:
+                throw new IllegalArgumentException("Invalid bind option: " + bindOption);
+        }
     }
 
     @Override
@@ -371,29 +400,45 @@ public class CloudhopperESMEManager implements CloudhopperConnectionManager {
      * Schedules a reconnection attempt.
      */
     private void scheduleReconnect() {
-        if (!properties.getMonitoring().getAutoReconnectEnabled() || !isRunning) {
+        if (!properties.getMonitoring().getAutoReconnectEnabled()) {
+            log.warn("Auto-reconnect disabled for connection {}, will not retry", connectionId);
+            return;
+        }
+
+        if (!isRunning) {
+            log.debug("Connection {} not running, skipping reconnect", connectionId);
             return;
         }
 
         int maxAttempts = properties.getMonitoring().getMaxReconnectAttempts();
         if (maxAttempts > 0 && reconnectAttempts >= maxAttempts) {
-            log.error("Max reconnect attempts ({}) reached for connection {}", maxAttempts, connectionId);
+            log.error("╔═══════════════════════════════════════════════════════════════════╗");
+            log.error("║  RECONNECTION STOPPED - Max attempts ({}) reached for conn {}   ║", maxAttempts, connectionId);
+            log.error("║  Set max-reconnect-attempts: 0 for infinite retries              ║");
+            log.error("╚═══════════════════════════════════════════════════════════════════╝");
             return;
         }
 
         reconnectAttempts++;
         long delayMs = properties.getMonitoring().getReconnectDelayMs();
 
-        log.info("Scheduling reconnect attempt {} for connection {} in {}ms",
-            reconnectAttempts, connectionId, delayMs);
+        if (maxAttempts == 0) {
+            log.info("Scheduling reconnect attempt {} (infinite retries) for connection {} in {}ms",
+                reconnectAttempts, connectionId, delayMs);
+        } else {
+            log.info("Scheduling reconnect attempt {}/{} for connection {} in {}ms",
+                reconnectAttempts, maxAttempts, connectionId, delayMs);
+        }
 
         reconnectExecutor.schedule(() -> {
             try {
                 log.info("Attempting reconnect #{} for connection {}", reconnectAttempts, connectionId);
                 connect();
             } catch (Exception e) {
-                log.error("Reconnect attempt #{} failed for connection {}",
-                    reconnectAttempts, connectionId, e);
+                log.error("Reconnect attempt #{} failed for connection {}: {}",
+                    reconnectAttempts, connectionId, e.getMessage());
+                // connect() already called scheduleReconnect() before throwing,
+                // so next attempt is already scheduled
             }
         }, delayMs, TimeUnit.MILLISECONDS);
     }

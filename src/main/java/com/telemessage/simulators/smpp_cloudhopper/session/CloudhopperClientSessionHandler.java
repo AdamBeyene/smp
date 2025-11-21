@@ -1,5 +1,6 @@
 package com.telemessage.simulators.smpp_cloudhopper.session;
 
+import com.cloudhopper.smpp.PduAsyncResponse;
 import com.cloudhopper.smpp.SmppConstants;
 import com.cloudhopper.smpp.impl.DefaultSmppSessionHandler;
 import com.cloudhopper.smpp.pdu.*;
@@ -238,7 +239,8 @@ public class CloudhopperClientSessionHandler extends DefaultSmppSessionHandler {
      * Handles concatenated message parts.
      */
     private PduResponse handleConcatenatedMessage(DeliverSm deliverSm, ConcatPart concatData) {
-        String reference = String.valueOf(concatData.getReference());
+        int referenceNum = concatData.getReference();
+        String reference = String.valueOf(referenceNum);
 
         // Get lock for this reference
         ReentrantLock lock = concatenationLocks.computeIfAbsent(reference, k -> new ReentrantLock());
@@ -652,7 +654,7 @@ public class CloudhopperClientSessionHandler extends DefaultSmppSessionHandler {
                     .concatenationType(concatType)
                     .totalParts(expectedTotalParts)
                     .partNumber(assembledParts)  // Abuse partNumber to store received count
-                    .referenceNumber(reference)
+                    .referenceNumber(Integer.parseInt(reference))
                     // Cloudhopper metadata
                     .implementationType("Cloudhopper")
                     .smppVersion("3.4")

@@ -1,9 +1,12 @@
+server:
+  port: ${PORT:8020}
+
 sim:
  env:
   configurations:
-   env-current: ${currentEnv:LOCAL}
+   env-current: ${currentEnv:LOCAL_Docker2}
    env-name: ${envName:test}
-   env-url: ${envUrl:http://localhost:8080}
+   env-url: ${envUrl:http://localhost:8081}
 
 #server:
 # tomcat:
@@ -24,3 +27,76 @@ logging:
  file:
   path: ${user.dir}/shared/sim/logs/smpp
   name: simApp.log
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# CLOUDHOPPER SMPP CONFIGURATION
+# ══════════════════════════════════════════════════════════════════════════════
+# Modern SMPP implementation using Fizzed Cloudhopper 5.0.9
+#
+# USAGE:
+#   - Set "enabled: true" to use Cloudhopper (modern, non-blocking I/O)
+#   - Set "enabled: false" to use Logica SMPP (legacy, blocking I/O)
+#   - Default: false (uses Logica for backward compatibility)
+#
+# SWITCHING:
+#   - Change enabled value and restart application
+#   - No code changes required
+#   - Instant rollback by setting enabled: false
+#
+# FEATURES:
+#   - Non-blocking I/O using Netty
+#   - Higher throughput (500-1000 msg/s vs 300 msg/s)
+#   - Better scalability (1000+ connections)
+#   - Active maintenance and security updates
+# ══════════════════════════════════════════════════════════════════════════════
+cloudhopper:
+  # Enable/Disable Cloudhopper SMPP (default: false = use Logica)
+  enabled: ${cloudhopperEnabled:false}
+
+  config:
+    # Connection timeouts (milliseconds)
+    connection-timeout-ms: 10000      # Socket connection timeout
+    bind-timeout-ms: 5000             # SMPP bind timeout
+    request-expiry-timeout-ms: 30000  # Request expiry timeout
+    window-monitor-interval-ms: 15000 # Window monitoring interval
+
+    # Flow control settings
+    window-size: 100                  # Max unacknowledged requests
+    max-connection-size: 100          # Max concurrent connections
+
+    # I/O settings
+    non-blocking-sockets-enabled: true  # Enable NIO (recommended)
+
+    # Monitoring settings
+    counters-enabled: true             # Enable performance counters
+    jmx-enabled: true                  # Enable JMX monitoring
+
+    # Thread pool configuration
+    executor:
+      core-pool-size: 20               # Min threads
+      max-pool-size: 200               # Max threads
+      keep-alive-seconds: 60           # Idle thread timeout
+      queue-capacity: 1000             # Task queue size
+      thread-name-prefix: "cloudhopper-"
+      allow-core-thread-time-out: false
+      wait-for-tasks-to-complete-on-shutdown: true
+      await-termination-seconds: 60
+
+    # Connection monitoring
+    monitoring:
+      enquire-link-interval-ms: 30000  # Keep-alive interval
+      enquire-link-timeout-ms: 10000   # Keep-alive timeout
+      reconnect-delay-ms: 5000         # Reconnect delay after failure
+      max-reconnect-attempts: 0        # Max reconnect attempts (0 = infinite)
+      auto-reconnect-enabled: true     # Enable auto-reconnection
+      health-monitoring-enabled: true  # Enable health checks
+
+    # Session configuration
+    session:
+      log-pdu-enabled: false           # Log PDU packets (debug only)
+      log-bytes-enabled: false         # Log PDU bytes (debug only)
+      default-system-type: ""          # Default system type for bind
+      default-address-range: null      # Default address range
+      async-submit-enabled: true       # Enable async submission
+      response-timeout-ms: 10000       # Response timeout

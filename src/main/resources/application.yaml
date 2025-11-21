@@ -44,18 +44,6 @@ spring:
   encoding: UTF-8
   cache: false
  boot:
-  admin:
-   context-path: /
-   client:
-    url: http://localhost:8020
-    enabled: true
-    auto-registration: true
-    instance:
-     management-base-url: http://localhost:9001/monitor  # Application's actuator URL
-     service-url: http://localhost:8020  # Application's service URL
-   server:
-    enabled: true
-  
   # Spring AI MCP Configuration
   ai:
     mcp:
@@ -143,8 +131,8 @@ cloudhopper:
     monitoring:
       enquire-link-interval-ms: 30000  # Keep-alive interval
       enquire-link-timeout-ms: 10000   # Keep-alive timeout
-      reconnect-delay-ms: 5000         # Reconnect delay after failure
-      max-reconnect-attempts: 5        # Max reconnect attempts (0 = infinite)
+      reconnect-delay-ms: 20000        # Reconnect delay after failure (20 seconds)
+      max-reconnect-attempts: 0        # Max reconnect attempts (0 = infinite retries)
       auto-reconnect-enabled: true     # Enable auto-reconnection
       health-monitoring-enabled: true  # Enable health checks
 
@@ -215,53 +203,19 @@ logging:
 
 
 management:
- server:
-  port: 9001
-  base-path: /monitor
- endpoints:
-  enabled-by-default: false
-  web:
-   exposure:
-    include: info, health, logfile, loggers, metrics
-    # "*" info, health, logfile. loggers, metrics
-   base-path: /  # Default for Spring Actuator
- endpoint:
-  loggers:
-   enabled: true
-  health:
-   show-details: always
-   enabled: true
-  info:
-   enabled: true
-  env:
-   enabled: false
-  beans:
-   enabled: false
-  metrics:
-   enabled: true
- metrics:
-  enable:
-   # Enable JVM and system-level metrics
-   jvm.memory.used: true
-   jvm.gc.pause: true
-   jvm.buffer.count: true
-   jvm.threads.live: true
-   jvm.classes.loaded: true
-   jvm.classes.unloaded: true
-   jvm.fd.count: true
-   jvm.buffer.memory.used: true
-   # Enable system metrics (CPU, Disk, Network, etc.)
-   system.cpu.usage: true
-   system.cpu.count: true
-   system.load.average: true
-   system.disk.space: true
-   system.network.bytes: true
-   system.filesystem: true
-   # Enable application metrics (custom)
-   http.server.requests: true
-   cache.gets: true
-   cache.puts: true
-   cache.evictions: true
+  server:
+    port: 9001
+    base-path: /monitor
+  endpoints:
+    enabled-by-default: false
+    web:
+      exposure:
+        include: health
+      base-path: /
+  endpoint:
+    health:
+      enabled: true
+      show-details: always
 
 
 springdoc:
