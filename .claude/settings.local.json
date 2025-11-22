@@ -4,7 +4,9 @@
       "Bash(javap:*)",
       "Bash(./mvnw compile:*)",
       "Bash(mvn compile:*)",
-      "Bash(mvn test-compile:*)"
+      "Bash(mvn test-compile:*)",
+      "Bash(mvn clean compile:*)",
+      "Bash(findstr:*)"
     ],
     "deny": [],
     "ask": []

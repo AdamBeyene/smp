@@ -1,0 +1,65 @@
+/* Connections V2 Page Specific Styles */
+
+/* Connection-specific table styles */
+.v2-table .type-badge {
+  min-width: 60px;
+  text-align: center;
+}
+
+.v2-table .state-badge {
+  min-width: 80px;
+  text-align: center;
+}
+
+/* Group view styles */
+.group-header {
+  background: var(--bg-tertiary);
+  font-weight: 600;
+}
+
+.group-header td {
+  padding: 12px;
+}
+
+.group-member {
+  padding-left: 30px;
+}
+
+.group-badge {
+  background: transparent;
+  border: 1px solid var(--accent-purple);
+  color: var(--accent-purple);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  margin-left: 10px;
+}
+
+.member-badge {
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 10px;
+  margin-right: 5px;
+}
+
+/* Connection action response specific */
+.connection-info-display {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 15px;
+  margin-top: 10px;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+/* Cloudhopper specific columns */
+th[data-cloudhopper],
+td[data-cloudhopper] {
+  background: rgba(120, 86, 255, 0.05);
+  border-left: 2px solid var(--accent-purple);
+}

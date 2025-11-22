@@ -20,8 +20,12 @@ RUN mkdir -p /app/config /app/shared/sim/logs/smpp
 EXPOSE 8021
 # Additional port (application specific)
 EXPOSE 9001
-# SMPP ports (container 1: 2775-2777, container 2: 2778-2780)
+# SMPP ports for ESME → SMSC connections
 EXPOSE 2775 2776 2777 2778 2779 2780
+# SMPP ports for SMSC → SMSC peer routing
+EXPOSE 2781 2782 2783 2784 2785 2786
+# SMPP ports for Hybrid connections (mixed ESME/SMSC)
+EXPOSE 2790 2791
 
 # Set JVM options with verbose logging and non-blocking entropy source
 # -Djava.security.egd=file:/dev/./urandom prevents blocking on /dev/random during startup

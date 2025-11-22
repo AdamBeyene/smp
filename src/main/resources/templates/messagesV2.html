@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages V2 - SMPP Simulator</title>
+
+    <!-- Starry background CSS -->
+    <link rel="stylesheet" href="/v2/css/starry-background.css">
+
+    <style>
+        body { background: #000000; margin: 0; padding: 0; }
+        .content { position: relative; z-index: 1; }
+    </style>
+
+    <!-- Page specific CSS -->
+    <link rel="stylesheet" href="/v2/css/v2-common.css">
+    <link rel="stylesheet" href="/v2/css/messagesV2.css">
+
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="content">
+
+    <!-- Main Container -->
+    <div class="v2-container">
+        <!-- Combined Header & Navigation -->
+        <header class="v2-header">
+            <div class="header-content">
+                <!-- Navigation Tabs on Left -->
+                <nav class="v2-nav-tabs-inline">
+                    <a href="/connectionsV2" class="v2-nav-tab">
+                        <i class="fas fa-network-wired"></i> Connections
+                    </a>
+                    <a href="/messagesV2" class="v2-nav-tab active">
+                        <i class="fas fa-envelope"></i> Messages
+                    </a>
+                    <a href="/infoV2" class="v2-nav-tab">
+                        <i class="fas fa-info-circle"></i> Info
+                    </a>
+                    <span th:if="${isCloudhopper}" class="cloudhopper-badge">Cloudhopper</span>
+                </nav>
+
+                <!-- Actions on Right -->
+                <div class="header-actions">
+                    <button id="refresh-btn" class="btn btn-secondary" title="Refresh">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                    <select id="auto-refresh" class="select-input">
+                        <option value="0">Manual Refresh</option>
+                        <option value="20000">20 seconds</option>
+                        <option value="60000">1 minute</option>
+                        <option value="300000">5 minutes</option>
+                    </select>
+                    <button id="export-btn" class="btn btn-secondary">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Metrics Dashboard -->
+        <section class="metrics-dashboard">
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-value" th:text="${metrics.totalMessages}">0</div>
+                    <div class="metric-label">Total Messages</div>
+                </div>
+                <div class="metric-card info">
+                    <div class="metric-value" th:text="${metrics.inboundMessages}">0</div>
+                    <div class="metric-label">Inbound</div>
+                </div>
+                <div class="metric-card success">
+                    <div class="metric-value" th:text="${metrics.outboundMessages}">0</div>
+                    <div class="metric-label">Outbound</div>
+                </div>
+                <div class="metric-card warning">
+                    <div class="metric-value" th:text="${metrics.deliveryReceipts}">0</div>
+                    <div class="metric-label">Delivery Receipts</div>
+                </div>
+                <div class="metric-card" th:if="${metrics.concatenatedMessages != null}">
+                    <div class="metric-value" th:text="${metrics.concatenatedMessages}">0</div>
+                    <div class="metric-label">Concatenated</div>
+                </div>
+                <div class="metric-card" th:if="${metrics.binaryMessages != null}">
+                    <div class="metric-value" th:text="${metrics.binaryMessages}">0</div>
+                    <div class="metric-label">Binary</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Content -->
+        <div class="v2-main-content">
+            <!-- Sidebar -->
+            <aside class="v2-sidebar">
+                <!-- Sidebar Toggle Button -->
+                <button class="sidebar-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars sidebar-icon-default"></i>
+                    <i class="fas fa-chevron-left sidebar-icon-hover"></i>
+                </button>
+
+                <!-- Search & Filter -->
+                <div class="sidebar-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-search"></i> Search & Filter
+                    </h3>
+                    <div class="section-content">
+                        <!-- Simple Search -->
+                        <input type="text" id="search-input" class="input-field" placeholder="Search messages...">
+
+                        <!-- Advanced Search Toggle -->
+                        <button id="advanced-search-toggle" class="btn btn-secondary full-width">
+                            <i class="fas fa-sliders-h"></i> Advanced Search
+                        </button>
+
+                        <!-- Advanced Search Form (hidden by default) -->
+                        <div id="advanced-search-form" style="display: none;">
+                            <div class="form-group">
+                                <label>Message Text</label>
+                                <input type="text" id="adv-text" class="input-field">
+                            </div>
+                            <div class="form-group">
+                                <label>From</label>
+                                <input type="text" id="adv-from" class="input-field">
+                            </div>
+                            <div class="form-group">
+                                <label>To</label>
+                                <input type="text" id="adv-to" class="input-field">
+                            </div>
+                            <div class="form-group">
+                                <label>Provider ID</label>
+                                <input type="text" id="adv-provider" class="input-field">
+                            </div>
+                            <div class="form-group">
+                                <label>Message ID</label>
+                                <input type="text" id="adv-message-id" class="input-field">
+                            </div>
+                            <div class="form-group">
+                                <label>Direction</label>
+                                <select id="adv-direction" class="select-input">
+                                    <option value="Any">Any</option>
+                                    <option value="In">Inbound</option>
+                                    <option value="Out">Outbound</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="adv-include-dr" checked>
+                                    Include Delivery Receipts
+                                </label>
+                            </div>
+                            <button id="adv-search-btn" class="btn btn-primary full-width">
+                                <i class="fas fa-search"></i> Search
+                            </button>
+                            <button id="adv-clear-btn" class="btn btn-secondary full-width">
+                                <i class="fas fa-times"></i> Clear
+                            </button>
+                        </div>
+
+                        <!-- Grouping Options -->
+                        <button id="group-concat-btn" class="btn btn-secondary full-width">
+                            <i class="fas fa-layer-group"></i> Group Concat
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="sidebar-section collapsible">
+                    <h3 class="section-title" data-toggle="collapse">
+                        <i class="fas fa-tools"></i> Actions
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                    </h3>
+                    <div class="section-content">
+                        <!-- Delete All Messages -->
+                        <div class="action-group">
+                            <h4>Delete All Messages</h4>
+                            <button id="delete-all-btn" class="btn btn-danger full-width">
+                                <i class="fas fa-trash"></i> Delete All
+                            </button>
+                        </div>
+
+                        <!-- Send Message -->
+                        <div class="action-group">
+                            <h4>Send Message</h4>
+                            <input type="text" id="send-conn-id" class="input-field" placeholder="Connection ID" required>
+                            <input type="text" id="send-from" class="input-field" placeholder="From Address" required>
+                            <input type="text" id="send-to" class="input-field" placeholder="To Address" required>
+                            <input type="text" id="send-service-type" class="input-field" placeholder="Service Type">
+                            <textarea id="send-text" class="textarea-field" placeholder="Message Text" rows="3" required></textarea>
+                            <button id="send-msg-btn" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i> Send
+                            </button>
+                        </div>
+
+                        <!-- Send Delivery Receipt -->
+                        <div class="action-group">
+                            <h4>Send Delivery Receipt</h4>
+                            <input type="text" id="dr-conn-id" class="input-field" placeholder="Connection ID" required>
+                            <input type="text" id="dr-from" class="input-field" placeholder="From Address" required>
+                            <input type="text" id="dr-to" class="input-field" placeholder="To Address" required>
+                            <input type="text" id="dr-service-type" class="input-field" placeholder="Service Type">
+                            <select id="dr-status" class="select-input">
+                                <option value="DELIVRD">DELIVRD</option>
+                                <option value="ACCEPTD">ACCEPTD</option>
+                                <option value="REJECTD">REJECTD</option>
+                                <option value="UNDELIV">UNDELIV</option>
+                                <option value="EXPIRED">EXPIRED</option>
+                            </select>
+                            <input type="text" id="dr-provider-result" class="input-field" placeholder="Provider Result">
+                            <button id="send-dr-btn" class="btn btn-warning">
+                                <i class="fas fa-receipt"></i> Send DR
+                            </button>
+                        </div>
+
+                        <!-- Action Response -->
+                        <div id="action-response" class="action-response"></div>
+                    </div>
+                </div>
+
+                <!-- Encoding Distribution -->
+                <div class="sidebar-section collapsible" th:if="${metrics.encodingDistribution != null}">
+                    <h3 class="section-title" data-toggle="collapse">
+                        <i class="fas fa-chart-pie"></i> Encoding Distribution
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                    </h3>
+                    <div class="section-content">
+                        <div class="distribution-list">
+                            <div class="distribution-item" th:each="entry : ${metrics.encodingDistribution}">
+                                <span class="dist-label" th:text="${entry.key}">UTF-8</span>
+                                <span class="dist-value" th:text="${entry.value}">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Table Container -->
+            <div class="v2-table-container">
+                <!-- Table Controls -->
+                <div class="table-controls">
+                    <div class="results-info">
+                        Showing
+                        <span th:text="${messages.size()}">0</span>
+                        of <span th:text="${totalMessages}">0</span> messages
+                        (Page <span th:text="${currentPage}">1</span> of <span th:text="${totalPages}">1</span>)
+                    </div>
+                    <div class="pagination-controls">
+                        <select id="page-size" class="select-input">
+                            <option value="25" th:selected="${pageSize == 25}">25</option>
+                            <option value="50" th:selected="${pageSize == 50}">50</option>
+                            <option value="100" th:selected="${pageSize == 100}">100</option>
+                            <option value="250" th:selected="${pageSize == 250}">250</option>
+                            <option value="500" th:selected="${pageSize == 500}">500</option>
+                            <option value="1000" th:selected="${pageSize == 1000}">1000</option>
+                        </select>
+                        <div class="pagination-buttons">
+                            <button id="first-page" class="btn btn-sm" th:disabled="${currentPage == 1}">
+                                <i class="fas fa-angle-double-left"></i>
+                            </button>
+                            <button id="prev-page" class="btn btn-sm" th:disabled="${currentPage == 1}">
+                                <i class="fas fa-angle-left"></i>
+                            </button>
+                            <span class="page-numbers">
+                                <!-- Dynamic page numbers will be inserted here -->
+                            </span>
+                            <button id="next-page" class="btn btn-sm" th:disabled="${currentPage == totalPages}">
+                                <i class="fas fa-angle-right"></i>
+                            </button>
+                            <button id="last-page" class="btn btn-sm" th:disabled="${currentPage == totalPages}">
+                                <i class="fas fa-angle-double-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Virtual Scrolling Container -->
+                <div id="table-viewport" class="table-viewport">
+                    <table id="messages-table" class="v2-table">
+                        <thead>
+                            <tr>
+                                <th data-sort="id" class="sortable">
+                                    MID <i class="fas fa-sort sort-icon"></i>
+                                </th>
+                                <th data-sort="providerId" class="sortable">
+                                    PID <i class="fas fa-sort sort-icon"></i>
+                                </th>
+                                <th data-sort="dir" class="sortable">
+                                    Dir <i class="fas fa-sort sort-icon"></i>
+                                </th>
+                                <th data-sort="from" class="sortable">
+                                    From <i class="fas fa-sort sort-icon"></i>
+                                </th>
+                                <th data-sort="to" class="sortable">
+                                    To <i class="fas fa-sort sort-icon"></i>
+                                </th>
+                                <th>Text</th>
+                                <th data-sort="messageTime" class="sortable">
+                                    Message Time <i class="fas fa-sort sort-icon"></i>
+                                </th>
+                                <th>SMPP Message</th>
+                                <th>HTTP Message</th>
+                                <th>SMPP DR</th>
+                                <th>HTTP DR</th>
+                                <th>DR Time</th>
+                                <th>Direct Response</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body">
+                            <tr th:each="msg : ${messages}"
+                                th:data-id="${msg.id}"
+                                th:data-provider="${msg.providerId}"
+                                th:data-direction="${msg.dir}">
+                                <td class="truncate" th:text="${msg.id}">-</td>
+                                <td th:text="${msg.providerId}">-</td>
+                                <td>
+                                    <span class="direction-badge"
+                                          th:classappend="${msg.dir == 'In' ? 'dir-in' : 'dir-out'}"
+                                          th:text="${msg.dir}">-</span>
+                                </td>
+                                <td class="truncate" th:text="${msg.from}" th:title="${msg.from}">-</td>
+                                <td class="truncate" th:text="${msg.to}" th:title="${msg.to}">-</td>
+                                <td class="message-text truncate">
+                                    <span th:if="${msg.messageEncoding != null}" class="encoding-badge"
+                                          th:text="${msg.messageEncoding}"></span>
+                                    <span th:if="${msg.partNumber != null}" class="concat-badge"
+                                          th:text="'[' + ${msg.partNumber} + '/' + ${msg.totalParts} + ']'"></span>
+                                    <span class="text-content" th:text="${msg.text}">-</span>
+                                    <button class="view-details-btn" th:data-id="${msg.id}">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </td>
+                                <td class="time-cell truncate" th:text="${msg.messageTime}">-</td>
+                                <td class="truncate" th:text="${msg.sendMessageSM}" th:title="${msg.sendMessageSM}">-</td>
+                                <td class="truncate" th:text="${msg.httpMessage}" th:title="${msg.httpMessage}">-</td>
+                                <td class="truncate" th:text="${msg.deliveryReceiptShortMessage}"
+                                    th:title="${msg.deliveryReceiptShortMessage}">-</td>
+                                <td class="truncate" th:text="${msg.deliveryReceiptHttpMessage}"
+                                    th:title="${msg.deliveryReceiptHttpMessage}">-</td>
+                                <td class="time-cell truncate" th:text="${msg.deliveryReceiptTime}">-</td>
+                                <td class="truncate" th:text="${msg.directResponse}" th:title="${msg.directResponse}">-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Message Detail Modal -->
+    <div id="message-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Message Details</h2>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- Message Info -->
+                <div class="message-info">
+                    <div class="info-row">
+                        <span class="info-label">Message ID:</span>
+                        <span id="modal-id" class="info-value">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Encoding:</span>
+                        <span id="modal-encoding" class="info-value">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">From:</span>
+                        <span id="modal-from" class="info-value">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">To:</span>
+                        <span id="modal-to" class="info-value">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Time:</span>
+                        <span id="modal-time" class="info-value">-</span>
+                    </div>
+                </div>
+
+                <!-- Tab Navigation -->
+                <div class="tab-nav">
+                    <button class="tab-btn active" data-tab="text">Text View</button>
+                    <button class="tab-btn" data-tab="hex">Hex View</button>
+                    <button class="tab-btn" data-tab="analysis">Encoding Analysis</button>
+                </div>
+
+                <!-- Tab Contents -->
+                <div class="tab-content">
+                    <div id="text-tab" class="tab-pane active">
+                        <div id="modal-text" class="message-text-view"></div>
+                    </div>
+                    <div id="hex-tab" class="tab-pane" style="display: none;">
+                        <div id="modal-hex" class="hex-view"></div>
+                    </div>
+                    <div id="analysis-tab" class="tab-pane" style="display: none;">
+                        <div id="modal-analysis" class="analysis-view"></div>
+                    </div>
+                </div>
+
+                <!-- Modal Actions -->
+                <div class="modal-actions">
+                    <button id="copy-text-btn" class="btn btn-secondary">
+                        <i class="fas fa-copy"></i> Copy Text
+                    </button>
+                    <button id="download-raw-btn" class="btn btn-secondary">
+                        <i class="fas fa-download"></i> Download Raw
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </div> <!-- End content -->
+
+    <!-- Action Response Popup -->
+    <div id="action-response-overlay" class="action-response-overlay"></div>
+    <div id="action-response-popup" class="action-response-popup">
+        <div class="action-response-header">
+            <div class="action-response-title">Action Response</div>
+            <button class="action-response-close" onclick="closeActionPopup()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="action-response-content">
+            <div id="action-response-text" class="action-response-text"></div>
+        </div>
+        <div class="action-response-actions">
+            <button id="action-response-copy" class="action-response-copy-btn">
+                <i class="fas fa-copy"></i> Copy
+            </button>
+        </div>
+    </div>
+
+    <!-- Starry background JS -->
+    <script src="/v2/js/starry-background.js"></script>
+
+    <!-- Initialize with Thymeleaf data -->
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        window.messagesData = /*[[${messages}]]*/ [];
+        window.currentPage = /*[[${currentPage}]]*/ 1;
+        window.pageSize = /*[[${pageSize}]]*/ 100;
+        window.totalPages = /*[[${totalPages}]]*/ 1;
+        window.totalMessages = /*[[${totalMessages}]]*/ 0;
+        window.isCloudhopper = /*[[${isCloudhopper}]]*/ false;
+        /*]]>*/
+    </script>
+
+    <!-- Sidebar Toggle Script -->
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.v2-sidebar');
+            sidebar.classList.toggle('collapsed');
+        }
+    </script>
+
+    <!-- Messages V2 Page Functionality -->
+    <script src="/v2/js/messagesV2.js"></script>
+</body>
+</html>

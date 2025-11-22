@@ -10,17 +10,33 @@ services:
     ports:
       - "8021:8020"   # Web UI
       - "9002:9001"   # Additional application port
-      - "2775:2775"   # SMSC Receiver - IntelliJ ESME will connect here
-      - "2776:2776"   # SMSC Transmitter
-      - "2777:2777"   # SMSC Transceiver
+      # ESME → SMSC: C2 connects to C1
+      - "2775:2775"   # SMSC Receiver - C2 ESME Transmitter connects here
+      - "2776:2776"   # SMSC Transmitter - C2 ESME Receiver connects here
+      - "2777:2777"   # SMSC Transceiver - C2 ESME Transceiver connects here
+      # ESME → SMSC: C1 connects to C2
+      - "2778:2778"   # SMSC Receiver - C1 ESME Transmitter connects here
+      - "2779:2779"   # SMSC Transmitter - C1 ESME Receiver connects here
+      - "2780:2780"   # SMSC Transceiver - C1 ESME Transceiver connects here
+      # SMSC → SMSC: C2 connects to C1 (peer routing)
+      - "2781:2781"   # SMSC Receiver - C2 SMSC Transmitter connects here
+      - "2782:2782"   # SMSC Transmitter - C2 SMSC Receiver connects here
+      - "2783:2783"   # SMSC Transceiver - C2 SMSC Transceiver connects here
+      # SMSC → SMSC: C1 connects to C2 (peer routing)
+      - "2784:2784"   # SMSC Receiver - C1 SMSC Transmitter connects here
+      - "2785:2785"   # SMSC Transmitter - C1 SMSC Receiver connects here
+      - "2786:2786"   # SMSC Transceiver - C1 SMSC Transceiver connects here
+      # Hybrid: Mixed ESME/SMSC in same connection
+      - "2790:2790"   # Hybrid - C1 SMSC RX server, C2 ESME RX client connects here
+      - "2791:2791"   # Hybrid - C2 SMSC TX server, C1 ESME TX client connects here
     environment:
       - SPRING_PROFILES_ACTIVE=local
       - CURRENTENV=LOCAL_Docker
-      - CLOUDHOPPERENABLED=false
-#      - CLOUDHOPPER_ENABLED=false
+      # - CLOUDHOPPERENABLED=true
+      - CLOUDHOPPER_ENABLED=false
       - PORT=8020
       # Container uses smpps_container.xml which has host.docker.internal for ESME connections
-      - SMPP_CONFIG_FILE=smpps_container.xml
+      - SMPP_CONFIG_FILE=smpps.xml
     volumes:
       - ../../main/resources/com/telemessage/simulators/LOCAL_Docker:/app/LOCAL_Docker:ro
     extra_hosts:

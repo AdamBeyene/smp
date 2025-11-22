@@ -1,0 +1,324 @@
+/* Starry Background Animation - Inspired by Grok */
+
+/* Canvas for stars */
+#starry-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background: #000000;
+    pointer-events: none;
+    transition: opacity 0.8s ease-out;
+}
+
+/* Star elements - 8-pointed star container */
+.star {
+    position: absolute;
+    opacity: 0;
+    transform-origin: var(--origin-x) var(--origin-y);
+    will-change: transform, opacity, filter; /* Hint browser to optimize for animations */
+    /* Animation is set via JavaScript for dynamic durations */
+    --star-color: white;
+    animation: rainbowShift 60s linear infinite; /* Slow rainbow color transformation */
+}
+
+/* 4 long POINTY rays - cardinal directions (up, down, left, right) */
+.star::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: calc(var(--star-size) * 3);
+    height: calc(var(--star-size) * 3);
+    transform: translate(-50%, -50%);
+    background:
+        /* Vertical ray (up-down) */
+        linear-gradient(to top, transparent, transparent calc(50% - var(--star-size) * 0.15), var(--star-color) calc(50% - var(--star-size) * 0.1), var(--star-color) 50%, var(--star-color) calc(50% + var(--star-size) * 0.1), transparent calc(50% + var(--star-size) * 0.15), transparent),
+        linear-gradient(to bottom, transparent, transparent calc(50% - var(--star-size) * 0.15), var(--star-color) calc(50% - var(--star-size) * 0.1), var(--star-color) 50%, var(--star-color) calc(50% + var(--star-size) * 0.1), transparent calc(50% + var(--star-size) * 0.15), transparent),
+        /* Horizontal ray (left-right) */
+        linear-gradient(to left, transparent, transparent calc(50% - var(--star-size) * 0.15), var(--star-color) calc(50% - var(--star-size) * 0.1), var(--star-color) 50%, var(--star-color) calc(50% + var(--star-size) * 0.1), transparent calc(50% + var(--star-size) * 0.15), transparent),
+        linear-gradient(to right, transparent, transparent calc(50% - var(--star-size) * 0.15), var(--star-color) calc(50% - var(--star-size) * 0.1), var(--star-color) 50%, var(--star-color) calc(50% + var(--star-size) * 0.1), transparent calc(50% + var(--star-size) * 0.15), transparent),
+        /* Center bright core */
+        radial-gradient(circle, var(--star-color) 0%, var(--star-color) 40%, transparent 70%);
+    background-size:
+        100% 100%,
+        100% 100%,
+        100% 100%,
+        100% 100%,
+        40% 40%;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* 4 short POINTY diagonal rays - these pulse during twinkle */
+.star::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: calc(var(--star-size) * 2.2);
+    height: calc(var(--star-size) * 2.2);
+    transform: translate(-50%, -50%) rotate(45deg);
+    background:
+        /* Vertical diagonal ray */
+        linear-gradient(to top, transparent, transparent calc(50% - var(--star-size) * 0.1), var(--star-color) calc(50% - var(--star-size) * 0.05), var(--star-color) 50%, var(--star-color) calc(50% + var(--star-size) * 0.05), transparent calc(50% + var(--star-size) * 0.1), transparent),
+        linear-gradient(to bottom, transparent, transparent calc(50% - var(--star-size) * 0.1), var(--star-color) calc(50% - var(--star-size) * 0.05), var(--star-color) 50%, var(--star-color) calc(50% + var(--star-size) * 0.05), transparent calc(50% + var(--star-size) * 0.1), transparent),
+        /* Horizontal diagonal ray */
+        linear-gradient(to left, transparent, transparent calc(50% - var(--star-size) * 0.1), var(--star-color) calc(50% - var(--star-size) * 0.05), var(--star-color) 50%, var(--star-color) calc(50% + var(--star-size) * 0.05), transparent calc(50% + var(--star-size) * 0.1), transparent),
+        linear-gradient(to right, transparent, transparent calc(50% - var(--star-size) * 0.1), var(--star-color) calc(50% - var(--star-size) * 0.05), var(--star-color) 50%, var(--star-color) calc(50% + var(--star-size) * 0.05), transparent calc(50% + var(--star-size) * 0.1), transparent);
+    background-size: 100% 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    animation: twinkleShortPoints 0.8s ease-in-out infinite;
+}
+
+/* Fade in animation for stars on page load */
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+/* Twinkling animation - more pronounced pulsing */
+@keyframes twinkle {
+    0%, 100% {
+        opacity: 0.4;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+/* Short points twinkle - grow brighter and bigger, relative to star size */
+@keyframes twinkleShortPoints {
+    0%, 100% {
+        opacity: 0.5;
+        transform: translate(-50%, -50%) rotate(45deg) scale(0.7);
+        filter: brightness(0.8);
+    }
+    50% {
+        opacity: 1;
+        transform: translate(-50%, -50%) rotate(45deg) scale(1.3);
+        filter: brightness(1.4);
+    }
+}
+
+/* Continuous circular orbit animation around off-screen center */
+@keyframes orbit {
+    0% {
+        transform: rotate(var(--initial-angle));
+    }
+    100% {
+        transform: rotate(calc(var(--initial-angle) + 360deg));
+    }
+}
+
+/* Rainbow color shift animation - slow transformation through spectrum */
+@keyframes rainbowShift {
+    0% {
+        --star-color: #ff6b6b; /* Red */
+    }
+    14.28% {
+        --star-color: #ffa500; /* Orange */
+    }
+    28.56% {
+        --star-color: #ffd700; /* Yellow */
+    }
+    42.84% {
+        --star-color: #00ff7f; /* Green */
+    }
+    57.12% {
+        --star-color: #1e90ff; /* Blue */
+    }
+    71.4% {
+        --star-color: #9370db; /* Indigo */
+    }
+    85.68% {
+        --star-color: #ff69b4; /* Violet/Pink */
+    }
+    100% {
+        --star-color: #ff6b6b; /* Back to Red */
+    }
+}
+
+/* Star size variations - 15% bigger */
+.star.small {
+    width: 2px;
+    height: 2px;
+    --star-size: 0.7px;
+}
+
+.star.medium {
+    width: 3.68px;
+    height: 3.68px;
+    --star-size: 1.5;
+}
+
+.star.large {
+    width: 5.50px;
+    height: 5.50px;
+    --star-size: 1.932px;
+}
+
+/* Small stars are 4-pointed (hide diagonal short points - too small for 8 points) */
+.star.small::after {
+    display: none;
+}
+
+/* Comet styles - star-shaped head with trail */
+.comet {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    --comet-size: 0.8px;  /* Comet star size */
+    --comet-brightness: 1;
+    --trail-length: 40px;
+    --comet-color: white; /* Set dynamically via JavaScript */
+    animation: cometMove linear forwards;
+    z-index: 10;
+    pointer-events: none;
+}
+
+/* Comet head - 4 POINTY rays like a star */
+.comet::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: calc(var(--comet-size) * 3);
+    height: calc(var(--comet-size) * 3);
+    transform: translate(-50%, -50%);
+    background:
+        /* Vertical ray (up-down) */
+        linear-gradient(to top, transparent, transparent calc(50% - var(--comet-size) * 0.15), var(--comet-color) calc(50% - var(--comet-size) * 0.1), var(--comet-color) 50%, var(--comet-color) calc(50% + var(--comet-size) * 0.1), transparent calc(50% + var(--comet-size) * 0.15), transparent),
+        linear-gradient(to bottom, transparent, transparent calc(50% - var(--comet-size) * 0.15), var(--comet-color) calc(50% - var(--comet-size) * 0.1), var(--comet-color) 50%, var(--comet-color) calc(50% + var(--comet-size) * 0.1), transparent calc(50% + var(--comet-size) * 0.15), transparent),
+        /* Horizontal ray (left-right) */
+        linear-gradient(to left, transparent, transparent calc(50% - var(--comet-size) * 0.15), var(--comet-color) calc(50% - var(--comet-size) * 0.1), var(--comet-color) 50%, var(--comet-color) calc(50% + var(--comet-size) * 0.1), transparent calc(50% + var(--comet-size) * 0.15), transparent),
+        linear-gradient(to right, transparent, transparent calc(50% - var(--comet-size) * 0.15), var(--comet-color) calc(50% - var(--comet-size) * 0.1), var(--comet-color) 50%, var(--comet-color) calc(50% + var(--comet-size) * 0.1), transparent calc(50% + var(--comet-size) * 0.15), transparent),
+        /* Center bright core */
+        radial-gradient(circle, var(--comet-color) 0%, var(--comet-color) 40%, transparent 70%);
+    background-size:
+        100% 100%,
+        100% 100%,
+        100% 100%,
+        100% 100%,
+        40% 40%;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: var(--comet-brightness);
+    animation: cometTwinkle 0.8s ease-in-out infinite;
+}
+
+/* Comet trail - extends backward from head with particle disintegration effect */
+.comet::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: var(--trail-length);
+    height: 1.1px;
+    background: 
+        /* Particle effect - dashed gradient that breaks apart (more aggressive at tail) */
+        repeating-linear-gradient(
+            to left,
+            var(--comet-color) 0%,
+            var(--comet-color) 2%,
+            transparent 2%,
+            transparent 6%
+        ),
+        /* Solid gradient base (strong at head, fades to particles at tail) */
+        linear-gradient(
+            to left,
+            var(--comet-color) 0%,
+            var(--comet-color) 15%,
+            var(--comet-color) 30%,
+            rgba(255, 255, 255, 0.3) 60%,
+            transparent 90%
+        );
+    /* Mask to make particles more visible at tail end */
+    -webkit-mask: linear-gradient(
+        to left,
+        black 0%,
+        black 40%,
+        rgba(0, 0, 0, 0.7) 70%,
+        rgba(0, 0, 0, 0.3) 90%,
+        transparent 100%
+    );
+    mask: linear-gradient(
+        to left,
+        black 0%,
+        black 40%,
+        rgba(0, 0, 0, 0.7) 70%,
+        rgba(0, 0, 0, 0.3) 90%,
+        transparent 100%
+    );
+    background-blend-mode: screen;
+    opacity: calc(0.7 * var(--comet-brightness));
+    transform: translate(-100%, -50%);
+    transform-origin: right center;
+    filter: blur(1.2px);
+    pointer-events: none;
+    animation: trailDisintegrate 0.6s ease-out infinite;
+}
+
+/* Comet movement animation - smooth movement along trajectory using rotate + translate
+   Real comets/shooting stars move in smooth arcs following their trajectory.
+   We rotate the comet to face the direction of travel, then translate along that axis. */
+@keyframes cometMove {
+    0% {
+        opacity: 0;
+        transform: rotate(var(--trail-angle)) translate(0, 0);
+    }
+    5% {
+        opacity: 1;
+        transform: rotate(var(--trail-angle)) translate(0, 0);
+    }
+    92% {
+        opacity: 1;
+        transform: rotate(var(--trail-angle)) translate(var(--travel-distance), 0);
+    }
+    100% {
+        opacity: 0;
+        transform: rotate(var(--trail-angle)) translate(var(--travel-distance), 0);
+    }
+}
+
+/* Trail disintegration animation - particles breaking apart more aggressively at tail */
+@keyframes trailDisintegrate {
+    0% {
+        background-size: 100% 100%, 100% 100%;
+        background-position: 0% 0%, 0% 0%;
+        filter: blur(1.2px);
+    }
+    50% {
+        background-size: 140% 100%, 100% 100%;
+        background-position: -20% 0%, 0% 0%;
+        filter: blur(1.8px);
+    }
+    100% {
+        background-size: 180% 100%, 100% 100%;
+        background-position: -40% 0%, 0% 0%;
+        filter: blur(2.5px);
+    }
+}
+
+/* Comet head twinkling animation */
+@keyframes cometTwinkle {
+    0%, 100% {
+        opacity: calc(var(--comet-brightness) * 0.7);
+    }
+    50% {
+        opacity: var(--comet-brightness);
+    }
+}
+
+/* Ensure body background starts black */
+body {
+    background-color: #000000 !important;
+    transition: background-color 0.3s ease;
+}

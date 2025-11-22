@@ -1,0 +1,247 @@
+/**
+ * Info V2 Page Styles
+ * SMPP Connection Types Reference Page
+ */
+
+/* Main Content */
+.info-main-content {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Info Sections */
+.info-section {
+  background: rgba(0, 0, 0, 0.80);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.section-heading {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.section-heading i {
+  color: var(--accent-blue);
+  font-size: 22px;
+}
+
+.section-description {
+  color: var(--text-secondary);
+  font-size: 15px;
+  margin: 0 0 20px 0;
+}
+
+/* Info Tables */
+.table-container {
+  overflow-x: auto;
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+}
+
+.info-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  background: var(--bg-primary);
+}
+
+.info-table thead {
+  background: rgba(0, 0, 0, 0.90);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.info-table th {
+  padding: 14px 16px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-primary);
+  border-bottom: 2px solid var(--border-color);
+  white-space: nowrap;
+}
+
+.info-table td {
+  padding: 12px 16px;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.info-table tbody tr {
+  transition: var(--transition-fast);
+}
+
+.info-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.info-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.info-table code {
+  background: rgba(0, 0, 0, 0.60);
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  color: var(--accent-blue);
+  border: 1px solid var(--border-color);
+  white-space: nowrap;
+}
+
+/* Badges */
+.bind-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.bind-badge.tx {
+  background: rgba(52, 152, 219, 0.2);
+  color: #3498db;
+  border: 1px solid #3498db;
+}
+
+.bind-badge.rx {
+  background: rgba(46, 204, 113, 0.2);
+  color: #2ecc71;
+  border: 1px solid #2ecc71;
+}
+
+.bind-badge.trx {
+  background: rgba(155, 89, 182, 0.2);
+  color: #9b59b6;
+  border: 1px solid #9b59b6;
+}
+
+.role-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.role-badge.esme {
+  background: rgba(241, 196, 15, 0.2);
+  color: #f1c40f;
+  border: 1px solid #f1c40f;
+}
+
+.role-badge.smsc {
+  background: rgba(231, 76, 60, 0.2);
+  color: #e74c3c;
+  border: 1px solid #e74c3c;
+}
+
+/* Flow Diagrams */
+.flow-diagram-container {
+  margin-bottom: 32px;
+}
+
+.flow-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 16px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.flow-block {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.flow-block h4 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--accent-blue);
+  margin: 0 0 12px 0;
+}
+
+.flow-diagram {
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--text-primary);
+  background: rgba(0, 0, 0, 0.60);
+  padding: 16px;
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+  margin: 0;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+/* Note Box */
+.note-box {
+  background: rgba(52, 152, 219, 0.1);
+  border: 1px solid var(--accent-blue);
+  border-left: 4px solid var(--accent-blue);
+  border-radius: var(--border-radius);
+  padding: 16px;
+  margin-top: 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.note-box i {
+  color: var(--accent-blue);
+  font-size: 18px;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .info-main-content {
+    padding: 16px;
+  }
+
+  .info-section {
+    padding: 16px;
+  }
+
+  .section-heading {
+    font-size: 20px;
+  }
+
+  .info-table {
+    font-size: 12px;
+  }
+
+  .info-table th,
+  .info-table td {
+    padding: 10px 12px;
+  }
+
+  .flow-diagram {
+    font-size: 11px;
+  }
+}

@@ -1,18 +1,31 @@
+
 <connections>
     <!--
         ========================================
-        Container 2 (simulator-2) SMPP Configuration
+        Container 2 (LOCAL_Docker2 / IntelliJ) SMPP Configuration
         ========================================
-        This container acts in DUAL role:
-        1. SMSC (Server) - Accepts connections from Container 1 on ports 2778, 2779, 2780
-        2. ESME (Client) - Initiates connections to Container 1 on ports 2775, 2776, 2777
+        This container demonstrates ALL SMPP connection types:
 
-        Total: 6 bidirectional connections for comprehensive testing
+        ESME → SMSC (3 connections):
+        - TRANSMITTER: C2 sends submit_sm to C1
+        - RECEIVER: C2 receives deliver_sm from C1
+        - TRANSCEIVER: C2 both sends and receives via C1
+
+        SMSC → SMSC (3 connections):
+        - TRANSMITTER: C2 sends submit_sm to C1 (peer routing)
+        - RECEIVER: C2 receives deliver_sm from C1 (peer routing)
+        - TRANSCEIVER: C2 both sends and receives via C1 (peer routing)
+
+        Port Allocation:
+        - 2778-2780: SMSC Server (accepts connections from C1 as ESME)
+        - 2784-2786: SMSC Server (accepts connections from C1 as SMSC)
+        - Connects to C1 ports 2775-2777 (as ESME)
+        - Connects to C1 ports 2781-2783 (as SMSC)
     -->
 
     <!-- ============================================ -->
     <!-- SMSC MODE: Container 2 acts as SERVER        -->
-    <!-- Container 1 connects to these ports as ESME  -->
+    <!-- Container 1 connects as ESME CLIENT          -->
     <!-- ============================================ -->
 
     <!-- Connection 23: SMSC Receiver on port 2778 -->
@@ -21,8 +34,8 @@
         <automatic_dr>DELIVRD</automatic_dr>
         <receiver bindType="SMSC">
             <port>2778</port>
-            <systemId>smsc_rx</systemId>
-            <password>esme123</password>
+            <systemId>sysid_test</systemId>
+            <password>1234</password>
             <bindOption>receiver</bindOption>
             <threads>10</threads>
             <concatenation>UDHI</concatenation>
@@ -36,8 +49,8 @@
         <automatic_dr>DELIVRD</automatic_dr>
         <transmitter bindType="SMSC">
             <port>2779</port>
-            <systemId>smsc_rx</systemId>
-            <password>esme123</password>
+            <systemId>sysid_test</systemId>
+            <password>1234</password>
             <bindOption>transmitter</bindOption>
             <threads>10</threads>
             <concatenation>UDHI</concatenation>
@@ -51,8 +64,59 @@
         <automatic_dr>DELIVRD</automatic_dr>
         <transceiver bindType="SMSC">
             <port>2780</port>
-            <systemId>smsc_rx</systemId>
-            <password>esme123</password>
+            <systemId>sysid_test</systemId>
+            <password>1234</password>
+            <bindOption>transceiver</bindOption>
+            <threads>10</threads>
+            <concatenation>UDHI</concatenation>
+            <encoding>UTF-16BE</encoding>
+        </transceiver>
+    </connection>
+
+    <!-- ============================================ -->
+    <!-- SMSC MODE: Container 2 acts as SERVER        -->
+    <!-- Container 1 connects as SMSC CLIENT          -->
+    <!-- (SMSC-to-SMSC peer routing)                  -->
+    <!-- ============================================ -->
+
+    <!-- Connection 33: SMSC Receiver on port 2784 -->
+    <connection id="33">
+        <name>C2-SMSC-P2P-Receiver-2784</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <receiver bindType="SMSC">
+            <port>2784</port>
+            <systemId>sysid_test</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>10</threads>
+            <concatenation>UDHI</concatenation>
+            <encoding>UTF-16BE</encoding>
+        </receiver>
+    </connection>
+
+    <!-- Connection 34: SMSC Transmitter on port 2785 -->
+    <connection id="34">
+        <name>C2-SMSC-P2P-Transmitter-2785</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>2785</port>
+            <systemId>sysid_test</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>10</threads>
+            <concatenation>UDHI</concatenation>
+            <encoding>UTF-16BE</encoding>
+        </transmitter>
+    </connection>
+
+    <!-- Connection 35: SMSC Transceiver on port 2786 -->
+    <connection id="35">
+        <name>C2-SMSC-P2P-Transceiver-2786</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transceiver bindType="SMSC">
+            <port>2786</port>
+            <systemId>sysid_test</systemId>
+            <password>1234</password>
             <bindOption>transceiver</bindOption>
             <threads>10</threads>
             <concatenation>UDHI</concatenation>
@@ -72,8 +136,8 @@
         <transmitter bindType="ESME">
             <host>localhost</host>
             <port>2775</port>
-            <systemId>smsc_rx</systemId>
-            <password>esme123</password>
+            <systemId>sysid_test</systemId>
+            <password>1234</password>
             <bindOption>transmitter</bindOption>
             <threads>10</threads>
             <concatenation>UDHI</concatenation>
@@ -88,8 +152,8 @@
         <receiver bindType="ESME">
             <host>localhost</host>
             <port>2776</port>
-            <systemId>smsc_rx</systemId>
-            <password>esme123</password>
+            <systemId>sysid_test</systemId>
+            <password>1234</password>
             <bindOption>receiver</bindOption>
             <threads>10</threads>
             <concatenation>UDHI</concatenation>
@@ -104,13 +168,99 @@
         <transceiver bindType="ESME">
             <host>localhost</host>
             <port>2777</port>
-            <systemId>smsc_rx</systemId>
-            <password>esme123</password>
+            <systemId>sysid_test</systemId>
+            <password>1234</password>
             <bindOption>transceiver</bindOption>
             <threads>10</threads>
             <concatenation>UDHI</concatenation>
             <encoding>UTF-16BE</encoding>
         </transceiver>
+    </connection>
+
+    <!-- ============================================ -->
+    <!-- SMSC MODE: Container 2 acts as CLIENT        -->
+    <!-- Connects to Container 1's SMSC ports         -->
+    <!-- (SMSC-to-SMSC peer routing)                  -->
+    <!-- ============================================ -->
+
+    <!-- Connection 210: SMSC Transmitter to Container 1 port 2781 -->
+    <connection id="210">
+        <name>C2-SMSC-P2P-TX-to-C1-2781</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <host>localhost</host>
+            <port>2781</port>
+            <systemId>sysid_test</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>10</threads>
+            <concatenation>UDHI</concatenation>
+            <encoding>UTF-16BE</encoding>
+        </transmitter>
+    </connection>
+
+    <!-- Connection 211: SMSC Receiver to Container 1 port 2782 -->
+    <connection id="211">
+        <name>C2-SMSC-P2P-RX-to-C1-2782</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <receiver bindType="SMSC">
+            <host>localhost</host>
+            <port>2782</port>
+            <systemId>sysid_test</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>10</threads>
+            <concatenation>UDHI</concatenation>
+            <encoding>UTF-16BE</encoding>
+        </receiver>
+    </connection>
+
+    <!-- Connection 212: SMSC Transceiver to Container 1 port 2783 -->
+    <connection id="212">
+        <name>C2-SMSC-P2P-TRX-to-C1-2783</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transceiver bindType="SMSC">
+            <host>localhost</host>
+            <port>2783</port>
+            <systemId>sysid_test</systemId>
+            <password>1234</password>
+            <bindOption>transceiver</bindOption>
+            <threads>10</threads>
+            <concatenation>UDHI</concatenation>
+            <encoding>UTF-16BE</encoding>
+        </transceiver>
+    </connection>
+
+    <!-- ============================================ -->
+    <!-- HYBRID MODE: Mixed ESME/SMSC in same conn    -->
+    <!-- C2 sends on 2791, receives on 2790          -->
+    <!-- Pattern: SMSC TX server + ESME RX client     -->
+    <!-- This is the OPPOSITE of C1's hybrid conn     -->
+    <!-- ============================================ -->
+
+    <!-- Connection 300: Hybrid - SMSC Transmitter (server) + ESME Receiver (client) -->
+    <connection id="300">
+        <name>C2-Hybrid-SMSC-TX-ESME-RX</name>
+        <automatic_dr>DELIVRD</automatic_dr>
+        <transmitter bindType="SMSC">
+            <port>2790</port>
+            <systemId>sysid_test</systemId>
+            <password>1234</password>
+            <bindOption>transmitter</bindOption>
+            <threads>10</threads>
+            <concatenation>UDHI</concatenation>
+            <encoding>UTF-16BE</encoding>
+        </transmitter>
+        <receiver bindType="ESME">
+            <host>localhost</host>
+            <port>2791</port>
+            <systemId>sysid_test</systemId>
+            <password>1234</password>
+            <bindOption>receiver</bindOption>
+            <threads>10</threads>
+            <concatenation>UDHI</concatenation>
+            <encoding>UTF-16BE</encoding>
+        </receiver>
     </connection>
 
 </connections>
