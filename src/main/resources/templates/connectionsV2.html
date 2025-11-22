@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connections V2 - SMPP Simulator</title>
+
+    <!-- Starry background CSS -->
+    <link rel="stylesheet" href="/v2/css/starry-background.css">
+
+    <style>
+        body { background: #000000; margin: 0; padding: 0; }
+        .content { position: relative; z-index: 1; }
+    </style>
+
+    <!-- Page specific CSS -->
+    <link rel="stylesheet" href="/v2/css/v2-common.css">
+    <link rel="stylesheet" href="/v2/css/connectionsV2.css">
+
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="content">
+
+    <!-- Main Container -->
+    <div class="v2-container">
+        <!-- Combined Header & Navigation -->
+        <header class="v2-header">
+            <div class="header-content">
+                <!-- Navigation Tabs on Left -->
+                <nav class="v2-nav-tabs-inline">
+                    <a href="/connectionsV2" class="v2-nav-tab active">
+                        <i class="fas fa-network-wired"></i> Connections
+                    </a>
+                    <a href="/messagesV2" class="v2-nav-tab">
+                        <i class="fas fa-envelope"></i> Messages
+                    </a>
+                    <a href="/infoV2" class="v2-nav-tab">
+                        <i class="fas fa-info-circle"></i> Info
+                    </a>
+                    <span th:if="${isCloudhopper}" class="cloudhopper-badge">Cloudhopper</span>
+                </nav>
+
+                <!-- Actions on Right -->
+                <div class="header-actions">
+                    <button id="refresh-btn" class="btn btn-secondary" title="Refresh">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                    <select id="auto-refresh" class="select-input">
+                        <option value="0">Manual Refresh</option>
+                        <option value="20000">20 seconds</option>
+                        <option value="60000">1 minute</option>
+                        <option value="300000">5 minutes</option>
+                    </select>
+                    <span class="last-updated">Last updated: <span th:text="${currentTime}"></span></span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Metrics Dashboard -->
+        <section class="metrics-dashboard">
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-value" th:text="${metrics.totalConnections}">0</div>
+                    <div class="metric-label">Total Connections</div>
+                </div>
+                <div class="metric-card success">
+                    <div class="metric-value" th:text="${metrics.activeConnections}">0</div>
+                    <div class="metric-label">Active</div>
+                </div>
+                <div class="metric-card error">
+                    <div class="metric-value" th:text="${metrics.inactiveConnections}">0</div>
+                    <div class="metric-label">Inactive</div>
+                </div>
+                <div class="metric-card info">
+                    <div class="metric-value" th:text="${metrics.smppConnections}">0</div>
+                    <div class="metric-label">SMPP</div>
+                </div>
+                <div class="metric-card info">
+                    <div class="metric-value" th:text="${metrics.httpConnections}">0</div>
+                    <div class="metric-label">HTTP</div>
+                </div>
+                <div class="metric-card" th:if="${isCloudhopper}">
+                    <div class="metric-value" th:text="${metrics.messagesPerSecond}">0</div>
+                    <div class="metric-label">Msg/sec</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Content -->
+        <div class="v2-main-content">
+            <!-- Sidebar -->
+            <aside class="v2-sidebar">
+                <!-- Sidebar Toggle Button -->
+                <button class="sidebar-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars sidebar-icon-default"></i>
+                    <i class="fas fa-chevron-left sidebar-icon-hover"></i>
+                </button>
+
+                <!-- Search & Filter -->
+                <div class="sidebar-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-search"></i> Search & Filter
+                    </h3>
+                    <div class="section-content">
+                        <input type="text" id="search-input" class="input-field" placeholder="Search connections...">
+                        <button id="group-families-btn" class="btn btn-secondary full-width">
+                            <i class="fas fa-layer-group"></i> Group Families
+                        </button>
+                        <div id="group-controls" style="display: none;">
+                            <button id="expand-all-btn" class="btn btn-secondary">
+                                <i class="fas fa-plus-square"></i> Expand All
+                            </button>
+                            <button id="collapse-all-btn" class="btn btn-secondary">
+                                <i class="fas fa-minus-square"></i> Collapse All
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="sidebar-section collapsible">
+                    <h3 class="section-title" data-toggle="collapse">
+                        <i class="fas fa-tools"></i> Actions
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                    </h3>
+                    <div class="section-content">
+                        <!-- Connection Info -->
+                        <div class="action-group">
+                            <h4>Connection Info</h4>
+                            <input type="text" id="info-conn-id" class="input-field" placeholder="Connection ID (optional)">
+                            <button id="get-info-btn" class="btn btn-primary">
+                                <i class="fas fa-info-circle"></i> Get Info
+                            </button>
+                        </div>
+
+                        <!-- Start Connection -->
+                        <div class="action-group">
+                            <h4>Start Connection</h4>
+                            <input type="text" id="start-conn-id" class="input-field" placeholder="Connection ID" required>
+                            <select id="start-conn-type" class="select-input">
+                                <option value="transmitter">Transmitter</option>
+                                <option value="receiver">Receiver</option>
+                                <option value="both">Both</option>
+                            </select>
+                            <button id="start-conn-btn" class="btn btn-success">
+                                <i class="fas fa-play"></i> Start
+                            </button>
+                        </div>
+
+                        <!-- Stop Connection -->
+                        <div class="action-group">
+                            <h4>Stop Connection</h4>
+                            <input type="text" id="stop-conn-id" class="input-field" placeholder="Connection ID" required>
+                            <select id="stop-conn-type" class="select-input">
+                                <option value="transmitter">Transmitter</option>
+                                <option value="receiver">Receiver</option>
+                                <option value="both">Both</option>
+                            </select>
+                            <button id="stop-conn-btn" class="btn btn-danger">
+                                <i class="fas fa-stop"></i> Stop
+                            </button>
+                        </div>
+
+                        <!-- Reset Connection -->
+                        <div class="action-group">
+                            <h4>Reset Connection</h4>
+                            <input type="text" id="reset-conn-id" class="input-field" placeholder="Connection ID" required>
+                            <select id="reset-conn-type" class="select-input">
+                                <option value="transmitter">Transmitter</option>
+                                <option value="receiver">Receiver</option>
+                                <option value="both">Both</option>
+                            </select>
+                            <button id="reset-conn-btn" class="btn btn-warning">
+                                <i class="fas fa-redo"></i> Reset
+                            </button>
+                        </div>
+
+                        <!-- Reset All -->
+                        <div class="action-group">
+                            <h4>Reset All Connections</h4>
+                            <button id="reset-all-btn" class="btn btn-danger full-width">
+                                <i class="fas fa-exclamation-triangle"></i> Reset All
+                            </button>
+                        </div>
+
+                        <!-- Action Response -->
+                        <div id="action-response" class="action-response"></div>
+                    </div>
+                </div>
+
+                <!-- Cloudhopper Metrics (if enabled) -->
+                <div class="sidebar-section collapsible" th:if="${isCloudhopper}">
+                    <h3 class="section-title" data-toggle="collapse">
+                        <i class="fas fa-chart-line"></i> Cloudhopper Metrics
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                    </h3>
+                    <div class="section-content">
+                        <div class="metric-item">
+                            <span class="metric-label">Bound Transmitters:</span>
+                            <span class="metric-value" th:text="${metrics.boundTransmitters}">0</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-label">Bound Receivers:</span>
+                            <span class="metric-value" th:text="${metrics.boundReceivers}">0</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-label">Average Latency:</span>
+                            <span class="metric-value" th:text="${metrics.averageLatency + 'ms'}">0ms</span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Table Container -->
+            <div class="v2-table-container">
+                <!-- Table Controls -->
+                <div class="table-controls">
+                    <div class="results-info">
+                        Showing <span id="visible-count" th:text="${connections.size()}">0</span>
+                        of <span id="total-count" th:text="${connections.size()}">0</span> connections
+                    </div>
+                    <div class="table-actions">
+                        <button id="export-btn" class="btn btn-secondary">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Virtual Scrolling Container -->
+                <div id="table-viewport" class="table-viewport">
+                    <table id="connections-table" class="v2-table">
+                        <thead>
+                            <tr>
+                                <th data-sort="id" class="sortable">
+                                    ID <i class="fas fa-sort sort-icon"></i>
+                                </th>
+                                <th data-sort="name" class="sortable">
+                                    Name <i class="fas fa-sort sort-icon"></i>
+                                </th>
+                                <th data-sort="type" class="sortable">
+                                    Type <i class="fas fa-sort sort-icon"></i>
+                                </th>
+                                <th data-sort="transmitterState" class="sortable">
+                                    Transmitter State <i class="fas fa-sort sort-icon"></i>
+                                </th>
+                                <th data-sort="receiverState" class="sortable">
+                                    Receiver State <i class="fas fa-sort sort-icon"></i>
+                                </th>
+                                <th>Transmitter Type</th>
+                                <th>Receiver Type</th>
+                                <th>Transmitter Port</th>
+                                <th>Receiver Port</th>
+                                <th>Transmitter Host</th>
+                                <th>Receiver Host</th>
+                                <th th:if="${isCloudhopper}">Enquire Link</th>
+                                <th th:if="${isCloudhopper}">Reconnects</th>
+                                <th th:if="${isCloudhopper}">Throughput</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body">
+                            <tr th:each="conn : ${connections}"
+                                th:data-id="${conn.id}"
+                                th:data-name="${conn.name}"
+                                th:data-type="${conn.type}">
+                                <td th:text="${conn.id}">0</td>
+                                <td th:text="${conn.name}">-</td>
+                                <td>
+                                    <span class="type-badge"
+                                          th:classappend="${conn.type == 'SMPP' ? 'type-smpp' : 'type-http'}"
+                                          th:text="${conn.type}">-</span>
+                                </td>
+                                <td>
+                                    <th:block th:with="txState=${conn.transmitterState}">
+                                        <span class="state-badge"
+                                              th:classappend="${txState == null ? 'state-unknown' : (#strings.equals(txState, 'NA') or #strings.equals(txState, 'N/A') or #strings.equals(txState, 'Unknown') ? 'state-unknown' : (#strings.equals(txState, 'Bound') or #strings.equals(txState, 'Active') ? 'state-bound' : (#strings.equals(txState, 'Unbound') or #strings.equals(txState, 'Inactive') or #strings.equals(txState, 'Dead') ? 'state-unbound' : 'state-unknown')))}"
+                                              th:text="${txState != null ? txState : 'NA'}">-</span>
+                                    </th:block>
+                                </td>
+                                <td>
+                                    <th:block th:with="rxState=${conn.receiverState}">
+                                        <span class="state-badge"
+                                              th:classappend="${rxState == null ? 'state-unknown' : (#strings.equals(rxState, 'NA') or #strings.equals(rxState, 'N/A') or #strings.equals(rxState, 'Unknown') ? 'state-unknown' : (#strings.equals(rxState, 'Bound') or #strings.equals(rxState, 'Active') ? 'state-bound' : (#strings.equals(rxState, 'Unbound') or #strings.equals(rxState, 'Inactive') or #strings.equals(rxState, 'Dead') ? 'state-unbound' : 'state-unknown')))}"
+                                              th:text="${rxState != null ? rxState : 'NA'}">-</span>
+                                    </th:block>
+                                </td>
+                                <td th:text="${conn.transmitterType}">-</td>
+                                <td th:text="${conn.receiverType}">-</td>
+                                <td th:text="${conn.transmitterPort}">-</td>
+                                <td th:text="${conn.receiverPort}">-</td>
+                                <td class="truncate" th:text="${conn.transmitterHost}" th:title="${conn.transmitterHost}">-</td>
+                                <td class="truncate" th:text="${conn.receiverHost}" th:title="${conn.receiverHost}">-</td>
+                                <td th:if="${isCloudhopper}">
+                                    <span class="status-indicator"
+                                          th:classappend="${conn.enquireLinkStatus == 'OK' ? 'status-ok' : 'status-error'}"
+                                          th:text="${conn.enquireLinkStatus}">-</span>
+                                </td>
+                                <td th:if="${isCloudhopper}" th:text="${conn.reconnectCount}">0</td>
+                                <td th:if="${isCloudhopper}" th:text="${conn.throughput + '/s'}">0/s</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tooltips Container -->
+    <div id="tooltip" class="tooltip-popup" style="display: none;">
+        <div class="tooltip-content">
+            <div class="tooltip-text"></div>
+            <div class="tooltip-actions">
+                <button class="tooltip-btn copy-btn">
+                    <i class="fas fa-copy"></i> Copy
+                </button>
+                <button class="tooltip-btn select-all-btn">
+                    <i class="fas fa-check-square"></i> Select All
+                </button>
+            </div>
+        </div>
+    </div>
+
+    </div> <!-- End content -->
+
+    <!-- Action Response Popup -->
+    <div id="action-response-overlay" class="action-response-overlay"></div>
+    <div id="action-response-popup" class="action-response-popup">
+        <div class="action-response-header">
+            <div class="action-response-title">Action Response</div>
+            <button class="action-response-close" onclick="closeActionPopup()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="action-response-content">
+            <div id="action-response-text" class="action-response-text"></div>
+        </div>
+        <div class="action-response-actions">
+            <button id="action-response-copy" class="action-response-copy-btn">
+                <i class="fas fa-copy"></i> Copy
+            </button>
+        </div>
+    </div>
+
+    <!-- Starry background JS -->
+    <script src="/v2/js/starry-background.js"></script>
+
+    <!-- Initialize with Thymeleaf data -->
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        window.connectionsData = /*[[${connections}]]*/ [];
+        window.isCloudhopper = /*[[${isCloudhopper}]]*/ false;
+        /*]]>*/
+    </script>
+
+    <!-- Sidebar Toggle Script -->
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.v2-sidebar');
+            sidebar.classList.toggle('collapsed');
+        }
+    </script>
+
+    <!-- Connections V2 Page Functionality -->
+    <script src="/v2/js/connectionsV2.js"></script>
+</body>
+</html>

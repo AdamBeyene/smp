@@ -5,6 +5,7 @@ import com.telemessage.simulators.http.HttpConnection;
 import com.telemessage.simulators.http.HttpSimulator;
 import com.telemessage.simulators.smpp.SMPPSimulatorInterface;
 import com.telemessage.simulators.smpp.conf.SMPPConnectionConf;
+import com.telemessage.simulators.web.CloudhopperStateService;
 import com.telemessage.simulators.web.wrappers.HttpWebConnection;
 import com.telemessage.simulators.web.wrappers.SMPPWebConnection;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,15 +24,18 @@ public class Utils {
 
     static SMPPSimulatorInterface smppSim;
     static HttpSimulator httpSim;
+    static CloudhopperStateService cloudhopperStateService;
 
     @Autowired
     public Utils(EnvConfiguration conf,
                  @Qualifier("smppSimulator") SMPPSimulatorInterface smppSim,
-                 HttpSimulator httpSim
+                 HttpSimulator httpSim,
+                 @Autowired(required = false) CloudhopperStateService cloudhopperStateService
     ) {
         this.conf = conf;
-        this.smppSim = smppSim;
-        this.httpSim = httpSim;
+        Utils.smppSim = smppSim;
+        Utils.httpSim = httpSim;
+        Utils.cloudhopperStateService = cloudhopperStateService;
     }
 
     public static SMPPWebConnection[] smppInfoConnections() {
@@ -50,7 +54,8 @@ public class Utils {
             }
         });
         for (SMPPConnectionConf c : cs) {
-            conns.add(new SMPPWebConnection(c));
+            // Pass CloudhopperStateService (null in Logica mode, populated in Cloudhopper mode)
+            conns.add(new SMPPWebConnection(c, cloudhopperStateService));
         }
         return conns.toArray(new SMPPWebConnection[conns.size()]);
     }

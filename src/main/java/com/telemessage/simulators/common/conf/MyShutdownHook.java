@@ -36,9 +36,7 @@ public class MyShutdownHook implements ApplicationRunner {
 
     @PreDestroy
     public void cleanUp() {
-        log.info("Sim tearDown: ");
-        log.info("Clean kafka sim group: ");
-        String gid = System.getProperty("currentKafkaGroupId");
+        log.info("Sim tearDown: na");
 
     }
 }

@@ -34,7 +34,9 @@ public class OpenApiBean {
                                 "TELEMESSAGE SIM For all smpp transactions with BE and KEEPER<br><br>" +
                                         "<p>&#128373; <b>MONITOR</b>: <a href='/server-details' target='_blank'>/server-details</a></p>" + /*"<br>" +*/
                                         "<p>\uD83D\uDD17 <b>Connections</b>: <a href='/connections' target='_blank'>/connections</a></p>" + /*"<br>" +*/
+                                        "<p>\uD83D\uDD17 <b>Connections V2</b>: <a href='/connectionsV2' target='_blank'>/connectionsV2</a> ✨</p>" + /*"<br>" +*/
                                         "<p>\uD83D\uDCEC <b>Messages</b>: <a href='/messages' target='_blank'>/messages</a></p>" + /*"<br>" +*/
+                                        "<p>\uD83D\uDCEC <b>Messages V2</b>: <a href='/messagesV2' target='_blank'>/messagesV2</a> ✨</p>" + /*"<br>" +*/
                                         "<p><b>\uD83C\uDF43✧ DB</b>: " +
                                         "<strong><a href='https://client-db-proxy.kapi.telemessage.com/swagger-ui/index.html' target='_blank'>\uD83D\uDCCCClient DBProxy</a></strong>" +
                                         "<span>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;</span>" +

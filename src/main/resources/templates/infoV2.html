@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMPP Info - SMPP Simulator</title>
+
+    <!-- Starry background CSS -->
+    <link rel="stylesheet" href="/v2/css/starry-background.css">
+
+    <style>
+        body { background: #000000; margin: 0; padding: 0; }
+        .content { position: relative; z-index: 1; }
+    </style>
+
+    <!-- Page specific CSS -->
+    <link rel="stylesheet" href="/v2/css/v2-common.css">
+    <link rel="stylesheet" href="/v2/css/infoV2.css">
+
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="content">
+
+    <!-- Main Container -->
+    <div class="v2-container">
+        <!-- Combined Header & Navigation -->
+        <header class="v2-header">
+            <div class="header-content">
+                <!-- Navigation Tabs on Left -->
+                <nav class="v2-nav-tabs-inline">
+                    <a href="/connectionsV2" class="v2-nav-tab">
+                        <i class="fas fa-network-wired"></i> Connections
+                    </a>
+                    <a href="/messagesV2" class="v2-nav-tab">
+                        <i class="fas fa-envelope"></i> Messages
+                    </a>
+                    <a href="/infoV2" class="v2-nav-tab active">
+                        <i class="fas fa-info-circle"></i> Info
+                    </a>
+                    <span th:if="${isCloudhopper}" class="cloudhopper-badge">Cloudhopper</span>
+                </nav>
+
+                <!-- Actions on Right -->
+                <div class="header-actions">
+                    <span class="last-updated">SMPP Connection Types Reference</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="info-main-content">
+            <!-- SMPP Connection Types Matrix -->
+            <section class="info-section">
+                <h2 class="section-heading">
+                    <i class="fas fa-table"></i> SMPP Connection Types: Complete Matrix
+                </h2>
+                <p class="section-description">All possible connection type combinations between ESME and SMSC roles</p>
+
+                <div class="table-container">
+                    <table class="info-table">
+                        <thead>
+                            <tr>
+                                <th>Bind Type</th>
+                                <th>Client Role</th>
+                                <th>Server Role</th>
+                                <th>Client (Initiator)</th>
+                                <th>Server (Listener)</th>
+                                <th>Outbound (Client)</th>
+                                <th>Inbound (Client)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- TRANSMITTER ESME → SMSC -->
+                            <tr>
+                                <td><span class="bind-badge tx">TRANSMITTER</span></td>
+                                <td><span class="role-badge esme">ESME</span></td>
+                                <td><span class="role-badge smsc">SMSC</span></td>
+                                <td>Server 1</td>
+                                <td>Server 2</td>
+                                <td><code>submit_sm</code></td>
+                                <td><code>submit_sm_resp</code></td>
+                            </tr>
+                            <tr>
+                                <td><span class="bind-badge tx">TRANSMITTER</span></td>
+                                <td><span class="role-badge esme">ESME</span></td>
+                                <td><span class="role-badge smsc">SMSC</span></td>
+                                <td>Server 2</td>
+                                <td>Server 1</td>
+                                <td><code>submit_sm</code></td>
+                                <td><code>submit_sm_resp</code></td>
+                            </tr>
+
+                            <!-- TRANSMITTER SMSC → SMSC -->
+                            <tr>
+                                <td><span class="bind-badge tx">TRANSMITTER</span></td>
+                                <td><span class="role-badge smsc">SMSC</span></td>
+                                <td><span class="role-badge smsc">SMSC</span></td>
+                                <td>Server 1</td>
+                                <td>Server 2</td>
+                                <td><code>submit_sm</code></td>
+                                <td><code>submit_sm_resp</code></td>
+                            </tr>
+                            <tr>
+                                <td><span class="bind-badge tx">TRANSMITTER</span></td>
+                                <td><span class="role-badge smsc">SMSC</span></td>
+                                <td><span class="role-badge smsc">SMSC</span></td>
+                                <td>Server 2</td>
+                                <td>Server 1</td>
+                                <td><code>submit_sm</code></td>
+                                <td><code>submit_sm_resp</code></td>
+                            </tr>
+
+                            <!-- RECEIVER ESME → SMSC -->
+                            <tr>
+                                <td><span class="bind-badge rx">RECEIVER</span></td>
+                                <td><span class="role-badge esme">ESME</span></td>
+                                <td><span class="role-badge smsc">SMSC</span></td>
+                                <td>Server 1</td>
+                                <td>Server 2</td>
+                                <td><code>deliver_sm_resp</code></td>
+                                <td><code>deliver_sm</code></td>
+                            </tr>
+                            <tr>
+                                <td><span class="bind-badge rx">RECEIVER</span></td>
+                                <td><span class="role-badge esme">ESME</span></td>
+                                <td><span class="role-badge smsc">SMSC</span></td>
+                                <td>Server 2</td>
+                                <td>Server 1</td>
+                                <td><code>deliver_sm_resp</code></td>
+                                <td><code>deliver_sm</code></td>
+                            </tr>
+
+                            <!-- RECEIVER SMSC → SMSC -->
+                            <tr>
+                                <td><span class="bind-badge rx">RECEIVER</span></td>
+                                <td><span class="role-badge smsc">SMSC</span></td>
+                                <td><span class="role-badge smsc">SMSC</span></td>
+                                <td>Server 1</td>
+                                <td>Server 2</td>
+                                <td><code>deliver_sm_resp</code></td>
+                                <td><code>deliver_sm</code></td>
+                            </tr>
+                            <tr>
+                                <td><span class="bind-badge rx">RECEIVER</span></td>
+                                <td><span class="role-badge smsc">SMSC</span></td>
+                                <td><span class="role-badge smsc">SMSC</span></td>
+                                <td>Server 2</td>
+                                <td>Server 1</td>
+                                <td><code>deliver_sm_resp</code></td>
+                                <td><code>deliver_sm</code></td>
+                            </tr>
+
+                            <!-- TRANSCEIVER ESME → SMSC -->
+                            <tr>
+                                <td><span class="bind-badge trx">TRANSCEIVER</span></td>
+                                <td><span class="role-badge esme">ESME</span></td>
+                                <td><span class="role-badge smsc">SMSC</span></td>
+                                <td>Server 1</td>
+                                <td>Server 2</td>
+                                <td><code>submit_sm</code> + <code>deliver_sm_resp</code></td>
+                                <td><code>submit_sm_resp</code> + <code>deliver_sm</code></td>
+                            </tr>
+                            <tr>
+                                <td><span class="bind-badge trx">TRANSCEIVER</span></td>
+                                <td><span class="role-badge esme">ESME</span></td>
+                                <td><span class="role-badge smsc">SMSC</span></td>
+                                <td>Server 2</td>
+                                <td>Server 1</td>
+                                <td><code>submit_sm</code> + <code>deliver_sm_resp</code></td>
+                                <td><code>submit_sm_resp</code> + <code>deliver_sm</code></td>
+                            </tr>
+
+                            <!-- TRANSCEIVER SMSC → SMSC -->
+                            <tr>
+                                <td><span class="bind-badge trx">TRANSCEIVER</span></td>
+                                <td><span class="role-badge smsc">SMSC</span></td>
+                                <td><span class="role-badge smsc">SMSC</span></td>
+                                <td>Server 1</td>
+                                <td>Server 2</td>
+                                <td><code>submit_sm</code> + <code>deliver_sm_resp</code></td>
+                                <td><code>submit_sm_resp</code> + <code>deliver_sm</code></td>
+                            </tr>
+                            <tr>
+                                <td><span class="bind-badge trx">TRANSCEIVER</span></td>
+                                <td><span class="role-badge smsc">SMSC</span></td>
+                                <td><span class="role-badge smsc">SMSC</span></td>
+                                <td>Server 2</td>
+                                <td>Server 1</td>
+                                <td><code>submit_sm</code> + <code>deliver_sm_resp</code></td>
+                                <td><code>submit_sm_resp</code> + <code>deliver_sm</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Traffic Flow Diagrams -->
+            <section class="info-section">
+                <h2 class="section-heading">
+                    <i class="fas fa-exchange-alt"></i> Traffic Flow Diagrams
+                </h2>
+
+                <!-- TRANSMITTER -->
+                <div class="flow-diagram-container">
+                    <h3 class="flow-title">
+                        <span class="bind-badge tx">1️⃣ TRANSMITTER (TX)</span>
+                    </h3>
+
+                    <div class="flow-block">
+                        <h4>ESME → SMSC</h4>
+                        <pre class="flow-diagram">Server 1 (ESME-TX Client) ──bind_transmitter──> Server 2 (SMSC Server)
+                          ──submit_sm────────>
+                          <─submit_sm_resp────</pre>
+                    </div>
+
+                    <div class="flow-block">
+                        <h4>SMSC → SMSC</h4>
+                        <pre class="flow-diagram">Server 1 (SMSC-TX Client) ──bind_transmitter──> Server 2 (SMSC Server)
+                          ──submit_sm────────>
+                          <─submit_sm_resp────</pre>
+                    </div>
+                </div>
+
+                <!-- RECEIVER -->
+                <div class="flow-diagram-container">
+                    <h3 class="flow-title">
+                        <span class="bind-badge rx">2️⃣ RECEIVER (RX)</span>
+                    </h3>
+
+                    <div class="flow-block">
+                        <h4>ESME → SMSC</h4>
+                        <pre class="flow-diagram">Server 1 (ESME-RX Client) ──bind_receiver─────> Server 2 (SMSC Server)
+                          <─deliver_sm────────
+                          ──deliver_sm_resp──></pre>
+                    </div>
+
+                    <div class="flow-block">
+                        <h4>SMSC → SMSC</h4>
+                        <pre class="flow-diagram">Server 1 (SMSC-RX Client) ──bind_receiver─────> Server 2 (SMSC Server)
+                          <─deliver_sm────────
+                          ──deliver_sm_resp──></pre>
+                    </div>
+                </div>
+
+                <!-- TRANSCEIVER -->
+                <div class="flow-diagram-container">
+                    <h3 class="flow-title">
+                        <span class="bind-badge trx">3️⃣ TRANSCEIVER (TRX)</span>
+                    </h3>
+
+                    <div class="flow-block">
+                        <h4>ESME → SMSC</h4>
+                        <pre class="flow-diagram">Server 1 (ESME-TRX Client) ──bind_transceiver──> Server 2 (SMSC Server)
+                           ──submit_sm────────>
+                           <─submit_sm_resp────
+                           <─deliver_sm────────
+                           ──deliver_sm_resp──></pre>
+                    </div>
+
+                    <div class="flow-block">
+                        <h4>SMSC → SMSC</h4>
+                        <pre class="flow-diagram">Server 1 (SMSC-TRX Client) ──bind_transceiver──> Server 2 (SMSC Server)
+                           ──submit_sm────────>
+                           <─submit_sm_resp────
+                           <─deliver_sm────────
+                           ──deliver_sm_resp──></pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Key Differences -->
+            <section class="info-section">
+                <h2 class="section-heading">
+                    <i class="fas fa-not-equal"></i> Key Differences: ESME vs SMSC Binding
+                </h2>
+
+                <div class="table-container">
+                    <table class="info-table">
+                        <thead>
+                            <tr>
+                                <th>Aspect</th>
+                                <th>ESME Bind</th>
+                                <th>SMSC Bind</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Purpose</strong></td>
+                                <td>Client connecting to carrier/gateway</td>
+                                <td>Peer-to-peer SMSC routing</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Common Use</strong></td>
+                                <td>Application sending SMS</td>
+                                <td>SMSC-to-SMSC forwarding</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Authentication</strong></td>
+                                <td>Usually system_id + password</td>
+                                <td>Often IP-based + credentials</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Typical Role</strong></td>
+                                <td>ESME always client</td>
+                                <td>Either can be client/server</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Traffic Pattern</strong></td>
+                                <td>App → Gateway → Carrier</td>
+                                <td>Gateway ↔ Gateway</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Connection Initialization -->
+            <section class="info-section">
+                <h2 class="section-heading">
+                    <i class="fas fa-plug"></i> Connection Initialization
+                </h2>
+
+                <div class="table-container">
+                    <table class="info-table">
+                        <thead>
+                            <tr>
+                                <th>Connection</th>
+                                <th>Who Initiates TCP</th>
+                                <th>Who Sends Bind</th>
+                                <th>Who Listens</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Server 1 → Server 2</strong></td>
+                                <td>Server 1 (client)</td>
+                                <td>Server 1</td>
+                                <td>Server 2 (server)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Server 2 → Server 1</strong></td>
+                                <td>Server 2 (client)</td>
+                                <td>Server 2</td>
+                                <td>Server 1 (server)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="note-box">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>Note:</strong> The role (ESME vs SMSC) is logical and declared in the bind command,
+                    but the TCP connection mechanics remain the same - client initiates, server listens.
+                </div>
+            </section>
+        </div>
+    </div>
+
+    </div> <!-- End content -->
+
+    <!-- Starry background JS -->
+    <script src="/v2/js/starry-background.js"></script>
+
+    <!-- Initialize with Thymeleaf data -->
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        window.isCloudhopper = /*[[${isCloudhopper}]]*/ false;
+        /*]]>*/
+    </script>
+</body>
+</html>
